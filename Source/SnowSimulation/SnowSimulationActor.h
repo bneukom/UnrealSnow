@@ -5,6 +5,9 @@
 #include "GameFramework/Actor.h"
 #include "SnowSimulationActor.generated.h"
 
+
+#define SIMULATION_DEBUG 0
+
 USTRUCT()
 struct SNOWSIMULATION_API FLandscapeCell
 {
@@ -17,11 +20,17 @@ struct SNOWSIMULATION_API FLandscapeCell
 	FVector P2;
 
 	UPROPERTY()
+	FVector P3;
+
+	UPROPERTY()
+	FVector P4;
+
+	UPROPERTY()
 	FVector Normal;
 
-	FLandscapeCell() : P1(FVector::ZeroVector), P2(FVector::ZeroVector), Normal(FVector::ZeroVector) {}
+	FLandscapeCell() : P1(FVector::ZeroVector), P2(FVector::ZeroVector), P3(FVector::ZeroVector), P4(FVector::ZeroVector), Normal(FVector::ZeroVector) {}
 
-	FLandscapeCell(FVector& p1, FVector& p2, FVector& normal) : P1(p1), P2(p2), Normal(normal) {}
+	FLandscapeCell(FVector& p1, FVector& p2, FVector& p3, FVector& p4, FVector& normal) : P1(p1), P2(p2), P3(p3), P4(p4), Normal(normal) {}
 	
 };
 
@@ -31,6 +40,17 @@ class SNOWSIMULATION_API ASnowSimulationActor : public AActor
 	GENERATED_BODY()
 	
 public:	
+
+	//@TODO make cell creation algorithm independent of section size
+	// Size of one cell of the simulation, should be divisible by the quad section size
+	static const int CELL_SIZE = 9;
+
+#ifdef SIMULATION_DEBUG
+	static const int GRID_Z_OFFSET = 10;
+	static const int NORMAL_SCALING = 100;
+#endif // SIMULATION_DEBUG
+
+
 	UPROPERTY()
 	TArray<FLandscapeCell> LandscapeCells;
 

@@ -8,7 +8,6 @@
 #include "Runtime/Landscape/Classes/LandscapeProxy.h"
 #include "Runtime/Landscape/Public/LandscapeDataAccess.h"
 
-#define SIMULATION_DEBUG 0
 
 ASnowSimulationActor::ASnowSimulationActor()
 {
@@ -20,21 +19,31 @@ void ASnowSimulationActor::BeginPlay()
 	Super::BeginPlay();
 
 	CreateCells();
+
+
 }
 
 void ASnowSimulationActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// @TODO implement custom shader for better performance
 #ifdef SIMULATION_DEBUG
-	DrawDebugSphere(
-		GetWorld(),
-		FVector(0, 0, 0),
-		200,
-		32,
-		FColor(255, 0, 0)
-		);
+	for (FLandscapeCell Cell : LandscapeCells)
+	{
+		FVector Normal(Cell.Normal);
+		Normal.Normalize();
+
+		FVector zOffset(0, 0, GRID_Z_OFFSET);
+
+		DrawDebugLine(GetWorld(), Cell.P1 + zOffset, Cell.P2 + zOffset, FColor(255, 0, 0), false, -1, 0, 0.0f);
+		DrawDebugLine(GetWorld(), Cell.P1 + zOffset, Cell.P3 + zOffset, FColor(255, 0, 0), false, -1, 0, 0.0f);
+
+		DrawDebugLine(GetWorld(), Cell.P1 + zOffset, Cell.P1 + zOffset + (Normal * NORMAL_SCALING), FColor(0, 255, 0), false, -1, 0, 0.0f);
+		
+	}
 #endif
+
 }
 
 void ASnowSimulationActor::CreateCells()
@@ -54,24 +63,26 @@ void ASnowSimulationActor::CreateCells()
 			if (Landscape)
 			{
 				auto LandscapeComponents = Landscape->LandscapeComponents;
-
+#ifdef SIMULATION_DEBUG
+				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Num components: " + FString::FromInt(LandscapeComponents.Num()));
+#endif
 				// Get all components
 				for (auto Component : LandscapeComponents)
 				{
 					FLandscapeComponentDataInterface LandscapeData(Component);
 
-					for (int32 y = 0; y < Component->ComponentSizeQuads; y++)
+					for (int32 y = 0; y <= Component->ComponentSizeQuads - CELL_SIZE; y += CELL_SIZE)
 					{
-						for (int32 x = 0; x < Component->ComponentSizeQuads; x++)
+						for (int32 x = 0; x <= Component->ComponentSizeQuads - CELL_SIZE; x += CELL_SIZE)
 						{
 							FVector P0 = LandscapeData.GetWorldVertex(x, y);
+							FVector P1 = LandscapeData.GetWorldVertex(x + CELL_SIZE, y);
+							FVector P2 = LandscapeData.GetWorldVertex(x, y + CELL_SIZE);
+							FVector P3 = LandscapeData.GetWorldVertex(x + CELL_SIZE, y + CELL_SIZE);
 
-							FVector P1 = LandscapeData.GetWorldVertex(x + 1, y + 1);
-							FVector P2 = LandscapeData.GetWorldVertex(x + 1, y);
+							FVector Normal = FVector::CrossProduct(P1 - P0, P2 - P0);
 
-							FVector Normal = FVector::CrossProduct(P2 - P0, P1 - P0);
-
-							FLandscapeCell Cell(P0, P1, Normal);
+							FLandscapeCell Cell(P0, P1, P2, P3, Normal);
 
 							LandscapeCells.Add(Cell);
 						}
@@ -81,12 +92,8 @@ void ASnowSimulationActor::CreateCells()
 		}
 
 #ifdef SIMULATION_DEBUG
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::FromInt(LandscapeCells.Num()));
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Num cells: " + FString::FromInt(LandscapeCells.Num()));
 
-		for (int i = 0; i < 10; i++)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "[" + LandscapeCells[i].P1.ToString() + ", " + LandscapeCells[i].P2.ToString() + ", " + LandscapeCells[i].Normal.ToString() + "]");
-		}
 	}
 #endif
 }
