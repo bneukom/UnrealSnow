@@ -27,7 +27,7 @@ void ASnowSimulationActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// @TODO implement custom shader for better performance
+	// @TODO implement custom rendering for better performance (DrawPrimitiveUP)
 #ifdef SIMULATION_DEBUG
 	for (FLandscapeCell Cell : LandscapeCells)
 	{
@@ -40,7 +40,6 @@ void ASnowSimulationActor::Tick(float DeltaTime)
 		DrawDebugLine(GetWorld(), Cell.P1 + zOffset, Cell.P3 + zOffset, FColor(255, 0, 0), false, -1, 0, 0.0f);
 
 		DrawDebugLine(GetWorld(), Cell.P1 + zOffset, Cell.P1 + zOffset + (Normal * NORMAL_SCALING), FColor(0, 255, 0), false, -1, 0, 0.0f);
-		
 	}
 #endif
 
