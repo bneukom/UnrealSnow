@@ -19,8 +19,6 @@ void ASnowSimulationActor::BeginPlay()
 	Super::BeginPlay();
 
 	CreateCells();
-
-
 }
 
 void ASnowSimulationActor::Tick(float DeltaTime)
@@ -95,5 +93,9 @@ void ASnowSimulationActor::CreateCells()
 
 	}
 #endif
+}
+
+void ASnowSimulationActor::SortCells()
+{
 }
 

@@ -6,3 +6,9 @@
 
 
 
+
+
+ASnowSimulationGameMode::ASnowSimulationGameMode()
+{
+	DefaultPawnClass = APlayerCharacter::StaticClass();
+}

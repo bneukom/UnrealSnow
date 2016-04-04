@@ -67,5 +67,10 @@ public:
 	* Creates the cells for the simulation.
 	*/
 	void CreateCells();
+
+	/*
+	* Sorts the cells by their z values.
+	*/
+	void SortCells();
 	
 };
