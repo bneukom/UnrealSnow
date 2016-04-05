@@ -55,6 +55,11 @@ Saved/*
 # Compiled source files for the engine to use
 Intermediate/*
 
+# Don't ignore filters for VS
+!Intermediate/ProjectFiles
+Intermediate/ProjectFiles/*
+!Intermediate/ProjectFiles/*.vcxproj.filters
+
 # Cache files for the editor to use
 DerivedDataCache/*
 
