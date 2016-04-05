@@ -49,6 +49,9 @@
     <ClInclude Include="..\..\Source\SnowSimulation\PlayerCharacter.h">
       <Filter>Source\SnowSimulation\Player</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\Simulation.h">
+      <Filter>Source\SnowSimulation\Simulation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\SnowSimulation\SnowSimulationActor.cpp">
@@ -56,6 +59,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\SnowSimulation\PlayerCharacter.cpp">
       <Filter>Source\SnowSimulation\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SnowSimulation\Simulation.cpp">
+      <Filter>Source\SnowSimulation\Simulation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

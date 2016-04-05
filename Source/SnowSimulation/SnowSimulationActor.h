@@ -5,11 +5,11 @@
 #include "GameFramework/Actor.h"
 #include "SnowSimulationActor.generated.h"
 
-
-#define SIMULATION_DEBUG 0
+// @TODO use unreal debug define
+#define SIMULATION_DEBUG 1
 
 USTRUCT()
-struct SNOWSIMULATION_API FLandscapeCell
+struct SNOWSIMULATION_API FSimulationCell
 {
 	GENERATED_BODY()
 
@@ -28,9 +28,13 @@ struct SNOWSIMULATION_API FLandscapeCell
 	UPROPERTY()
 	FVector Normal;
 
-	FLandscapeCell() : P1(FVector::ZeroVector), P2(FVector::ZeroVector), P3(FVector::ZeroVector), P4(FVector::ZeroVector), Normal(FVector::ZeroVector) {}
+	/** Area in m^3. */
+	UPROPERTY()
+	float Area;
 
-	FLandscapeCell(FVector& p1, FVector& p2, FVector& p3, FVector& p4, FVector& normal) : P1(p1), P2(p2), P3(p3), P4(p4), Normal(normal) {}
+	FSimulationCell() : P1(FVector::ZeroVector), P2(FVector::ZeroVector), P3(FVector::ZeroVector), P4(FVector::ZeroVector), Normal(FVector::ZeroVector) {}
+
+	FSimulationCell(FVector& p1, FVector& p2, FVector& p3, FVector& p4, FVector& normal) : P1(p1), P2(p2), P3(p3), P4(p4), Normal(normal) {}
 	
 };
 
@@ -41,18 +45,26 @@ class SNOWSIMULATION_API ASnowSimulationActor : public AActor
 	
 public:	
 
-	//@TODO make cell creation algorithm independent of section size
-	// Size of one cell of the simulation, should be divisible by the quad section size
-	static const int CELL_SIZE = 9;
-
 #ifdef SIMULATION_DEBUG
 	static const int GRID_Z_OFFSET = 10;
 	static const int NORMAL_SCALING = 100;
 #endif // SIMULATION_DEBUG
 
+	//@TODO make cell creation algorithm independent of section size
+	/** Size of one cell of the simulation, should be divisible by the quad section size. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
+	int CellSize = 9;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
+	/** Temperature decay in degrees per 100 meters of height. */
+	float TemperatureDecay = -0.6;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
+	/** Render the simulation grid over the landscape. */
+	bool RenderGrid = true;
 
 	UPROPERTY()
-	TArray<FLandscapeCell> LandscapeCells;
+	TArray<FSimulationCell> LandscapeCells;
 
 	// Sets default values for this actor's properties
 	ASnowSimulationActor();
@@ -62,6 +74,11 @@ public:
 	
 	// Called every frame
 	virtual void Tick( float DeltaSeconds ) override;
+
+#if WITH_EDITOR
+	// Called after a property has changed
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
 
 	/*
 	* Creates the cells for the simulation.
