@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="..\..\SnowSimulation.uproject" />
+    <Filter Include="Source">
+      <UniqueIdentifier>{B8A4840D-B62F-494D-B619-9BBBB7A18BCB}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Source\SnowSimulation.Target.cs">
+      <Filter>Source</Filter>
+    </None>
+    <None Include="..\..\Source\SnowSimulationEditor.Target.cs">
+      <Filter>Source</Filter>
+    </None>
+    <Filter Include="Config">
+      <UniqueIdentifier>{F0818EC5-BC79-4395-B88D-DA15329D4AC5}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Config\DefaultEditor.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultEngine.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultGame.ini">
+      <Filter>Config</Filter>
+    </None>
+    <Filter Include="Source\SnowSimulation">
+      <UniqueIdentifier>{AC60E00C-538D-4672-BD8E-AAB548156B54}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Source\SnowSimulation\SnowSimulation.Build.cs">
+      <Filter>Source\SnowSimulation</Filter>
+    </None>
+    <ClCompile Include="..\..\Source\SnowSimulation\SnowSimulation.cpp">
+      <Filter>Source\SnowSimulation</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\SnowSimulation\SnowSimulation.h">
+      <Filter>Source\SnowSimulation</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\SnowSimulation\SnowSimulationGameMode.cpp">
+      <Filter>Source\SnowSimulation</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\SnowSimulation\SnowSimulationGameMode.h">
+      <Filter>Source\SnowSimulation</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Source\SnowSimulation\SnowSimulationActor.h">
+      <Filter>Source\SnowSimulation\Simulation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\PlayerCharacter.h">
+      <Filter>Source\SnowSimulation\Player</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\Source\SnowSimulation\SnowSimulationActor.cpp">
+      <Filter>Source\SnowSimulation\Simulation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SnowSimulation\PlayerCharacter.cpp">
+      <Filter>Source\SnowSimulation\Player</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source\SnowSimulation\Simulation">
+      <UniqueIdentifier>{7b32bc5a-45b3-4799-a72a-1307355b90b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\SnowSimulation\Player">
+      <UniqueIdentifier>{de3e76d0-342f-4581-b41d-dd266058d3ca}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
