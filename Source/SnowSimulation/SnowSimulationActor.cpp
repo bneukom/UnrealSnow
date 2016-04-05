@@ -111,7 +111,7 @@ void ASnowSimulationActor::PostEditChangeProperty(FPropertyChangedEvent& Propert
 
 #if SIMULATION_DEBUG
 	if (PropertyChangedEvent.Property) {
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Property changed: " + PropertyChangedEvent.Property->GetName());
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Property has changed: " + PropertyChangedEvent.Property->GetName());
 	}
 #endif
 
