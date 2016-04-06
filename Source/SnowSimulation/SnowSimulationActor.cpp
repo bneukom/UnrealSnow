@@ -32,8 +32,8 @@ void ASnowSimulationActor::Tick(float DeltaTime)
 
 			FVector zOffset(0, 0, GRID_Z_OFFSET);
 
-			DrawDebugLine(GetWorld(), Cell.P1 + zOffset, Cell.P2 + zOffset, FColor(0, 255, 0), false, -1, 0, 0.0f);
-			DrawDebugLine(GetWorld(), Cell.P1 + zOffset, Cell.P3 + zOffset, FColor(0, 255, 0), false, -1, 0, 0.0f);
+			DrawDebugLine(GetWorld(), Cell.P1 + zOffset, Cell.P2 + zOffset, FColor(255, 255, 0), false, -1, 0, 0.0f);
+			DrawDebugLine(GetWorld(), Cell.P1 + zOffset, Cell.P3 + zOffset, FColor(255, 255, 0), false, -1, 0, 0.0f);
 
 			DrawDebugLine(GetWorld(), Cell.P1 + zOffset, Cell.P1 + zOffset + (Normal * NORMAL_SCALING), FColor(255, 0, 0), false, -1, 0, 0.0f);
 		}

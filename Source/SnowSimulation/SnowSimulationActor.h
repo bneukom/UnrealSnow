@@ -4,7 +4,11 @@
 
 #include "GameFramework/Actor.h"
 #include "GenericPlatformFile.h"
+#include "SimulationDataProviderBase.h"
+#include "Simulation.h"
+#include "DefaultDataProvider.h"
 #include "SnowSimulationActor.generated.h"
+
 
 
 // @TODO use unreal debug define
@@ -46,11 +50,13 @@ struct SNOWSIMULATION_API FSimulationCell
 	UPROPERTY()
 	float SnowWaterEquivalent;
 
-	//@TODO implement generic data provider which is usable with blueprints (input from file/random generation (based on climate zone etc)).
 
 	FSimulationCell() : P1(FVector::ZeroVector), P2(FVector::ZeroVector), P3(FVector::ZeroVector), P4(FVector::ZeroVector), Normal(FVector::ZeroVector) {}
 
-	FSimulationCell(FVector& p1, FVector& p2, FVector& p3, FVector& p4, FVector& normal) : P1(p1), P2(p2), P3(p3), P4(p4), Normal(normal) {}
+	FSimulationCell(FVector& p1, FVector& p2, FVector& p3, FVector& p4, FVector& normal) : P1(p1), P2(p2), P3(p3), P4(p4), Normal(normal) 
+	{
+
+	}
 	
 };
 
@@ -72,12 +78,17 @@ public:
 	int CellSize = 9;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
-	/** Temperature decay in degrees per 100 meters of height. */
-	float TemperatureDecay = -0.6;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	/** Render the simulation grid over the landscape. */
 	bool RenderGrid = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
+	/** Data input for the simulation. */
+	//USimulationDataProviderBase* Data = NewObject<UDefaultSimulationDataProvider>(this, TEXT("Data"));
+	USimulationDataProviderBase* Data;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
+	/** The simulation */
+	USimulationBase* Simulation;
 
 	UPROPERTY()
 	TArray<FSimulationCell> LandscapeCells;
@@ -97,7 +108,7 @@ public:
 #endif
 
 	/*
-	* Creates the cells for the simulation.
+	* Removes old cells and creates the cells for the simulation.
 	*/
 	void CreateCells();
 
@@ -105,5 +116,4 @@ public:
 	* Sorts the cells by their z values.
 	*/
 	void SortCells();
-	
 };

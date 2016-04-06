@@ -3,11 +3,6 @@
 #include "SnowSimulation.h"
 #include "SnowSimulationGameMode.h"
 
-
-
-
-
-
 ASnowSimulationGameMode::ASnowSimulationGameMode()
 {
 	DefaultPawnClass = APlayerCharacter::StaticClass();

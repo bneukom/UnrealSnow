@@ -50,7 +50,13 @@
       <Filter>Source\SnowSimulation\Player</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\SnowSimulation\Simulation.h">
-      <Filter>Source\SnowSimulation\Simulation</Filter>
+      <Filter>Source\SnowSimulation\Simulation\Simulation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\SimulationDataProviderBase.h">
+      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\DefaultDataProvider.h">
+      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -61,7 +67,13 @@
       <Filter>Source\SnowSimulation\Player</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\SnowSimulation\Simulation.cpp">
-      <Filter>Source\SnowSimulation\Simulation</Filter>
+      <Filter>Source\SnowSimulation\Simulation\Simulation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SnowSimulation\SimulationDataProviderBase.cpp">
+      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SnowSimulation\DefaultDataProvider.cpp">
+      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -70,6 +82,12 @@
     </Filter>
     <Filter Include="Source\SnowSimulation\Player">
       <UniqueIdentifier>{de3e76d0-342f-4581-b41d-dd266058d3ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\SnowSimulation\Simulation\Data">
+      <UniqueIdentifier>{8ec8dbb0-90b1-46fe-abcb-95ff4a37ae9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\SnowSimulation\Simulation\Simulation">
+      <UniqueIdentifier>{a5cb31f9-ddd3-4b1a-b883-546105ac6823}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

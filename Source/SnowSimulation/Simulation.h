@@ -2,12 +2,16 @@
 
 #pragma once
 
+#include "Simulation.generated.h"
+
 /**
- * 
+ * Base class for the snow distribution simulation.
  */
-class SNOWSIMULATION_API Simulation
+UCLASS(abstract)
+class SNOWSIMULATION_API USimulationBase : public UObject
 {
+	GENERATED_BODY()
+
 public:
-	Simulation();
-	~Simulation();
+
 };
