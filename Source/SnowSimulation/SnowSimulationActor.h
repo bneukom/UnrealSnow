@@ -3,7 +3,9 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
+#include "GenericPlatformFile.h"
 #include "SnowSimulationActor.generated.h"
+
 
 // @TODO use unreal debug define
 #define SIMULATION_DEBUG 1
@@ -31,6 +33,20 @@ struct SNOWSIMULATION_API FSimulationCell
 	/** Area in m^3. */
 	UPROPERTY()
 	float Area;
+
+	/** Midpoint of the cell. */
+	UPROPERTY()
+	FVector MidPoint;
+
+	/** The */
+	UPROPERTY()
+	float height;
+
+	/** Snow water equivalent of the cell in m^3. */
+	UPROPERTY()
+	float SnowWaterEquivalent;
+
+	//@TODO implement generic data provider which is usable with blueprints (input from file/random generation (based on climate zone etc)).
 
 	FSimulationCell() : P1(FVector::ZeroVector), P2(FVector::ZeroVector), P3(FVector::ZeroVector), P4(FVector::ZeroVector), Normal(FVector::ZeroVector) {}
 
