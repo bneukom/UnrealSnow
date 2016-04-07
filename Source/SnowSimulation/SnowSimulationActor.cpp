@@ -17,6 +17,12 @@ void ASnowSimulationActor::BeginPlay()
 	Super::BeginPlay();
 
 	CreateCells();
+
+#if SIMULATION_DEBUG
+	if (Simulation) {
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Num components: " + Simulation->));
+	}
+#endif
 }
 
 void ASnowSimulationActor::Tick(float DeltaTime)

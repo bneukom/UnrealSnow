@@ -7,8 +7,8 @@
 /**
  * Base class for all data provides for the simulation.
  */
-UCLASS(abstract)
-class SNOWSIMULATION_API USimulationDataProviderBase : public UDataAsset
+UCLASS(BlueprintType)
+class SNOWSIMULATION_API USimulationDataProviderBase : public UObject
 {
 	GENERATED_BODY()
 

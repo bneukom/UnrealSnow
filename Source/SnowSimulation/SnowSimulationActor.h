@@ -5,7 +5,7 @@
 #include "GameFramework/Actor.h"
 #include "GenericPlatformFile.h"
 #include "SimulationDataProviderBase.h"
-#include "Simulation.h"
+#include "SimulationBase.h"
 #include "DefaultDataProvider.h"
 #include "SnowSimulationActor.generated.h"
 
@@ -83,11 +83,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	/** Data input for the simulation. */
-	//USimulationDataProviderBase* Data = NewObject<UDefaultSimulationDataProvider>(this, TEXT("Data"));
 	USimulationDataProviderBase* Data;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
-	/** The simulation */
+	/** The simulation used. */
 	USimulationBase* Simulation;
 
 	UPROPERTY()

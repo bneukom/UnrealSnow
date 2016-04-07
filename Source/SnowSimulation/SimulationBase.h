@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Simulation.generated.h"
+#include "SimulationBase.generated.h"
 
 /**
  * Base class for the snow distribution simulation.
@@ -11,7 +11,6 @@ UCLASS(abstract)
 class SNOWSIMULATION_API USimulationBase : public UObject
 {
 	GENERATED_BODY()
-
 public:
-
+	virtual FString ToString() = 0;
 };
