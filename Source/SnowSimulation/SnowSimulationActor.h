@@ -14,52 +14,6 @@
 // @TODO use unreal debug define
 #define SIMULATION_DEBUG 1
 
-USTRUCT()
-struct SNOWSIMULATION_API FSimulationCell
-{
-	GENERATED_BODY()
-
-	UPROPERTY()
-	FVector P1;
-
-	UPROPERTY()
-	FVector P2;
-
-	UPROPERTY()
-	FVector P3;
-
-	UPROPERTY()
-	FVector P4;
-
-	UPROPERTY()
-	FVector Normal;
-
-	/** Area in m^3. */
-	UPROPERTY()
-	float Area;
-
-	/** Midpoint of the cell. */
-	UPROPERTY()
-	FVector MidPoint;
-
-	/** The */
-	UPROPERTY()
-	float height;
-
-	/** Snow water equivalent of the cell in m^3. */
-	UPROPERTY()
-	float SnowWaterEquivalent;
-
-
-	FSimulationCell() : P1(FVector::ZeroVector), P2(FVector::ZeroVector), P3(FVector::ZeroVector), P4(FVector::ZeroVector), Normal(FVector::ZeroVector) {}
-
-	FSimulationCell(FVector& p1, FVector& p2, FVector& p3, FVector& p4, FVector& normal) : P1(p1), P2(p2), P3(p3), P4(p4), Normal(normal) 
-	{
-
-	}
-	
-};
-
 UCLASS()
 class SNOWSIMULATION_API ASnowSimulationActor : public AActor
 {
@@ -89,16 +43,14 @@ public:
 	/** The simulation used. */
 	USimulationBase* Simulation;
 
-	UPROPERTY()
-	TArray<FSimulationCell> LandscapeCells;
+	TArray<FSimulationCell> Cells;
 
-	// Sets default values for this actor's properties
 	ASnowSimulationActor();
 
-	// Called when the game starts or when spawned
+	/** Called when the game starts or when spawned */
 	virtual void BeginPlay() override;
 	
-	// Called every frame
+	/** Called every frame */
 	virtual void Tick( float DeltaSeconds ) override;
 
 #if WITH_EDITOR
@@ -111,8 +63,5 @@ public:
 	*/
 	void CreateCells();
 
-	/*
-	* Sorts the cells by their z values.
-	*/
-	void SortCells();
+
 };

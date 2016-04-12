@@ -5,35 +5,7 @@
 #include "DefaultDataProvider.generated.h"
 
 
-/**
-* Temperature data.
-*/
-USTRUCT(Blueprintable)
-struct FTemperature 
-{
-	GENERATED_USTRUCT_BODY()
 
-	/** Minimum Temperature in degree Celsius*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Temperature")
-	float Minimum;
-
-	/** Maximum Temperature in degree Celsius*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Temperature")
-	float Maximum;
-
-	/** Mean Temperature in degree Celsius*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Temperature")
-	float Mean;
-
-	/** Temperature variance in degree Celsius*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Temperature")
-	float Variance;
-
-	FTemperature(float minimum, float maximum, float mean, float variance) : Minimum(minimum), Maximum(maximum), Mean(mean), Variance(variance) {}
-
-	FTemperature() : Minimum(0), Maximum(0), Mean(0), Variance(0) {}
-
-};
 
 /**
 * Base class for all data provides for the simulation.
@@ -45,25 +17,26 @@ class SNOWSIMULATION_API UDefaultSimulationDataProvider : public USimulationData
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
-	/** Temperature decay in degrees per 100 meters of height. */
+	/** Temperature decay in degrees per 100 meters of altitude. */
 	float TemperatureDecay = -0.6;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
-	/** Monthly temperatures. Month 0 meaning January, 1 February and so on. */
+	/** Monthly temperatures. Month 0 meaning January, 1 February and so on. These temperatures are considered to be from 0 altitude. */
 	TArray<FTemperature> MonthlyTemperatures;
 
 	UDefaultSimulationDataProvider() 
 	{
-		MonthlyTemperatures.Add(FTemperature(10, 20, 15, 4));
-		MonthlyTemperatures.Add(FTemperature(10, 20, 15, 4));
-		MonthlyTemperatures.Add(FTemperature(10, 20, 15, 4));
-		MonthlyTemperatures.Add(FTemperature(10, 20, 15, 4));
-		MonthlyTemperatures.Add(FTemperature(10, 20, 15, 4));
-		MonthlyTemperatures.Add(FTemperature(10, 20, 15, 4));
-		MonthlyTemperatures.Add(FTemperature(10, 20, 15, 4));
-		MonthlyTemperatures.Add(FTemperature(10, 20, 15, 4));
-		MonthlyTemperatures.Add(FTemperature(10, 20, 15, 4));
-		MonthlyTemperatures.Add(FTemperature(10, 20, 15, 4));
-		MonthlyTemperatures.Add(FTemperature(10, 20, 15, 4));
+		MonthlyTemperatures.Add(FTemperature(-10, 5, -2)); // January
+		MonthlyTemperatures.Add(FTemperature(10, 20, 15)); // February
+		MonthlyTemperatures.Add(FTemperature(10, 20, 15)); // March
+		MonthlyTemperatures.Add(FTemperature(10, 20, 15)); // April
+		MonthlyTemperatures.Add(FTemperature(10, 20, 15)); // May
+		MonthlyTemperatures.Add(FTemperature(10, 20, 15)); // June
+		MonthlyTemperatures.Add(FTemperature(10, 20, 15)); // July
+		MonthlyTemperatures.Add(FTemperature(10, 20, 15)); // August
+		MonthlyTemperatures.Add(FTemperature(10, 20, 15)); // September
+		MonthlyTemperatures.Add(FTemperature(10, 20, 15)); // October
+		MonthlyTemperatures.Add(FTemperature(10, 20, 15)); // November
+		MonthlyTemperatures.Add(FTemperature(-10, 10, 0)); // December
 	}
 };
