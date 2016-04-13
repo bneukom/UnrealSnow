@@ -4,9 +4,6 @@
 #include "Array.h"
 #include "DefaultDataProvider.generated.h"
 
-
-
-
 /**
 * Base class for all data provides for the simulation.
 */
@@ -19,6 +16,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	/** Temperature decay in degrees per 100 meters of altitude. */
 	float TemperatureDecay = -0.6;
+
+	float DailyTemperatureVariance = 4;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	/** Monthly temperatures. Month 0 meaning January, 1 February and so on. These temperatures are considered to be from 0 altitude. */
@@ -39,4 +38,8 @@ public:
 		MonthlyTemperatures.Add(FTemperature(10, 20, 15)); // November
 		MonthlyTemperatures.Add(FTemperature(-10, 10, 0)); // December
 	}
+
+	virtual float GetPrecipitationAt(int Timestep, FVector2D Position) override final;
+
+	virtual float GetTemperatureAt(int Timestep, FVector2D Position) override final;
 };

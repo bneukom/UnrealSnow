@@ -7,15 +7,14 @@
 #include "LandscapeComponent.h"
 #include "LandscapeInfo.h"
 
-SNOWSIMULATION_API FRuntimeLandscapeComponentDataInterface::FRuntimeLandscapeComponentDataInterface(ULandscapeComponent* InComponent, FColor* HeightMipData, FColor* XYOffsetMipData) :
+SNOWSIMULATION_API FRuntimeLandscapeComponentDataInterface::FRuntimeLandscapeComponentDataInterface(ULandscapeComponent* InComponent, FRuntimeMipAccessor* DataInterface, int32 MipLevel = 0) :
 	Component(InComponent),
-	HeightMipData(HeightMipData),
-	XYOffsetMipData(XYOffsetMipData),
+	HeightMipData(NULL),
+	XYOffsetMipData(NULL),
 	bNeedToDeleteDataInterface(false),
-	MipLevel(DataInterface.MipLevel)
+	MipLevel(MipLevel)
 {
 	// Offset and stride for this component's data in heightmap texture
-	
 	HeightmapStride = Component->HeightmapTexture->GetSizeX() >> MipLevel;
 	HeightmapComponentOffsetX = FMath::RoundToInt((float)(Component->HeightmapTexture->GetSizeX() >> MipLevel) * Component->HeightmapScaleBias.Z);
 	HeightmapComponentOffsetY = FMath::RoundToInt((float)(Component->HeightmapTexture->GetSizeY() >> MipLevel) * Component->HeightmapScaleBias.W);
@@ -25,34 +24,20 @@ SNOWSIMULATION_API FRuntimeLandscapeComponentDataInterface::FRuntimeLandscapeCom
 	SubsectionSizeVerts = (Component->SubsectionSizeQuads + 1) >> MipLevel;
 	ComponentNumSubsections = Component->NumSubsections;
 
+	
 	if (MipLevel < Component->HeightmapTexture->GetNumMips())
 	{
-		HeightMipData = DataInterface.GetData(Component->HeightmapTexture);
+		HeightMipData = (FColor*)DataInterface->LockMip(Component->HeightmapTexture, MipLevel);
 		if (Component->XYOffsetmapTexture)
 		{
-			XYOffsetMipData = DataInterface.GetData(Component->XYOffsetmapTexture);
+			XYOffsetMipData = (FColor*)DataInterface->LockMip(Component->XYOffsetmapTexture, MipLevel);
 		}
 	}
 }
 
 SNOWSIMULATION_API FRuntimeLandscapeComponentDataInterface::~FRuntimeLandscapeComponentDataInterface()
 {
-	/*
-	if (HeightMipData)
-	{
-		DataInterface->UnlockMip(Component->HeightmapTexture, MipLevel);
-		if (Component->XYOffsetmapTexture)
-		{
-			DataInterface->UnlockMip(Component->XYOffsetmapTexture, MipLevel);
-		}
-	}
-
-	if (bNeedToDeleteDataInterface)
-	{
-		delete DataInterface;
-		DataInterface = NULL;
-	}
-	*/
+	
 }
 
 

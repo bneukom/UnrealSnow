@@ -38,72 +38,125 @@ namespace RuntimeLandscapeDataAccess
 class ULandscapeComponent;
 class ULandscapeLayerInfoObject;
 
-
-struct FRuntimeLandscapeDataCache
+/*
+struct FTextureAccessor
 {
 private:
+	UTexture2D* Texture;
+	void* TextureData;
+
 #if WITH_EDITOR
-	TMap<UTexture2D*, TArray<uint8>> TextureCache;
-#else
-	TMap<UTexture2D*, FColor*> TextureCache;
+	TArray<uint8> MipData;
 #endif
-	
+
 public:
-	int32 MipLevel;
 
-	FRuntimeLandscapeDataCache(int32 MipLevel) : MipLevel(MipLevel) {}
-
-	~FRuntimeLandscapeDataCache()
+	FTextureAccessor(UTexture2D* Texture) : Texture(Texture)
 	{
-		for (auto CacheEntry : TextureCache)
-		{
-#if !WITH_EDITOR
-			CacheEntry.Key->PlatformData->Mips[MipLevel].BulkData.Unlock();
-#endif
-		}
-	}
-
-	FColor* GetData(UTexture2D* Texture) 
-	{
-#if WITH_EDITOR
-		TArray<uint8>* Cached = TextureCache.Find(Texture);
-		if (Cached)
-		{
-			return reinterpret_cast<FColor*>(*Cached.GetData());
-		}
-		else 
-		{
-			TextureCache.Add(Texture, TArray<uint8>());
-			TArray<uint8> CacheArray = *TextureCache.Find(Texture);
-			Texture->Source.GetMipData(CacheArray, 0);
-			return reinterpret_cast<FColor*>(CacheArray.GetData());
-		}
-
-#else
-		return Texture->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_ONLY);
-#endif
-		}
-	}
-
-	/*
-	FColor* LockMip(UTexture2D* Texture, int32 MipLevel)
-	{
-		
 #if WITH_EDITOR
 		Texture->Source.GetMipData(MipData, 0);
-		return MipData.GetData();
+		TextureData = MipData.GetData();
 #else
-		return Texture->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_ONLY);
+		TextureData = Texture->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_ONLY);
 #endif
 	}
 
-	void UnlockMip(UTexture2D* Texture, int32 MipLevel)
+	~FTextureAccessor()
 	{
 #if !WITH_EDITOR
 		Texture->PlatformData->Mips[0].BulkData.Unlock();
 #endif
 	}
-	*/
+
+	FColor* GetTextureData()
+	{
+		return TextureData;
+	}
+};
+*/
+struct FRuntimeMipAccessor
+{
+private:
+
+	struct FLockedMipDataInfo
+	{
+		FLockedMipDataInfo()
+			: LockCount(0)
+		{}
+
+#if WITH_EDITOR
+		TArray<uint8> MipData;
+#else 
+		void* MipData;
+#endif
+		int32 LockCount;
+	};
+
+public:
+	FRuntimeMipAccessor()
+	{}
+
+	void* LockMip(UTexture2D* Texture, int32 MipLevel)
+	{
+		check(MipLevel < Texture->GetNumMips());
+
+		TArray<FLockedMipDataInfo>* MipInfo = LockedMipInfoMap.Find(Texture);
+		if (MipInfo == NULL)
+		{
+			MipInfo = &LockedMipInfoMap.Add(Texture, TArray<FLockedMipDataInfo>());
+			for (int32 i = 0; i < Texture->GetNumMips(); ++i)
+			{
+				MipInfo->Add(FLockedMipDataInfo());
+			}
+		}
+
+		auto LockedMipData = (*MipInfo)[MipLevel];
+#if WITH_EDITOR
+		if (LockedMipData.MipData.Num() == 0)
+		{
+			Texture->Source.GetMipData(LockedMipData.MipData, MipLevel);
+		}
+		LockedMipData.LockCount++;
+
+		return LockedMipData.MipData.GetData();
+#else 
+		if (LockedMipData.MipData == nullptr)
+		{
+			LockedMipData.MipData = Texture->PlatformData->Mips[MipLevel].BulkData.Lock(LOCK_READ_ONLY);
+		}
+		LockedMipData.LockCount++;
+
+		return LockedMipData.MipData;
+#endif
+	
+	}
+
+	void UnlockMip(UTexture2D* Texture, int32 MipLevel)
+	{
+		TArray<FLockedMipDataInfo>* MipInfo = LockedMipInfoMap.Find(Texture);
+		check(MipInfo);
+
+		auto LockedMipData = (*MipInfo)[MipLevel];
+		if (LockedMipData.LockCount <= 0)
+			return;
+		LockedMipData.LockCount--;
+		if (LockedMipData.LockCount == 0)
+		{
+
+#if WITH_EDITOR
+			check(LockedMipData.MipData.Num() != 0);
+			LockedMipData.MipData.Empty();
+#else
+			check(LockedMipData.MipData != NULL);
+			Texture->PlatformData->Mips[MipLevel].BulkData.Unlock();
+			LockedMipData.MipData = NULL;
+#endif
+			
+		}
+	}
+
+private:
+	TMap<UTexture2D*, TArray<FLockedMipDataInfo> > LockedMipInfoMap;
 };
 
 //
@@ -114,7 +167,7 @@ struct FRuntimeLandscapeComponentDataInterface
 	friend struct FRuntimeLandscapeDataCache;
 
 	// tors
-	SNOWSIMULATION_API FRuntimeLandscapeComponentDataInterface(ULandscapeComponent* InComponent, FRuntimeLandscapeDataCache& DataInterface);
+	SNOWSIMULATION_API FRuntimeLandscapeComponentDataInterface(ULandscapeComponent* InComponent, FRuntimeMipAccessor* DataInterface, int32 MipLevel);
 	SNOWSIMULATION_API ~FRuntimeLandscapeComponentDataInterface();
 
 	// Accessors

@@ -11,8 +11,8 @@ USTRUCT(Blueprintable)
 struct FPrecipitation
 {
 	GENERATED_USTRUCT_BODY()
-
-
+	// Amount of precipitation in liter/(m^2) = mm.
+	float Amount;
 };
 
 /**
@@ -35,11 +35,9 @@ struct FTemperature
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Temperature")
 	float Mean;
 
-
 	FTemperature(float minimum, float maximum, float mean) : Minimum(minimum), Maximum(maximum), Mean(mean) {}
 
 	FTemperature() : Minimum(0), Maximum(0), Mean(0) {}
-
 };
 
 /**
@@ -53,13 +51,13 @@ class SNOWSIMULATION_API USimulationDataProviderBase : public UObject
 public:
 
 	/** 
-	* Returns the temperature data at base elevation at the given timestep (in hours).
+	* Returns the temperature data at base elevation at the given day and position (2D).
 	*/
-	FTemperature GetTemperatureAt(int timestep);
+	virtual FTemperature GetDailyTemperatureData(int Day, FVector2D Position);
 
 	/**
-	* Returns the temperature data at base elevation at the given timestep (in hours).
+	* Returns the precipitation at base elevation at the given timestep (in hours) and position (2D).
 	*/
-	FPrecipitation GetPercipitationAt(int timestep);
+	virtual float GetPrecipitationAt(int Timestep, FVector2D Position);
 
 };

@@ -72,50 +72,46 @@ void ASnowSimulationActor::CreateCells()
 
 		for (int32 iActor = 0; iActor < Level->Actors.Num(); iActor++)
 		{
-			// Landscape
 			ALandscape* Landscape = Cast<ALandscape>(Level->Actors[iActor]);
-
 
 			if (Landscape)
 			{
 				auto& LandscapeComponents = Landscape->LandscapeComponents;
-				const int32 WorldSize = FMath::Sqrt(LandscapeComponents.Num() * Landscape->ComponentSizeQuads * Landscape->ComponentSizeQuads);
-
+				const int32 LandscapeSizeQuads = FMath::Sqrt(LandscapeComponents.Num() * (Landscape->ComponentSizeQuads) * (Landscape->ComponentSizeQuads));
 #if SIMULATION_DEBUG
 				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Num components: " + FString::FromInt(LandscapeComponents.Num()));
 				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Num subsections: " + FString::FromInt(Landscape->NumSubsections));
 				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Num SubsectionSizeQuads: " + FString::FromInt(Landscape->SubsectionSizeQuads));
 				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Num ComponentSizeQuads: " + FString::FromInt(Landscape->ComponentSizeQuads));
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Num Vertices/Side: " + FString::FromInt(WorldSize));
+				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Num Vertices/Side: " + FString::FromInt(LandscapeSizeQuads));
 #endif
-				/*
-				// @TODO only store vertices needed later
+
 				// Get World Vertices
 				TArray<FVector> CellWorldVertices;
-				FRuntimeLandscapeDataCache DataInterfaceCache(0);
-				for (int32 y = 0; y <= WorldSize - CellSize; y += CellSize)
-				{
-					int WorldX = 0; 
-					for (auto Component : LandscapeComponents)
-					{
-						FRuntimeLandscapeComponentDataInterface LandscapeData(Component, DataInterfaceCache);
+				CellWorldVertices.SetNumUninitialized(LandscapeSizeQuads * LandscapeSizeQuads);
 
-						for (int x = WorldX % Component->ComponentSizeQuads; x <= Component->ComponentSizeQuads - CellSize; WorldX += CellSize, x += CellSize)
+				for (auto Component : LandscapeComponents)
+				{
+					FLandscapeComponentDataInterface LandscapeData(Component);
+					for (int32 y = 0; y < Component->ComponentSizeQuads; y += 1) // not +1 because the vertices are stored twice (first and last)
+					{
+						for (int32 x = 0; x < Component->ComponentSizeQuads; x += 1) // not +1 because the vertices are stored twice (first and last)
 						{
-							CellWorldVertices.Add(LandscapeData.GetWorldVertex(WorldX % Component->ComponentSizeQuads, y % Component->ComponentSizeQuads));
+							CellWorldVertices[Component->SectionBaseX + x + LandscapeSizeQuads * y + Component->SectionBaseY * LandscapeSizeQuads] = LandscapeData.GetWorldVertex(x, y);
 						}
 					}
+
+					// @TODO insert vertices at the very end which are currently not added because we are only iterating over Quads
 				}
-
-				for (int32 y = 0; y <= WorldSize - CellSize; y += CellSize)
+				
+				for (int32 y = 0; y <= LandscapeSizeQuads - CellSize - 1; y += CellSize)
 				{
-
-					for (int32 x = 0; x <= WorldSize - CellSize; x += CellSize)
+					for (int32 x = 0; x <= LandscapeSizeQuads - CellSize - 1; x += CellSize)
 					{
-						FVector P0 = CellWorldVertices[y * WorldSize + x];
-						FVector P1 = CellWorldVertices[y * WorldSize + (x + CellSize)];
-						FVector P2 = CellWorldVertices[(y + CellSize) * WorldSize + x];
-						FVector P3 = CellWorldVertices[(y + CellSize) * WorldSize + (x + CellSize)];
+						FVector P0 = CellWorldVertices[y * LandscapeSizeQuads + x];
+						FVector P1 = CellWorldVertices[y * LandscapeSizeQuads + (x + CellSize)];
+						FVector P2 = CellWorldVertices[(y + CellSize) * LandscapeSizeQuads + x];
+						FVector P3 = CellWorldVertices[(y + CellSize) * LandscapeSizeQuads + (x + CellSize)];
 
 						FVector Normal = FVector::CrossProduct(P1 - P0, P2 - P0);
 						FVector Centroid = FVector((P0.X + P1.X + P2.X + P3.X) / 4, (P0.Y + P1.Y + P2.Y + P3.Y) / 4, (P0.Z + P1.Z + P2.Z + P3.Z) / 4);
@@ -131,23 +127,25 @@ void ASnowSimulationActor::CreateCells()
 				
 
 #if SIMULATION_DEBUG
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Num Vertices: " + FString::FromInt(CellWorldVertices.Num()));
+				//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Num Vertices: " + FString::FromInt(CellWorldVertices.Num()));
 #endif
-				*/
+				/*
 
-				//FRuntimeLandscapeDataCache DataInterfaceCache(0);
+				//FRuntimeMipAccessor MipAccessor;
+
 				for (auto Component : LandscapeComponents)
 				{
+
 					FLandscapeComponentDataInterface LandscapeData(Component);
-					FLandscapeComponentDataInterface LandscapeData2(Component);
-					//FRuntimeLandscapeComponentDataInterface LandscapeData(Component, DataInterfaceCache);
+					//FRuntimeLandscapeComponentDataInterface LandscapeData(Component, &MipAccessor, 0);
 
 					for (int32 y = 0; y <= Component->ComponentSizeQuads - CellSize; y += CellSize)
 					{
 						for (int32 x = 0; x <= Component->ComponentSizeQuads - CellSize; x += CellSize)
 						{
+
 							FVector P0 = LandscapeData.GetWorldVertex(x, y);
-							FVector P1 = LandscapeData2.GetWorldVertex(x + CellSize, y);
+							FVector P1 = LandscapeData.GetWorldVertex(x + CellSize, y);
 							FVector P2 = LandscapeData.GetWorldVertex(x, y + CellSize);
 							FVector P3 = LandscapeData.GetWorldVertex(x + CellSize, y + CellSize);
 
@@ -163,6 +161,7 @@ void ASnowSimulationActor::CreateCells()
 						}
 					}
 				}
+				*/
 			}
 		}
 
