@@ -2,4 +2,14 @@
 
 #include "SnowSimulation.h"
 #include "DefaultDataProvider.h"
+/*
+FTemperature UDefaultSimulationDataProvider::GetDailyTemperatureData(int Day, FVector2D Position)
+{
+	return FTemperature();
+}
 
+float UDefaultSimulationDataProvider::GetPrecipitationAt(int Timestep, FVector2D Position)
+{
+	return 0.0f;
+}
+*/

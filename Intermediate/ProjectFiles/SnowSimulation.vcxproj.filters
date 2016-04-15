@@ -58,6 +58,7 @@
     <ClInclude Include="..\..\Source\SnowSimulation\SimulationBase.h">
       <Filter>Source\SnowSimulation\Simulation\Simulation</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\CPUSimulation.h" />
     <ClInclude Include="..\..\Source\SnowSimulation\GPUSimulation.h">
       <Filter>Source\SnowSimulation\Simulation\Simulation</Filter>
     </ClInclude>
@@ -78,6 +79,9 @@
     <ClCompile Include="..\..\Source\SnowSimulation\DefaultDataProvider.cpp">
       <Filter>Source\SnowSimulation\Simulation\Data</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\SnowSimulation\CPUSimulation.cpp" />
+    <ClCompile Include="..\..\Source\SnowSimulation\SimulationBase.cpp" />
+    <ClCompile Include="..\..\Source\SnowSimulation\SimulationDataProviderBase.cpp" />
     <ClCompile Include="..\..\Source\SnowSimulation\GPUSimulation.cpp">
       <Filter>Source\SnowSimulation\Simulation\Simulation</Filter>
     </ClCompile>

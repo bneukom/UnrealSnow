@@ -49,15 +49,14 @@ class SNOWSIMULATION_API USimulationDataProviderBase : public UObject
 	GENERATED_BODY()
 
 public:
-
 	/** 
 	* Returns the temperature data at base elevation at the given day and position (2D).
 	*/
-	virtual FTemperature GetDailyTemperatureData(int Day, FVector2D Position);
+	//virtual FTemperature GetDailyTemperatureData(int Day, FVector2D Position);
 
 	/**
 	* Returns the precipitation at base elevation at the given timestep (in hours) and position (2D).
 	*/
-	virtual float GetPrecipitationAt(int Timestep, FVector2D Position);
+	//virtual float GetPrecipitationAt(int Timestep, FVector2D Position);
 
 };

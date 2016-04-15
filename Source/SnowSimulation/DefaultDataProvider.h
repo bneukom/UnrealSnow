@@ -39,7 +39,7 @@ public:
 		MonthlyTemperatures.Add(FTemperature(-10, 10, 0)); // December
 	}
 
-	virtual float GetPrecipitationAt(int Timestep, FVector2D Position) override final;
+	//FTemperature GetDailyTemperatureData(int Day, FVector2D Position) override final;
 
-	virtual float GetTemperatureAt(int Timestep, FVector2D Position) override final;
+	//float GetPrecipitationAt(int Timestep, FVector2D Position) override final;
 };

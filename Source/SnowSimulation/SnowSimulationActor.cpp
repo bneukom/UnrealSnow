@@ -81,37 +81,44 @@ void ASnowSimulationActor::CreateCells()
 #if SIMULATION_DEBUG
 				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Num components: " + FString::FromInt(LandscapeComponents.Num()));
 				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Num subsections: " + FString::FromInt(Landscape->NumSubsections));
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Num SubsectionSizeQuads: " + FString::FromInt(Landscape->SubsectionSizeQuads));
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Num ComponentSizeQuads: " + FString::FromInt(Landscape->ComponentSizeQuads));
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Num Vertices/Side: " + FString::FromInt(LandscapeSizeQuads));
+				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "SubsectionSizeQuads: " + FString::FromInt(Landscape->SubsectionSizeQuads));
+				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "ComponentSizeQuads: " + FString::FromInt(Landscape->ComponentSizeQuads));
+				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "LandscapeSizeQuads: " + FString::FromInt(LandscapeSizeQuads));
 #endif
 
-				// Get World Vertices
+				// @TODO what about sections?
+				// Get Vertices from all components in the landscape
 				TArray<FVector> CellWorldVertices;
 				CellWorldVertices.SetNumUninitialized(LandscapeSizeQuads * LandscapeSizeQuads);
 
 				for (auto Component : LandscapeComponents)
 				{
+					// @TODO use runtime compatible version
 					FLandscapeComponentDataInterface LandscapeData(Component);
-					for (int32 y = 0; y < Component->ComponentSizeQuads; y += 1) // not +1 because the vertices are stored twice (first and last)
+					for (int32 y = 0; y < Component->ComponentSizeQuads; y++) // not +1 because the vertices are stored twice (first and last)
 					{
-						for (int32 x = 0; x < Component->ComponentSizeQuads; x += 1) // not +1 because the vertices are stored twice (first and last)
+						for (int32 x = 0; x < Component->ComponentSizeQuads; x++) // not +1 because the vertices are stored twice (first and last)
 						{
 							CellWorldVertices[Component->SectionBaseX + x + LandscapeSizeQuads * y + Component->SectionBaseY * LandscapeSizeQuads] = LandscapeData.GetWorldVertex(x, y);
 						}
+
 					}
 
 					// @TODO insert vertices at the very end which are currently not added because we are only iterating over Quads
 				}
 				
-				for (int32 y = 0; y <= LandscapeSizeQuads - CellSize - 1; y += CellSize)
+				// Create Cells
+				int32 NumCells = LandscapeSizeQuads / CellSize;
+				for (int32 y = 0; y < NumCells - 1; y++) // -1 because we create cells and use 4 vertices
 				{
-					for (int32 x = 0; x <= LandscapeSizeQuads - CellSize - 1; x += CellSize)
+					for (int32 x = 0; x < NumCells - 1; x++) // -1 because we create cells and use 4 vertices
 					{
-						FVector P0 = CellWorldVertices[y * LandscapeSizeQuads + x];
-						FVector P1 = CellWorldVertices[y * LandscapeSizeQuads + (x + CellSize)];
-						FVector P2 = CellWorldVertices[(y + CellSize) * LandscapeSizeQuads + x];
-						FVector P3 = CellWorldVertices[(y + CellSize) * LandscapeSizeQuads + (x + CellSize)];
+						auto VertexX = x * CellSize;
+						auto VertexY = y * CellSize;
+						FVector P0 = CellWorldVertices[VertexY * LandscapeSizeQuads + VertexX];
+						FVector P1 = CellWorldVertices[VertexY * LandscapeSizeQuads + (VertexX + CellSize)];
+						FVector P2 = CellWorldVertices[(VertexY + CellSize) * LandscapeSizeQuads + VertexX];
+						FVector P3 = CellWorldVertices[(VertexY + CellSize) * LandscapeSizeQuads + (VertexX + CellSize)];
 
 						FVector Normal = FVector::CrossProduct(P1 - P0, P2 - P0);
 						FVector Centroid = FVector((P0.X + P1.X + P2.X + P3.X) / 4, (P0.Y + P1.Y + P2.Y + P3.Y) / 4, (P0.Z + P1.Z + P2.Z + P3.Z) / 4);
@@ -125,6 +132,11 @@ void ASnowSimulationActor::CreateCells()
 					}
 				}
 				
+				// Set neighbors
+				for (int32 CellIndex = 0; CellIndex <= LandscapeSizeQuads; ++CellIndex)
+				{
+					auto Current = Cells[CellIndex];
+				}
 
 #if SIMULATION_DEBUG
 				//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Num Vertices: " + FString::FromInt(CellWorldVertices.Num()));
