@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "SnowSimulation.h"
 #include "GameFramework/Actor.h"
 #include "GenericPlatformFile.h"
 #include "SimulationDataProviderBase.h"
@@ -11,8 +12,6 @@
 
 
 
-// @TODO use unreal debug define
-#define SIMULATION_DEBUG 1
 
 UCLASS()
 class SNOWSIMULATION_API ASnowSimulationActor : public AActor
@@ -20,11 +19,6 @@ class SNOWSIMULATION_API ASnowSimulationActor : public AActor
 	GENERATED_BODY()
 	
 public:	
-
-#ifdef SIMULATION_DEBUG
-	static const int GRID_Z_OFFSET = 10;
-	static const int NORMAL_SCALING = 100;
-#endif // SIMULATION_DEBUG
 
 	//@TODO make cell creation algorithm independent of section size
 	/** Size of one cell of the simulation, should be divisible by the quad section size. */
@@ -57,11 +51,15 @@ public:
 	// Called after a property has changed
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
-
-	/*
-	* Removes old cells and creates the cells for the simulation.
-	*/
+	
+	/** Removes old cells and creates the cells for the simulation. */
 	void CreateCells();
 
+private:
+
+	/*
+	*
+	*/
+	FSimulationCell* GetCheckedCell(int Index);
 
 };

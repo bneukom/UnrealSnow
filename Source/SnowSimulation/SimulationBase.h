@@ -20,7 +20,7 @@ struct SNOWSIMULATION_API FSimulationCell
 	const FVector Normal;
 
 	/** Eight neighborhood starting from north. */
-	const TArray<FSimulationCell*> Neighbours;
+	TArray<FSimulationCell*> Neighbours;
 
 	/** Area in m^3. */
 	const float Area;
@@ -34,11 +34,17 @@ struct SNOWSIMULATION_API FSimulationCell
 	/** Snow water equivalent (SWE) of the cell in m^3. */
 	float SnowWaterEquivalent;
 
+	float SnowAlbedo;
+
+
+	
 	FSimulationCell() : P1(FVector::ZeroVector), P2(FVector::ZeroVector), P3(FVector::ZeroVector), P4(FVector::ZeroVector),
 		Normal(FVector::ZeroVector), Area(0), Centroid(FVector::ZeroVector), Altitude(0) {}
 
 	FSimulationCell(FVector& p1, FVector& p2, FVector& p3, FVector& p4, FVector& normal, float area, FVector centroid, float altitude) :
-		P1(p1), P2(p2), P3(p3), P4(p4), Normal(normal), Area(area), Centroid(centroid), Altitude(altitude) {}
+		P1(p1), P2(p2), P3(p3), P4(p4), Normal(normal), Area(area), Centroid(centroid), Altitude(altitude) {
+		Neighbours.Init(nullptr, 8);
+	}
 };
 
 
@@ -72,5 +78,10 @@ public:
 	* @param Data		input data used for the simulation
 	* @param RunTime	time to run the simulation in hours
 	*/
-	virtual void Simulate(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data, int RunTime) PURE_VIRTUAL(USimulationBase::Run, ;);
+	virtual void Simulate(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data, FDateTime& StartTime, FDateTime& EndTime) PURE_VIRTUAL(USimulationBase::Run, ;);
+
+#if SIMULATION_DEBUG
+	/** Renders debug information of the simulation every tick. */
+	virtual void RenderDebug(TArray<FSimulationCell>& Cells) PURE_VIRTUAL(USimulationBase::RenderDebug, ;);
+#endif 
 };

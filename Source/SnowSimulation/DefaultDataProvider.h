@@ -13,9 +13,7 @@ class SNOWSIMULATION_API UDefaultSimulationDataProvider : public USimulationData
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
-	/** Temperature decay in degrees per 100 meters of altitude. */
-	float TemperatureDecay = -0.6;
+
 
 	float DailyTemperatureVariance = 4;
 
@@ -38,8 +36,9 @@ public:
 		MonthlyTemperatures.Add(FTemperature(10, 20, 15)); // November
 		MonthlyTemperatures.Add(FTemperature(-10, 10, 0)); // December
 	}
+	virtual FTemperature GetDailyTemperatureData(const int Day, const FVector2D& Position) override final;
 
-	//FTemperature GetDailyTemperatureData(int Day, FVector2D Position) override final;
+	virtual float GetPrecipitationAt(const FDateTime& Time, const FVector2D& Position) override final;
 
-	//float GetPrecipitationAt(int Timestep, FVector2D Position) override final;
+	virtual float GetVegetationDensityAt(const FVector& Position) override final;
 };
