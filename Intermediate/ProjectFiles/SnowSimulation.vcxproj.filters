@@ -67,8 +67,11 @@
     <ClInclude Include="..\..\Source\SnowSimulation\RuntimeLandscapeDataAccess.h">
       <Filter>Source\SnowSimulation</Filter>
     </ClInclude>
-    <ClInclude Include="SimulationDataInterpolator.h">
+    <ClInclude Include="..\..\Source\SnowSimulation\SimulationDataInterpolator.h">
       <Filter>Source\SnowSimulation\Simulation\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\SolarRadiation.h">
+      <Filter>Source\SnowSimulation\Simulation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
