@@ -48,6 +48,9 @@ class SNOWSIMULATION_API USimulationDataProviderBase : public UObject
 {
 	GENERATED_BODY()
 
+private:
+	USimulationDataInterpolator* interpolator;
+
 public:
 	/** 
 	* Returns the temperature data at base elevation at the given day of the year and position (2D).
@@ -63,4 +66,6 @@ public:
 	* Returns the vegetation density [0-1.0] at the given position.
 	*/
 	virtual float GetVegetationDensityAt(const FVector& Position) PURE_VIRTUAL(USimulationDataProviderBase::GetVegetationDensityAt, return 0.0f;);
+
+
 };

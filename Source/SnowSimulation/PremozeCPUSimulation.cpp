@@ -7,9 +7,10 @@ FString UPremozeCPUSimulation::GetSimulationName()
 {
 	return FString(TEXT("Premoze CPU"));
 }
-
+// Flops per iteration: (2 * 20 + 6 * 2) + (20 * 20 + 38 * 2)
 void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data, FDateTime& StartTime, FDateTime& EndTime)
 {
+	
 	auto SimulationSpan = EndTime - StartTime;
 	auto SimulationHours = SimulationSpan.GetHours();
 
@@ -20,16 +21,22 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 		for (auto& Cell : Cells)
 		{
 			const FVector& CellCentroid = Cell.Centroid;
-			const float Temperature = Data->GetDailyTemperatureData(Time.GetDayOfYear(), FVector2D(CellCentroid.X, CellCentroid.Y)).Mean + TemperatureDecay * Cell.Altitude;
+			const float TAir = Data->GetDailyTemperatureData(Time.GetDayOfYear(), FVector2D(CellCentroid.X, CellCentroid.Y)).Mean + TemperatureDecay * Cell.Altitude;
 			
-			const float k_v = FMath::Exp(-4 * Data->GetVegetationDensityAt(Cell.Centroid));
-			const float A = 0.4 * (1 + FMath::Exp(-k_e * Time.GetDayOfYear())); // @TODO is time T the degree-days or the time since the last snowfall?
+			// Temperature bigger than melt threshold
+			if (TAir > TMelt)
+			{
+				const float k_v = FMath::Exp(-4 * Data->GetVegetationDensityAt(Cell.Centroid));
+				const float A = 0.4 * (1 + FMath::Exp(-k_e * Time.GetDayOfYear())); // @TODO is time T the degree-days or the time since the last snowfall?
 
-			// Calculate radiation index
-			const float R_i = 1;
+				// Calculate radiation index
+				const float DayOfTheYear = Time.GetDayOfYear();
+				const float R_i = SolarRadiationIndex(Cell.Inclination, Cell.Aspect, Cell.Latitude, DayOfTheYear);
 
-			// Calculate melt factor
-			const float c_m = k_m * k_v * (1 - A);
+				// Calculate melt factor
+				const float c_m = k_m * k_v * (1 - A);
+			}
+		
 		}
 	}
 }

@@ -14,13 +14,8 @@ class SNOWSIMULATION_API USimulationDataInterpolator : public UObject
 
 public:
 	/**
-	* Returns the temperature data at base elevation at the given day of the year and position (2D).
+	* Returns the interpolated temperature with the given base temperature at the given position.
 	*/
 	virtual FTemperature GetInterpolatedTemperatureData(FTemperature& BaseTemperatur, const FVector& Position) PURE_VIRTUAL(USimulationDataInterpolator::GetDailyTemperatureData, return FTemperature(););
-
-	/**
-	* Returns the temperature data at base elevation at the given day of the year and position (2D).
-	*/
-	virtual int GetDaysSinceLastSnow(const FVector& Position) PURE_VIRTUAL(USimulationDataInterpolator::GetDailyTemperatureData, return 0);
 
 };

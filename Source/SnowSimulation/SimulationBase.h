@@ -31,12 +31,24 @@ struct SNOWSIMULATION_API FSimulationCell
 	/** The altitude of the cell's mid point. */
 	const float Altitude;
 
+	/** The compass direction this cell faces. */
+	const float Aspect;
+
+	/** The slope of this cell. */
+	const float Inclination;
+
+	/** The latitude of the center of this cell. */
+	const float Latitude;
+
+	// @TODO Create template with this data, other simulations might use other data.
 	/** Snow water equivalent (SWE) of the cell in m^3. */
 	float SnowWaterEquivalent;
-
+	
+	/** The albedo of the snow [0-1.0]. */
 	float SnowAlbedo;
 
-
+	/** The days since the last snow has fallen on this cell. */
+	float DaysSinceLastSnowfall;
 	
 	FSimulationCell() : P1(FVector::ZeroVector), P2(FVector::ZeroVector), P3(FVector::ZeroVector), P4(FVector::ZeroVector),
 		Normal(FVector::ZeroVector), Area(0), Centroid(FVector::ZeroVector), Altitude(0) {}

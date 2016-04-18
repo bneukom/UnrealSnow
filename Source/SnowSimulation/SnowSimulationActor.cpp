@@ -37,10 +37,17 @@ void ASnowSimulationActor::Tick(float DeltaTime)
 
 	// @TODO update SimulationCells according to landscape and LOD
 
-#if SIMULATION_DEBUG
-	if (Simulation) Simulation->RenderDebug(Cells );
-#endif // SIMULATION_DEBUG
 
+	if (Simulation)
+	{
+		// @TODO only run simulation if the LOD has changed enough to warrant simulation execution.
+		// @TODO run simulation in background.
+		Simulation->Simulate(Cells, );
+
+#if SIMULATION_DEBUG
+		Simulation->RenderDebug(Cells);
+#endif // SIMULATION_DEBUG
+	}
 
 	// @TODO implement custom rendering for better performance (DrawPrimitiveUP)
 	if (RenderGrid) {
@@ -135,6 +142,9 @@ void ASnowSimulationActor::CreateCells()
 						float Altitude = Centroid.Z;
 						float Area = FMath::Abs(FVector::CrossProduct(P0 - P3, P1 - P3).Size() / 2 + FVector::CrossProduct(P2 - P3, P0 - P3).Size() / 2);
 
+						FVector NormalProjXY = FVector(Normal.X, Normal.Y, 0);
+						float Inclination = FMath::Abs(FMath::Acos(FVector::DotProduct(Normal, NormalProjXY) / (Normal.Size() * NormalProjXY.Size())));
+						float Aspect
 						FSimulationCell Cell(P0, P1, P2, P3, Normal, Area, Centroid, Altitude);
 
 						Cells.Add(Cell);

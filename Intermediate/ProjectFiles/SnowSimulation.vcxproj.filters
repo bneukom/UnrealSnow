@@ -58,20 +58,17 @@
     <ClInclude Include="..\..\Source\SnowSimulation\SimulationBase.h">
       <Filter>Source\SnowSimulation\Simulation\Simulation</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\SnowSimulation\GPUSimulation.h">
-      <Filter>Source\SnowSimulation\Simulation\Simulation</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SnowSimulation\PremozeCPUSimulation.h">
-      <Filter>Source\SnowSimulation\Simulation\Simulation</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\SnowSimulation\RuntimeLandscapeDataAccess.h">
       <Filter>Source\SnowSimulation</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\SnowSimulation\SimulationDataInterpolator.h">
       <Filter>Source\SnowSimulation\Simulation\Data</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\SnowSimulation\SolarRadiation.h">
-      <Filter>Source\SnowSimulation\Simulation</Filter>
+    <ClInclude Include="..\..\Source\SnowSimulation\PremozeCPUSimulation.h">
+      <Filter>Source\SnowSimulation\Simulation\Simulation\Premoze</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\PremozeGPUSimulation.h">
+      <Filter>Source\SnowSimulation\Simulation\Simulation\Premoze</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -84,14 +81,14 @@
     <ClCompile Include="..\..\Source\SnowSimulation\DefaultDataProvider.cpp">
       <Filter>Source\SnowSimulation\Simulation\Data</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\SnowSimulation\GPUSimulation.cpp">
-      <Filter>Source\SnowSimulation\Simulation\Simulation</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\SnowSimulation\PremozeCPUSimulation.cpp">
-      <Filter>Source\SnowSimulation\Simulation\Simulation</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\SnowSimulation\RuntimeLandscapeDataAccess.cpp">
       <Filter>Source\SnowSimulation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SnowSimulation\PremozeCPUSimulation.cpp">
+      <Filter>Source\SnowSimulation\Simulation\Simulation\Premoze</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SnowSimulation\PremozeGPUSimulation.cpp">
+      <Filter>Source\SnowSimulation\Simulation\Simulation\Premoze</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -106,6 +103,9 @@
     </Filter>
     <Filter Include="Source\SnowSimulation\Simulation\Simulation">
       <UniqueIdentifier>{a5cb31f9-ddd3-4b1a-b883-546105ac6823}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\SnowSimulation\Simulation\Simulation\Premoze">
+      <UniqueIdentifier>{9e0c420c-9a3c-436f-8a28-dc4eda24691a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
