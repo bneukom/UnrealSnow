@@ -32,8 +32,6 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 			const float c_m = k_m * k_v * (1 - A);
 		}
 	}
-
-	
 }
 
 void UPremozeCPUSimulation::Initialize(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data)
