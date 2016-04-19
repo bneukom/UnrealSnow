@@ -2,13 +2,13 @@
 
 #pragma once
 
-#include "SimulationDataInterpolator.generated.h"
+#include "SimulationDataInterpolatorBase.generated.h"
 
 /**
 * Base class for all data providers for the simulation.
 */
 UCLASS(BlueprintType)
-class SNOWSIMULATION_API USimulationDataInterpolator : public UObject
+class SNOWSIMULATION_API USimulationDataInterpolatorBase : public UObject
 {
 	GENERATED_BODY()
 

@@ -2,41 +2,67 @@
 
 #include "SnowSimulation.h"
 #include "PremozeCPUSimulation.h"
+#include "SimulationDataInterpolatorBase.h"
 
 FString UPremozeCPUSimulation::GetSimulationName()
 {
 	return FString(TEXT("Premoze CPU"));
 }
 // Flops per iteration: (2 * 20 + 6 * 2) + (20 * 20 + 38 * 2)
-void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data, FDateTime& StartTime, FDateTime& EndTime)
+void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime)
 {
-	
+	// @TODO Test values from paper
+	// SolarRadiationIndex(FMath::DegreesToRadians(30), FMath::DegreesToRadians(270), FMath::DegreesToRadians(35), 174);
+
 	auto SimulationSpan = EndTime - StartTime;
-	auto SimulationHours = SimulationSpan.GetHours();
+	int32 SimulationHours = SimulationSpan.GetTotalHours();
 
 	FDateTime Time = StartTime;
-	for (int Hours = 0; Hours < SimulationHours; ++Hours)
+	for (int32 Hours = 0; Hours < SimulationHours; Hours += TimeStep)
 	{
-		Time += FTimespan(Hours,0,0);
+		Time += FTimespan(TimeStep, 0, 0);
 		for (auto& Cell : Cells)
 		{
 			const FVector& CellCentroid = Cell.Centroid;
-			const float TAir = Data->GetDailyTemperatureData(Time.GetDayOfYear(), FVector2D(CellCentroid.X, CellCentroid.Y)).Mean + TemperatureDecay * Cell.Altitude;
+			FTemperature Temperature = Data->GetDailyTemperatureData(Time.GetDayOfYear(), FVector2D(CellCentroid.X, CellCentroid.Y));
 			
-			// Temperature bigger than melt threshold
-			if (TAir > TMelt)
+			const float TAir = Interpolator->GetInterpolatedTemperatureData(Temperature, CellCentroid).Average;
+			const float Precipitation = Data->GetPrecipitationAt(Time, {CellCentroid.X, CellCentroid.Y});
+						
+			// Cell contains snow
+			if (Cell.SnowWaterEquivalent > 0)
 			{
-				const float k_v = FMath::Exp(-4 * Data->GetVegetationDensityAt(Cell.Centroid));
-				const float A = 0.4 * (1 + FMath::Exp(-k_e * Time.GetDayOfYear())); // @TODO is time T the degree-days or the time since the last snowfall?
+				if (Precipitation > 0)
+				{
+					Cell.DaysSinceLastSnowfall = 0;
 
-				// Calculate radiation index
-				const float DayOfTheYear = Time.GetDayOfYear();
-				const float R_i = SolarRadiationIndex(Cell.Inclination, Cell.Aspect, Cell.Latitude, DayOfTheYear);
+					// New snow/rainfall
+					const bool Rain = TAir > TSnow;
 
-				// Calculate melt factor
-				const float c_m = k_m * k_v * (1 - A);
+					if (Rain) Cell.SnowAlbedo = 0.4; // New rain drops the albedo to 0.4
+					else Cell.SnowAlbedo = 0.8; // New snow drops the albedo to 0.8
+				}
+
+				if (Cell.DaysSinceLastSnowfall > 0) {
+					Cell.SnowAlbedo = 0.4 * (1 + FMath::Exp(-k_e * Cell.DaysSinceLastSnowfall)); // @TODO is time T the degree-days or the time since the last snowfall?;
+				}
+
+				Cell.DaysSinceLastSnowfall++;
+
+				// Temperature bigger than melt threshold and cell contains snow
+				if (TAir > TMelt)
+				{
+					// Calculate radiation index
+					const float R_i = SolarRadiationIndex(Cell.Inclination, Cell.Aspect, Cell.Latitude, Time.GetDayOfYear()); // @TODO is GetDayOfYear() the correct Julian date?
+
+					// Calculate melt factor
+					const float k_v = FMath::Exp(-4 * Data->GetVegetationDensityAt(Cell.Centroid));
+					const float c_m = k_m * k_v * (1 - Cell.SnowAlbedo);
+
+					Cell.SnowWaterEquivalent -= c_m;
+					Cell.SnowWaterEquivalent = FMath::Max(0.0f, Cell.SnowWaterEquivalent);
+				}
 			}
-		
 		}
 	}
 }

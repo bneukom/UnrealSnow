@@ -8,10 +8,8 @@
 #include "SimulationDataProviderBase.h"
 #include "SimulationBase.h"
 #include "DefaultDataProvider.h"
+#include "SimulationDataInterpolatorBase.h"
 #include "SnowSimulationActor.generated.h"
-
-
-
 
 UCLASS()
 class SNOWSIMULATION_API ASnowSimulationActor : public AActor
@@ -32,6 +30,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	/** Data input for the simulation. */
 	USimulationDataProviderBase* Data;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
+	/** Interpolator for the data for the simulation. */
+	USimulationDataInterpolatorBase* Interpolator;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	/** The simulation used. */

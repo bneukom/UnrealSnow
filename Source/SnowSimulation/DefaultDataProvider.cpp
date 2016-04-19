@@ -5,14 +5,17 @@
 
 
 
-FTemperature UDefaultSimulationDataProvider::GetDailyTemperatureData(const int Day, const FVector2D& Position)
+FTemperature UDefaultSimulationDataProvider::GetTemperatureData(const FDateTime& From, const FDateTime& To, const FDateTime& Resolution, const FVector2D& Position)
 {
-	return FTemperature();
+	Timespan.
+	auto MonthIndex = Time.GetMonth() - 1;
+	return MonthlyTemperatures[MonthIndex];
 }
 
-float UDefaultSimulationDataProvider::GetPrecipitationAt(const FDateTime& Time, const FVector2D& Position)
+float UDefaultSimulationDataProvider::GetPrecipitationAt(const FDateTime& Time, const FTimespan& Timespan, const FDateTime& Resolution, const FVector2D& Position)
 {
-	return 0.0f;
+	auto MonthIndex = Time.GetMonth() - 1;
+	return MonthlyPrecipitation;
 }
 
 float UDefaultSimulationDataProvider::GetVegetationDensityAt(const FVector& Position)

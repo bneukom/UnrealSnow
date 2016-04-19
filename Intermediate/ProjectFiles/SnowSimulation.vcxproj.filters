@@ -61,14 +61,17 @@
     <ClInclude Include="..\..\Source\SnowSimulation\RuntimeLandscapeDataAccess.h">
       <Filter>Source\SnowSimulation</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\SnowSimulation\SimulationDataInterpolator.h">
-      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\SnowSimulation\PremozeCPUSimulation.h">
       <Filter>Source\SnowSimulation\Simulation\Simulation\Premoze</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\SnowSimulation\PremozeGPUSimulation.h">
       <Filter>Source\SnowSimulation\Simulation\Simulation\Premoze</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\DefaultDataInterpolator.h">
+      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\SimulationDataInterpolatorBase.h">
+      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -89,6 +92,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\SnowSimulation\PremozeGPUSimulation.cpp">
       <Filter>Source\SnowSimulation\Simulation\Simulation\Premoze</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SnowSimulation\DefaultDataInterpolator.cpp">
+      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

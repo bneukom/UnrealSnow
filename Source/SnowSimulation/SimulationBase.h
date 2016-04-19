@@ -5,7 +5,9 @@
 #include "Array.h"
 #include "DateTime.h"
 #include "SimulationDataProviderBase.h"
+#include "SimulationDataInterpolatorBase.h"
 #include "SimulationBase.generated.h"
+
 
 struct SNOWSIMULATION_API FSimulationCell
 {
@@ -48,13 +50,22 @@ struct SNOWSIMULATION_API FSimulationCell
 	float SnowAlbedo;
 
 	/** The days since the last snow has fallen on this cell. */
-	float DaysSinceLastSnowfall;
+	int DaysSinceLastSnowfall;
 	
 	FSimulationCell() : P1(FVector::ZeroVector), P2(FVector::ZeroVector), P3(FVector::ZeroVector), P4(FVector::ZeroVector),
-		Normal(FVector::ZeroVector), Area(0), Centroid(FVector::ZeroVector), Altitude(0) {}
+		Normal(FVector::ZeroVector), Area(0), Centroid(FVector::ZeroVector), Altitude(0), Aspect(0), Inclination(0), Latitude(0) {}
 
-	FSimulationCell(FVector& p1, FVector& p2, FVector& p3, FVector& p4, FVector& normal, float area, FVector centroid, float altitude) :
-		P1(p1), P2(p2), P3(p3), P4(p4), Normal(normal), Area(area), Centroid(centroid), Altitude(altitude) {
+	FSimulationCell(
+		FVector& p1, FVector& p2, FVector& p3, FVector& p4, FVector& Normal, 
+		float Area, FVector Centroid, float Altitude, float Aspect, float Inclination, float Latitude) :
+		P1(p1), P2(p2), P3(p3), P4(p4), Normal(Normal), 
+		Area(Area), 
+		Centroid(Centroid), 
+		Altitude(Altitude), 
+		Aspect(Aspect), 
+		Inclination(Inclination), 
+		Latitude(Latitude) 
+	{
 		Neighbours.Init(nullptr, 8);
 	}
 };
@@ -86,11 +97,12 @@ public:
 
 	/** 
 	* Runs the simulation on the given cells until the given end time is reached.
-	* @param Cells		cells on which the simulation runs
-	* @param Data		input data used for the simulation
-	* @param RunTime	time to run the simulation in hours
+	* @param Cells			cells on which the simulation runs
+	* @param Data			input data used for the simulation
+	* @param Interpolator	used to interpolate input data
+	* @param RunTime		time to run the simulation in hours
 	*/
-	virtual void Simulate(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data, FDateTime& StartTime, FDateTime& EndTime) PURE_VIRTUAL(USimulationBase::Run, ;);
+	virtual void Simulate(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime) PURE_VIRTUAL(USimulationBase::Run, ;);
 
 #if SIMULATION_DEBUG
 	/** Renders debug information of the simulation every tick. */

@@ -2,7 +2,7 @@
 #pragma once
 
 #include "SimulationBase.h"
-#include "GPUSimulation.generated.h"
+#include "PremozeGPUSimulation.generated.h"
 
 /**
 * GPU implementation of the snow distribution simulation.

@@ -42,7 +42,7 @@ void ASnowSimulationActor::Tick(float DeltaTime)
 	{
 		// @TODO only run simulation if the LOD has changed enough to warrant simulation execution.
 		// @TODO run simulation in background.
-		Simulation->Simulate(Cells, );
+		Simulation->Simulate(Cells, Data, Interpolator, FDateTime(2015, 1, 1), FDateTime(2015, 3, 1));
 
 #if SIMULATION_DEBUG
 		Simulation->RenderDebug(Cells);
@@ -125,6 +125,8 @@ void ASnowSimulationActor::CreateCells()
 				const int32 CellsDimension = LandscapeSizeQuads / CellSize - 1; // -1 because we create cells and use 4 vertices
 				const int32 NumCells = CellsDimension * CellsDimension;
 
+				const float Latitude = 47; //  @TODO assume constant for the moment
+
 				for (int32 Y = 0; Y < CellsDimension; Y++) 
 				{
 					for (int32 X = 0; X < CellsDimension; X++)
@@ -144,8 +146,8 @@ void ASnowSimulationActor::CreateCells()
 
 						FVector NormalProjXY = FVector(Normal.X, Normal.Y, 0);
 						float Inclination = FMath::Abs(FMath::Acos(FVector::DotProduct(Normal, NormalProjXY) / (Normal.Size() * NormalProjXY.Size())));
-						float Aspect
-						FSimulationCell Cell(P0, P1, P2, P3, Normal, Area, Centroid, Altitude);
+						float Aspect = 0; // @TODO calculate aspect
+						FSimulationCell Cell(P0, P1, P2, P3, Normal, Area, Centroid, Altitude, Aspect, Inclination, Latitude);
 
 						Cells.Add(Cell);
 					}

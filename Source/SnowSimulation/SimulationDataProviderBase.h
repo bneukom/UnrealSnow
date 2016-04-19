@@ -25,19 +25,19 @@ struct FTemperature
 
 	/** Minimum Temperature in degree Celsius. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Temperature")
-	float Minimum;
+	float AverageLow;
 
 	/** Maximum Temperature in degree Celsius. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Temperature")
-	float Maximum;
+	float AverageHigh;
 
 	/** Mean Temperature in degree Celsius. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Temperature")
-	float Mean;
+	float Average;
 
-	FTemperature(float minimum, float maximum, float mean) : Minimum(minimum), Maximum(maximum), Mean(mean) {}
+	FTemperature(float AverageLow, float AverageHigh, float Average) : AverageLow(AverageLow), AverageHigh(AverageHigh), Average(Average) {}
 
-	FTemperature() : Minimum(0), Maximum(0), Mean(0) {}
+	FTemperature() : AverageLow(0), AverageHigh(0), Average(0) {}
 };
 
 /**
@@ -48,24 +48,19 @@ class SNOWSIMULATION_API USimulationDataProviderBase : public UObject
 {
 	GENERATED_BODY()
 
-private:
-	USimulationDataInterpolator* interpolator;
-
 public:
 	/** 
 	* Returns the temperature data at base elevation at the given day of the year and position (2D).
 	*/
-	virtual FTemperature GetDailyTemperatureData(const int Day, const FVector2D& Position) PURE_VIRTUAL(USimulationDataProviderBase::GetDailyTemperatureData, return FTemperature(););
+	virtual FTemperature GetTemperatureData(const FDateTime& Time, const FTimespan& Timespan, const FDateTime& Resolution, const FVector2D& Position) PURE_VIRTUAL(USimulationDataProviderBase::GetDailyTemperatureData, return FTemperature(););
 
 	/**
 	* Returns the precipitation at base elevation at the given time and position (2D).
 	*/
-	virtual float GetPrecipitationAt(const FDateTime& Time, const FVector2D& Position) PURE_VIRTUAL(USimulationDataProviderBase::GetPrecipitationAt, return 0.0f;);
+	virtual float GetPrecipitationAt(const FDateTime& Time, const FTimespan& Timespan, const FDateTime& Resolution, const FVector2D& Position) PURE_VIRTUAL(USimulationDataProviderBase::GetPrecipitationAt, return 0.0f;);
 
 	/**
 	* Returns the vegetation density [0-1.0] at the given position.
 	*/
 	virtual float GetVegetationDensityAt(const FVector& Position) PURE_VIRTUAL(USimulationDataProviderBase::GetVegetationDensityAt, return 0.0f;);
-
-
 };
