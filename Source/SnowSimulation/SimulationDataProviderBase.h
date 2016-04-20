@@ -35,6 +35,10 @@ struct FTemperature
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Temperature")
 	float Average;
 
+	/** Resolution of the temperature data in Ticks (100 nanoseconds resolution). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Temperature")
+	float Resolution;
+
 	FTemperature(float AverageLow, float AverageHigh, float Average) : AverageLow(AverageLow), AverageHigh(AverageHigh), Average(Average) {}
 
 	FTemperature() : AverageLow(0), AverageHigh(0), Average(0) {}
@@ -52,12 +56,12 @@ public:
 	/** 
 	* Returns the temperature data at base elevation at the given day of the year and position (2D).
 	*/
-	virtual FTemperature GetTemperatureData(const FDateTime& Time, const FTimespan& Timespan, const FDateTime& Resolution, const FVector2D& Position) PURE_VIRTUAL(USimulationDataProviderBase::GetDailyTemperatureData, return FTemperature(););
+	virtual FTemperature GetTemperatureData(const FDateTime& From, const FDateTime& To, const FVector2D& Position, int64 Resolution) PURE_VIRTUAL(USimulationDataProviderBase::GetDailyTemperatureData, return FTemperature(););
 
 	/**
 	* Returns the precipitation at base elevation at the given time and position (2D).
 	*/
-	virtual float GetPrecipitationAt(const FDateTime& Time, const FTimespan& Timespan, const FDateTime& Resolution, const FVector2D& Position) PURE_VIRTUAL(USimulationDataProviderBase::GetPrecipitationAt, return 0.0f;);
+	virtual float GetPrecipitationAt(const FDateTime& From, const FDateTime& To, const FVector2D& Position, int64 Resolution) PURE_VIRTUAL(USimulationDataProviderBase::GetPrecipitationAt, return 0.0f;);
 
 	/**
 	* Returns the vegetation density [0-1.0] at the given position.

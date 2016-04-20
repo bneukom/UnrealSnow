@@ -12,7 +12,7 @@ FString UPremozeCPUSimulation::GetSimulationName()
 void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime)
 {
 	// @TODO Test values from paper
-	// SolarRadiationIndex(FMath::DegreesToRadians(30), FMath::DegreesToRadians(270), FMath::DegreesToRadians(35), 174);
+	SolarRadiationIndex(FMath::DegreesToRadians(65), FMath::DegreesToRadians(0), FMath::DegreesToRadians(35), 174);
 
 	auto SimulationSpan = EndTime - StartTime;
 	int32 SimulationHours = SimulationSpan.GetTotalHours();
@@ -24,30 +24,35 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 		for (auto& Cell : Cells)
 		{
 			const FVector& CellCentroid = Cell.Centroid;
-			FTemperature Temperature = Data->GetDailyTemperatureData(Time.GetDayOfYear(), FVector2D(CellCentroid.X, CellCentroid.Y));
+			FTemperature Temperature = Data->GetTemperatureData(Time, Time + FTimespan(TimeStep, 0,0), FVector2D(CellCentroid.X, CellCentroid.Y), ETimespan::TicksPerHour);
 			
 			const float TAir = Interpolator->GetInterpolatedTemperatureData(Temperature, CellCentroid).Average;
-			const float Precipitation = Data->GetPrecipitationAt(Time, {CellCentroid.X, CellCentroid.Y});
-						
+			const float Precipitation = Data->GetPrecipitationAt(Time, Time + FTimespan(TimeStep, 0, 0), FVector2D(CellCentroid.X, CellCentroid.Y), ETimespan::TicksPerHour);
+				
+			if (Precipitation > 0)
+			{
+				Cell.DaysSinceLastSnowfall = 0;
+
+				// New snow/rainfall
+				const bool Rain = TAir > TSnow;
+
+				if (Rain) 
+				{
+					Cell.SnowAlbedo = 0.4; // New rain drops the albedo to 0.4
+				}
+				else 
+				{
+					Cell.SnowWaterEquivalent += Precipitation; // TODO area?
+					Cell.SnowAlbedo = 0.8; // New sets the albedo to 0.8
+				}
+			}
+
 			// Cell contains snow
 			if (Cell.SnowWaterEquivalent > 0)
 			{
-				if (Precipitation > 0)
-				{
-					Cell.DaysSinceLastSnowfall = 0;
-
-					// New snow/rainfall
-					const bool Rain = TAir > TSnow;
-
-					if (Rain) Cell.SnowAlbedo = 0.4; // New rain drops the albedo to 0.4
-					else Cell.SnowAlbedo = 0.8; // New snow drops the albedo to 0.8
-				}
-
-				if (Cell.DaysSinceLastSnowfall > 0) {
+				if (Cell.DaysSinceLastSnowfall >= 0) {
 					Cell.SnowAlbedo = 0.4 * (1 + FMath::Exp(-k_e * Cell.DaysSinceLastSnowfall)); // @TODO is time T the degree-days or the time since the last snowfall?;
 				}
-
-				Cell.DaysSinceLastSnowfall++;
 
 				// Temperature bigger than melt threshold and cell contains snow
 				if (TAir > TMelt)
@@ -57,12 +62,14 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 
 					// Calculate melt factor
 					const float k_v = FMath::Exp(-4 * Data->GetVegetationDensityAt(Cell.Centroid));
-					const float c_m = k_m * k_v * (1 - Cell.SnowAlbedo);
+					const float c_m = k_m * k_v * R_i *  (1 - Cell.SnowAlbedo);
 
-					Cell.SnowWaterEquivalent -= c_m;
+					Cell.SnowWaterEquivalent -= c_m; // @TODO area?
 					Cell.SnowWaterEquivalent = FMath::Max(0.0f, Cell.SnowWaterEquivalent);
 				}
 			}
+
+			Cell.DaysSinceLastSnowfall++;
 		}
 	}
 }

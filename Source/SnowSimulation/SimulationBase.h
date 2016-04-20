@@ -44,13 +44,13 @@ struct SNOWSIMULATION_API FSimulationCell
 
 	// @TODO Create template with this data, other simulations might use other data.
 	/** Snow water equivalent (SWE) of the cell in m^3. */
-	float SnowWaterEquivalent;
+	float SnowWaterEquivalent = 0;
 	
 	/** The albedo of the snow [0-1.0]. */
-	float SnowAlbedo;
+	float SnowAlbedo = 0;
 
 	/** The days since the last snow has fallen on this cell. */
-	int DaysSinceLastSnowfall;
+	int DaysSinceLastSnowfall = 0;
 	
 	FSimulationCell() : P1(FVector::ZeroVector), P2(FVector::ZeroVector), P3(FVector::ZeroVector), P4(FVector::ZeroVector),
 		Normal(FVector::ZeroVector), Area(0), Centroid(FVector::ZeroVector), Altitude(0), Aspect(0), Inclination(0), Latitude(0) {}

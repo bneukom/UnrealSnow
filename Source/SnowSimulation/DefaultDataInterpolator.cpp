@@ -7,7 +7,7 @@
 
 FTemperature UDefaultSimulationDataInterpolator::GetInterpolatedTemperatureData(FTemperature& BaseTemperatur, const FVector& Position)
 {
-	float Altitude = Position.Z;
-	float Decay = TemperatureDecay * Altitude / 100;
-	return FTemperature(BaseTemperatur.AverageLow * Decay, BaseTemperatur.AverageHigh * Decay, BaseTemperatur.Average * Decay);
+	float Altitude = Position.Z; // Altitude in cm
+	float Decay = TemperatureDecay * Altitude / (100 * 100);
+	return FTemperature(BaseTemperatur.AverageLow + Decay, BaseTemperatur.AverageHigh + Decay, BaseTemperatur.Average + Decay);
 }

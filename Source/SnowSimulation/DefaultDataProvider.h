@@ -5,7 +5,6 @@
 #include "DefaultDataProvider.generated.h"
 
 /**
-* Base class for all data provides for the simulation.
 */
 USTRUCT(Blueprintable)
 struct FMonthlyPrecipitation
@@ -73,9 +72,9 @@ public:
 		MonthlyPrecipitation.Add(FMonthlyPrecipitation(54.9,	7.9));	// December
 	}
 
-	virtual FTemperature GetTemperatureData(const FDateTime& Time, const FTimespan& Timespan, const FDateTime& Resolution, const FVector2D& Position) override final;
+	virtual FTemperature GetTemperatureData(const FDateTime& From, const FDateTime& To, const FVector2D& Position, int64 Resolution) override final;
 
-	virtual float GetPrecipitationAt(const FDateTime& Time, const FTimespan& Timespan, const FDateTime& Resolution, const FVector2D& Position) override final;
+	virtual float GetPrecipitationAt(const FDateTime& From, const FDateTime& To, const FVector2D& Position, int64 Resolution) override final;
 
 	virtual float GetVegetationDensityAt(const FVector& Position) override final;
 };

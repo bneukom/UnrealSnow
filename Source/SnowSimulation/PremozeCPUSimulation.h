@@ -29,25 +29,61 @@ private:
 	float SolarRadiationIndex(float I, float A, float L0, float J)
 	{
 		float L1 = FMath::Asin(FMath::Cos(I) * FMath::Sin(L0) + FMath::Sin(I) * FMath::Cos(L0) * FMath::Cos(A));
+		float D1 = FMath::Cos(I) * FMath::Cos(L0) - FMath::Sin(I) * FMath::Sin(L0) * FMath::Cos(A);
 		float L2 = FMath::Atan((FMath::Sin(I) * FMath::Sin(A)) / (FMath::Cos(I) * FMath::Cos(L0) - FMath::Sin(I) * FMath::Sin(L0) * FMath::Cos(A)));
 
 		float D = 0.007 - 0.4067 * FMath::Cos((J + 10) * 0.0172);
 		float E = 1.0 - 0.0167 * FMath::Cos((J - 3) * 0.0172);
 
-		const float R0 = 2;
+		const float R0 = 1.95;
 		float R1 = 60 * R0 / (E * E);
+		// float R1 = (PI / 3) * R0 / (E * E);
 
-		float T_L1 = Func2(L1, D);
-		float T_L0 = Func2(L0, D);
-		float T1 = T_L1;
-		float T0 = -T_L1;
-		float T3 = FMath::Min(T_L1 - L2, T1);
-		float T2 = FMath::Max(-T_L1 - L2, T0);
+		float T;
+
+		T = Func2(L1, D);
+		float T7 = T - L2;
+		float T6 = -T - L2;
+		T = Func2(L0, D);
+		float T1 = T;
+		float T0 = -T;
+		float T3 = FMath::Min(T7, T1);
+		float T2 = FMath::Max(T6, T0);
 
 		float T4 = T2 * (12 / PI);
 		float T5 = T3 * (12 / PI);
 
-		float R4 = Func3(L2, L1, T3, T2, R1, D);
+		//float R4 = Func3(L2, L1, T3, T2, R1, D); // Figure1
+		if (T3 < T2) // Figure2
+		{
+			T2 = T3 = 0;
+		}
+
+		T6 = T6 + PI * 2;
+
+		float R4;
+		if (T6 < T1)
+		{
+			float T8 = T6;
+			float T9 = T1;
+			R4 = Func3(L2, L1, T3, T2, R1, D) + Func3(L2, L1, T9, T8, R1, D);
+		} 
+		else
+		{
+			T7 = T7 - PI * 2;
+
+			if (T7 > T0)
+			{
+				float T8 = T0;
+				float T9 = T0;
+				R4 = Func3(L2, L1, T3, T2, R1, D) + Func3(L2, L1, T9, T8, R1, D);
+			}
+			else
+			{
+				R4 = Func3(L2, L1, T3, T2, R1, D);
+			}
+		}
+
 		float R3 = Func3(0.0, L0, T1, T0, R1, D);
 
 		return R4 / R3;
@@ -87,8 +123,8 @@ public:
 	float k_m = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
-	/** Temperature decay in degrees Celsius per 100 meters of altitude. */
-	float TemperatureDecay = -0.6;
+	/** Temperature decay in degrees Celsius per 100 meters of altitude. -0.6 was proposed by Premoze et al. */
+	float TemperatureDecay = -10;
 
 	virtual FString GetSimulationName() override final;
 

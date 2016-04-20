@@ -27,6 +27,9 @@ void ASnowSimulationActor::BeginPlay()
 #endif
 
 	if (Simulation) {
+		// @TODO only run simulation if the LOD has changed enough to warrant simulation execution.
+		// @TODO run simulation in background.
+		Simulation->Simulate(Cells, Data, Interpolator, FDateTime(2015, 1, 1), FDateTime(2015, 12, 1));
 		//Simulation->Initialize(Cells, Data);
 	}
 }
@@ -38,16 +41,14 @@ void ASnowSimulationActor::Tick(float DeltaTime)
 	// @TODO update SimulationCells according to landscape and LOD
 
 
-	if (Simulation)
-	{
-		// @TODO only run simulation if the LOD has changed enough to warrant simulation execution.
-		// @TODO run simulation in background.
-		Simulation->Simulate(Cells, Data, Interpolator, FDateTime(2015, 1, 1), FDateTime(2015, 3, 1));
 
 #if SIMULATION_DEBUG
+	if (Simulation)
+	{
 		Simulation->RenderDebug(Cells);
-#endif // SIMULATION_DEBUG
 	}
+#endif // SIMULATION_DEBUG
+	
 
 	// @TODO implement custom rendering for better performance (DrawPrimitiveUP)
 	if (RenderGrid) {
@@ -125,7 +126,7 @@ void ASnowSimulationActor::CreateCells()
 				const int32 CellsDimension = LandscapeSizeQuads / CellSize - 1; // -1 because we create cells and use 4 vertices
 				const int32 NumCells = CellsDimension * CellsDimension;
 
-				const float Latitude = 47; //  @TODO assume constant for the moment
+				const float Latitude = FMath::DegreesToRadians(47); //  @TODO assume constant for the moment
 
 				for (int32 Y = 0; Y < CellsDimension; Y++) 
 				{
