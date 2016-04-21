@@ -18,17 +18,29 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 	int32 SimulationHours = SimulationSpan.GetTotalHours();
 
 	FDateTime Time = StartTime;
-	for (int32 Hours = 0; Hours < SimulationHours; Hours += TimeStep)
+	for (int32 Hours = 0; Hours < SimulationHours; Hours += TimeStepHours)
 	{
-		Time += FTimespan(TimeStep, 0, 0);
+
+		// @TODO only use one neighbor for snow distribution?
+		for (auto& Cell : SlopeThresholdCells)
+		{
+			if (Cell.SnowWaterEquivalent > 0) {
+				
+				// Snow distribution function according to Blöschls paper "Distributed Snowmelt Simulations inan Alpine Catchme".
+			}
+		}
+
+		Time += FTimespan(TimeStepHours, 0, 0);
 		for (auto& Cell : Cells)
 		{
 			const FVector& CellCentroid = Cell.Centroid;
-			FTemperature Temperature = Data->GetTemperatureData(Time, Time + FTimespan(TimeStep, 0,0), FVector2D(CellCentroid.X, CellCentroid.Y), ETimespan::TicksPerHour);
+			FTemperature Temperature = Data->GetTemperatureData(Time, Time + FTimespan(TimeStepHours, 0,0), FVector2D(CellCentroid.X, CellCentroid.Y), ETimespan::TicksPerHour);
 			
-			const float TAir = Interpolator->GetInterpolatedTemperatureData(Temperature, CellCentroid).Average;
-			const float Precipitation = Data->GetPrecipitationAt(Time, Time + FTimespan(TimeStep, 0, 0), FVector2D(CellCentroid.X, CellCentroid.Y), ETimespan::TicksPerHour);
-				
+			const float TAir = Interpolator->GetInterpolatedTemperatureData(Temperature, CellCentroid).Average; // degree Celsius
+			const float Precipitation = Data->GetPrecipitationAt(Time, Time + FTimespan(TimeStepHours, 0, 0), FVector2D(CellCentroid.X, CellCentroid.Y), ETimespan::TicksPerHour); // l/m^2 or mm
+			
+			const float AreaSquareMeters = Cell.Area / (100 * 100); // m^2
+
 			if (Precipitation > 0)
 			{
 				Cell.DaysSinceLastSnowfall = 0;
@@ -42,8 +54,8 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 				}
 				else 
 				{
-					Cell.SnowWaterEquivalent += Precipitation; // TODO area?
-					Cell.SnowAlbedo = 0.8; // New sets the albedo to 0.8
+					Cell.SnowWaterEquivalent += (Precipitation * AreaSquareMeters); // l/m^2 * m^2 = l
+					Cell.SnowAlbedo = 0.8; // New snow sets the albedo to 0.8
 				}
 			}
 
@@ -57,14 +69,18 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 				// Temperature bigger than melt threshold and cell contains snow
 				if (TAir > TMelt)
 				{
-					// Calculate radiation index
-					const float R_i = SolarRadiationIndex(Cell.Inclination, Cell.Aspect, Cell.Latitude, Time.GetDayOfYear()); // @TODO is GetDayOfYear() the correct Julian date?
+					const float DayNormalization = TimeStepHours / 24.0f; // day
 
-					// Calculate melt factor
-					const float k_v = FMath::Exp(-4 * Data->GetVegetationDensityAt(Cell.Centroid));
-					const float c_m = k_m * k_v * R_i *  (1 - Cell.SnowAlbedo);
+					// Radiation Index
+					const float R_i = SolarRadiationIndex(Cell.Inclination, Cell.Aspect, Cell.Latitude, Time.GetDayOfYear()); // 1
 
-					Cell.SnowWaterEquivalent -= c_m; // @TODO area?
+					// Melt factor
+					const float k_v = FMath::Exp(-4 * Data->GetVegetationDensityAt(Cell.Centroid)); // @TODO unit?
+					const float c_m = k_m * k_v * R_i *  (1 - Cell.SnowAlbedo) * DayNormalization * AreaSquareMeters; // l/m^2/C°/day * day * m^2 = l/m^2 * 1/day * day * m^2 = l/C°
+					const float M = c_m * (TAir - TMelt); // l/C° * C° = l
+
+					// Apply melt
+					Cell.SnowWaterEquivalent -= M; 
 					Cell.SnowWaterEquivalent = FMath::Max(0.0f, Cell.SnowWaterEquivalent);
 				}
 			}

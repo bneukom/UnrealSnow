@@ -59,7 +59,7 @@ public:
 	virtual FTemperature GetTemperatureData(const FDateTime& From, const FDateTime& To, const FVector2D& Position, int64 Resolution) PURE_VIRTUAL(USimulationDataProviderBase::GetDailyTemperatureData, return FTemperature(););
 
 	/**
-	* Returns the precipitation at base elevation at the given time and position (2D).
+	* Returns the precipitation in mm (liter/m^2) at base elevation at the given time and position (2D).
 	*/
 	virtual float GetPrecipitationAt(const FDateTime& From, const FDateTime& To, const FVector2D& Position, int64 Resolution) PURE_VIRTUAL(USimulationDataProviderBase::GetPrecipitationAt, return 0.0f;);
 

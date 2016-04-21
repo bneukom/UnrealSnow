@@ -24,7 +24,7 @@ struct SNOWSIMULATION_API FSimulationCell
 	/** Eight neighborhood starting from north. */
 	TArray<FSimulationCell*> Neighbours;
 
-	/** Area in m^3. */
+	/** Area in cm^3. */
 	const float Area;
 
 	/** Midpoint of the cell. */
@@ -43,7 +43,7 @@ struct SNOWSIMULATION_API FSimulationCell
 	const float Latitude;
 
 	// @TODO Create template with this data, other simulations might use other data.
-	/** Snow water equivalent (SWE) of the cell in m^3. */
+	/** Snow water equivalent (SWE) as the mass of water stored as liter. */
 	float SnowWaterEquivalent = 0;
 	
 	/** The albedo of the snow [0-1.0]. */
@@ -83,7 +83,7 @@ public:
 	
 	/** Timestep of the simulation in hours. */
 	UPROPERTY()
-	int32 TimeStep = 1;
+	int32 TimeStepHours = 1;
 
 	/**
 	* Returns the name of the simulation.

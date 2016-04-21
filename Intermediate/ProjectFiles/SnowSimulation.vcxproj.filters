@@ -64,6 +64,10 @@
     <ClInclude Include="..\..\Source\SnowSimulation\PremozeCPUSimulation.h">
       <Filter>Source\SnowSimulation\Simulation\Simulation\Premoze</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\SolarRadiation.h" />
+    <ClInclude Include="..\..\Source\SnowSimulation\CPUSimulation.h" />
+    <ClInclude Include="..\..\Source\SnowSimulation\GPUSimulation.h" />
+    <ClInclude Include="..\..\Source\SnowSimulation\SimulationDataInterpolator.h" />
     <ClInclude Include="..\..\Source\SnowSimulation\PremozeGPUSimulation.h">
       <Filter>Source\SnowSimulation\Simulation\Simulation\Premoze</Filter>
     </ClInclude>
@@ -90,6 +94,10 @@
     <ClCompile Include="..\..\Source\SnowSimulation\PremozeCPUSimulation.cpp">
       <Filter>Source\SnowSimulation\Simulation\Simulation\Premoze</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\SnowSimulation\CPUSimulation.cpp" />
+    <ClCompile Include="..\..\Source\SnowSimulation\GPUSimulation.cpp" />
+    <ClCompile Include="..\..\Source\SnowSimulation\SimulationBase.cpp" />
+    <ClCompile Include="..\..\Source\SnowSimulation\SimulationDataProviderBase.cpp" />
     <ClCompile Include="..\..\Source\SnowSimulation\PremozeGPUSimulation.cpp">
       <Filter>Source\SnowSimulation\Simulation\Simulation\Premoze</Filter>
     </ClCompile>

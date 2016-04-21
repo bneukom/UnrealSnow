@@ -104,7 +104,7 @@ private:
 public:
 	/** Slope threshold for the snow deposition of the cells in radians.*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
-	float SlopeThreshold = PI / 3;
+	float SlopeThreshold = PI / 18;
 
 	/** Threshold air temperature above which all precipitation is assumed to be rain. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")

@@ -27,9 +27,10 @@ void ASnowSimulationActor::BeginPlay()
 #endif
 
 	if (Simulation) {
+		//Simulation->Initialize(Cells, Data);
 		// @TODO only run simulation if the LOD has changed enough to warrant simulation execution.
 		// @TODO run simulation in background.
-		Simulation->Simulate(Cells, Data, Interpolator, FDateTime(2015, 1, 1), FDateTime(2015, 12, 1));
+		//Simulation->Simulate(Cells, Data, Interpolator, FDateTime(2015, 1, 1), FDateTime(2015, 12, 1));
 		//Simulation->Initialize(Cells, Data);
 	}
 }
