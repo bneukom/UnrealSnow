@@ -14,7 +14,7 @@ class SNOWSIMULATION_API UPremozeCPUSimulation : public USimulationBase
 {
 	GENERATED_BODY()
 private:
-	TArray<FSimulationCell> SlopeThresholdCells;
+	TArray<FSimulationCell> DownwardSlopeThresholdedCells;
 
 	// @TODO Degrees or radians?
 	/**

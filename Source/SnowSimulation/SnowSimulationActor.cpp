@@ -27,11 +27,8 @@ void ASnowSimulationActor::BeginPlay()
 #endif
 
 	if (Simulation) {
-		//Simulation->Initialize(Cells, Data);
-		// @TODO only run simulation if the LOD has changed enough to warrant simulation execution.
-		// @TODO run simulation in background.
-		//Simulation->Simulate(Cells, Data, Interpolator, FDateTime(2015, 1, 1), FDateTime(2015, 12, 1));
-		//Simulation->Initialize(Cells, Data);
+		Simulation->Initialize(Cells, Data);
+		Simulation->Simulate(Cells, Data, Interpolator, FDateTime(2015, 1, 1), FDateTime(2015, 12, 1));
 	}
 }
 
@@ -155,27 +152,26 @@ void ASnowSimulationActor::CreateCells()
 					}
 				}
 
-				// @ TODO Create methods for better access
 				// Set neighbors
 				for (int32 CellIndex = 0; CellIndex < NumCells; ++CellIndex)
 				{
 					auto& Current = Cells[CellIndex];
 
-					Current.Neighbours[0] = (CellIndex - CellsDimension >= 0) ?	&Cells[CellIndex - CellsDimension] : nullptr;					// N
+					Current.Neighbours[0] = GetCellChecked(CellIndex - CellsDimension);				// N
 					if ((CellIndex + 1) % CellsDimension != 0) 
-						Current.Neighbours[1] = (CellIndex - CellsDimension + 1 >= 0) ?	&Cells[CellIndex - CellsDimension + 1] : nullptr;		// NE
-					if ((CellIndex + 1) % CellsDimension != 0) 
-						Current.Neighbours[2] = (CellIndex + 1 < NumCells) ? &Cells[CellIndex + 1] : nullptr;									// E
-					if ((CellIndex + 1) % CellsDimension != 0) 
-						Current.Neighbours[3] = (CellIndex + CellsDimension + 1 < NumCells) ? &Cells[CellIndex + CellsDimension + 1] : nullptr;	// SE
+						Current.Neighbours[1] = GetCellChecked(CellIndex - CellsDimension + 1);		// NE
+					if ((CellIndex + 1) % CellsDimension != 0)
+						Current.Neighbours[2] = GetCellChecked(CellIndex + 1);						// E
+					if ((CellIndex + 1) % CellsDimension != 0)
+						Current.Neighbours[3] = GetCellChecked(CellIndex + CellsDimension + 1);		// SE
 					
-					Current.Neighbours[4] = (CellIndex + CellsDimension < NumCells) ? &Cells[CellIndex + CellsDimension] : nullptr;				// S
-					if ((CellIndex) % CellsDimension != 0) 
-						Current.Neighbours[5] = (CellIndex + CellsDimension - 1 < NumCells) ? &Cells[CellIndex + CellsDimension -1] : nullptr;	// SW
+					Current.Neighbours[4] = GetCellChecked(CellIndex + CellsDimension);				// S
 					if ((CellIndex) % CellsDimension != 0)
-						Current.Neighbours[6] = (CellIndex - 1 >= 0) ? &Cells[CellIndex - 1] : nullptr;											// N
+						Current.Neighbours[5] = GetCellChecked(CellIndex + CellsDimension - 1); 	// SW
 					if ((CellIndex) % CellsDimension != 0)
-						Current.Neighbours[7] = (CellIndex - CellsDimension - 1 >= 0) ? &Cells[CellIndex - CellsDimension - 1] : nullptr;		// NW
+						Current.Neighbours[6] = GetCellChecked(CellIndex - 1);						// N
+					if ((CellIndex) % CellsDimension != 0)
+						Current.Neighbours[7] = GetCellChecked(CellIndex - CellsDimension - 1);		// NW
 				}
 			}
 		}

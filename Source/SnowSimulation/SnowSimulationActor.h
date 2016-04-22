@@ -54,14 +54,32 @@ public:
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 	
+	// @TODO CreateCells in SimulationBase.h?
 	/** Removes old cells and creates the cells for the simulation. */
 	void CreateCells();
 
 private:
 
-	/*
+	/**
+	* Returns the cell at the given index or nullptr if the index is out of bounds.
 	*
+	* @param Index the index of the cell
+	* @return the cell at the given index or nullptr if the index is out of bounds
 	*/
-	FSimulationCell* GetCheckedCell(int Index);
+	FSimulationCell* GetCellChecked(int Index) 
+	{
+		return (Index >= 0 && Index < Cells.Num()) ? &Cells[Index] : nullptr;
+	}
+
+	/**
+	* Co
+	*
+	* @param Index the index of the cell
+	* @return the cell at the given index or nullptr if the index is out of bounds
+	*/
+	int ToArrayIndex(int X, int Y) 
+	{
+		abort();
+	}
 
 };

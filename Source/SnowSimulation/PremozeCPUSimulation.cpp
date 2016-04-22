@@ -21,15 +21,21 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 	for (int32 Hours = 0; Hours < SimulationHours; Hours += TimeStepHours)
 	{
 
-		// @TODO only use one neighbor for snow distribution?
-		for (auto& Cell : SlopeThresholdCells)
+		// Snow distribution to the cell with the steepest slope
+		for (auto& Cell : DownwardSlopeThresholdedCells)
 		{
 			if (Cell.SnowWaterEquivalent > 0) {
-				
-				// Snow distribution function according to Blöschls paper "Distributed Snowmelt Simulations inan Alpine Catchme".
+				// Snow distribution function according to Blöschls paper "Distributed Snowmelt Simulations in an Alpine Catchment".
+				float Slope = FMath::Min(1.0f, Cell.SteepestDownwardSlope / (PI / 3));
+
+				float SnowDepositionAmount = Slope * Cell.SnowWaterEquivalent;
+
+				Cell.SnowWaterEquivalent -= SnowDepositionAmount;
+				Cell.SteepestDownwardSlopeNeighbour->SnowWaterEquivalent += SnowDepositionAmount;
 			}
 		}
 
+		// Simulation
 		Time += FTimespan(TimeStepHours, 0, 0);
 		for (auto& Cell : Cells)
 		{
@@ -92,15 +98,15 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 
 void UPremozeCPUSimulation::Initialize(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data)
 {
-	// Retains only those cells which have a neighbor with a lower z value which exceeds the slope threshold.
-	SlopeThresholdCells = Cells.FilterByPredicate([this](const FSimulationCell& Cell) {
+	// Retains only those cells which have a neighbor with a lower altitude value which exceeds the slope threshold.
+	DownwardSlopeThresholdedCells = Cells.FilterByPredicate([this](const FSimulationCell& Cell) {
 		bool Retain = false;
 		for (auto NeighbourIndex = 0; NeighbourIndex < 8; NeighbourIndex++)
 		{
 			if (Cell.Neighbours[NeighbourIndex])
 			{
 				
-				if (Cell.Centroid.Z < Cell.Neighbours[NeighbourIndex]->Centroid.Z) {
+				if (Cell.Altitude < Cell.Neighbours[NeighbourIndex]->Altitude) {
 					continue;
 				}
 				const FVector& P0 = Cell.Centroid;
@@ -109,10 +115,10 @@ void UPremozeCPUSimulation::Initialize(TArray<FSimulationCell>& Cells, USimulati
 
 				const FVector Neighbour = P1 - P0;
 				const FVector NeighbourProjXY(Neighbour.X, Neighbour.Y, 0);
-				const float Angle = FMath::Abs(FMath::Acos(FVector::DotProduct(Neighbour, NeighbourProjXY) / (Neighbour.Size() * NeighbourProjXY.Size())));
+				const float Slope = FMath::Abs(FMath::Acos(FVector::DotProduct(Neighbour, NeighbourProjXY) / (Neighbour.Size() * NeighbourProjXY.Size())));
 				
 				// Found
-				if (Angle >= SlopeThreshold)
+				if (Slope >= SlopeThreshold)
 				{
 					Retain = true;
 					break;
@@ -122,8 +128,42 @@ void UPremozeCPUSimulation::Initialize(TArray<FSimulationCell>& Cells, USimulati
 		return Retain;
 	});
 
+	// @TODO merge with filter above
+	// Save the steepest downward slope for the snow deposition
+	for (auto& Cell : DownwardSlopeThresholdedCells)
+	{
+		for (auto NeighbourIndex = 0; NeighbourIndex < 8; NeighbourIndex++)
+		{
+			float MaxSlope = 0;
+			FSimulationCell* SteepestDownwardSlope = nullptr;
+
+			if (Cell.Neighbours[NeighbourIndex])
+			{
+				if (Cell.Altitude < Cell.Neighbours[NeighbourIndex]->Altitude) {
+					continue;
+				}
+				const FVector& P0 = Cell.Centroid;
+				const FVector& P1 = Cell.Neighbours[NeighbourIndex]->Centroid;
+
+
+				const FVector Neighbour = P1 - P0;
+				const FVector NeighbourProjXY(Neighbour.X, Neighbour.Y, 0);
+				const float Slope = FMath::Abs(FMath::Acos(FVector::DotProduct(Neighbour, NeighbourProjXY) / (Neighbour.Size() * NeighbourProjXY.Size())));
+
+				if (Slope > SlopeThreshold && Slope > MaxSlope)
+				{
+					SteepestDownwardSlope = Cell.Neighbours[NeighbourIndex];
+					MaxSlope = Slope;
+				}
+			}
+
+			Cell.SteepestDownwardSlopeNeighbour = SteepestDownwardSlope;
+			Cell.SteepestDownwardSlope = MaxSlope;
+		}
+	}
+
 	// Sort the remaining cells by altitude for processing in the simulation
-	SlopeThresholdCells.Sort([](const FSimulationCell& A, const FSimulationCell& B)
+	DownwardSlopeThresholdedCells.Sort([](const FSimulationCell& A, const FSimulationCell& B)
 	{
 		return A.Altitude < B.Altitude;
 	});

@@ -42,7 +42,7 @@ struct SNOWSIMULATION_API FSimulationCell
 	/** The latitude of the center of this cell. */
 	const float Latitude;
 
-	// @TODO Create template with this data, other simulations might use other data.
+	// @TODO Create template (subclasses?) with this data, other simulations might use other data.
 	/** Snow water equivalent (SWE) as the mass of water stored as liter. */
 	float SnowWaterEquivalent = 0;
 	
@@ -51,7 +51,12 @@ struct SNOWSIMULATION_API FSimulationCell
 
 	/** The days since the last snow has fallen on this cell. */
 	int DaysSinceLastSnowfall = 0;
-	
+
+	/** Neighbour with the steepest downward slope. */
+	FSimulationCell* SteepestDownwardSlopeNeighbour = nullptr;
+
+	float SteepestDownwardSlope = 0;
+
 	FSimulationCell() : P1(FVector::ZeroVector), P2(FVector::ZeroVector), P3(FVector::ZeroVector), P4(FVector::ZeroVector),
 		Normal(FVector::ZeroVector), Area(0), Centroid(FVector::ZeroVector), Altitude(0), Aspect(0), Inclination(0), Latitude(0) {}
 
