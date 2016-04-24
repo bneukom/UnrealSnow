@@ -14,7 +14,7 @@ class SNOWSIMULATION_API UPremozeCPUSimulation : public USimulationBase
 {
 	GENERATED_BODY()
 private:
-	TArray<FSimulationCell> DownwardSlopeThresholdedCells;
+	TArray<FSimulationCell*> StabilityTestCells;
 
 	// @TODO Degrees or radians?
 	/**
@@ -92,7 +92,7 @@ private:
 	// @TODO check for invalid latitudes (90°)
 	float Func2(float L, float D) // sunrise/sunset
 	{
-		return FMath::Acos(-FMath::Tan(L) * FMath::Tan(D));
+		return FMath::Acos(FMath::Clamp(-FMath::Tan(L) * FMath::Tan(D), -1.0f, 1.0f));
 	}
 
 	float Func3(float V, float W, float X, float Y, float R1, float D) // radiation
@@ -133,7 +133,11 @@ public:
 	virtual void Initialize(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data) override final;
 
 #if SIMULATION_DEBUG
-	virtual void RenderDebug(TArray<FSimulationCell>& Cells) override final;
+	/** Slope threshold for the snow deposition of the cells in radians.*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation Debug")
+	int CellDebugInfoDisplayDistance = 15000;
+
+	virtual void RenderDebug(TArray<FSimulationCell>& Cells, UWorld* World) override final;
 #endif 
 
 };

@@ -43,19 +43,18 @@ struct SNOWSIMULATION_API FSimulationCell
 	const float Latitude;
 
 	// @TODO Create template (subclasses?) with this data, other simulations might use other data.
-	/** Snow water equivalent (SWE) as the mass of water stored as liter. */
+	/** Snow water equivalent (SWE) as the mass of water stored as liter/m^2 or mm. */
 	float SnowWaterEquivalent = 0;
-	
+
 	/** The albedo of the snow [0-1.0]. */
 	float SnowAlbedo = 0;
 
 	/** The days since the last snow has fallen on this cell. */
 	int DaysSinceLastSnowfall = 0;
 
-	/** Neighbour with the steepest downward slope. */
-	FSimulationCell* SteepestDownwardSlopeNeighbour = nullptr;
-
-	float SteepestDownwardSlope = 0;
+	float AltitudeWithSnow() const {
+		return Altitude + SnowWaterEquivalent / 10;
+	}
 
 	FSimulationCell() : P1(FVector::ZeroVector), P2(FVector::ZeroVector), P3(FVector::ZeroVector), P4(FVector::ZeroVector),
 		Normal(FVector::ZeroVector), Area(0), Centroid(FVector::ZeroVector), Altitude(0), Aspect(0), Inclination(0), Latitude(0) {}
@@ -73,6 +72,8 @@ struct SNOWSIMULATION_API FSimulationCell
 	{
 		Neighbours.Init(nullptr, 8);
 	}
+
+
 };
 
 
@@ -88,7 +89,7 @@ public:
 	
 	/** Timestep of the simulation in hours. */
 	UPROPERTY()
-	int32 TimeStepHours = 1;
+	int32 TimeStepHours = 24;
 
 	/**
 	* Returns the name of the simulation.
@@ -111,6 +112,6 @@ public:
 
 #if SIMULATION_DEBUG
 	/** Renders debug information of the simulation every tick. */
-	virtual void RenderDebug(TArray<FSimulationCell>& Cells) PURE_VIRTUAL(USimulationBase::RenderDebug, ;);
+	virtual void RenderDebug(TArray<FSimulationCell>& Cells, UWorld* World) PURE_VIRTUAL(USimulationBase::RenderDebug, ;);
 #endif 
 };

@@ -28,6 +28,18 @@ public:
 	bool RenderGrid = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
+	/** Simulation start time. */
+	FDateTime StartTime = FDateTime(2015, 1, 1);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
+	/** Simulation end time. */
+	FDateTime EndTime = FDateTime(2015, 3, 1);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
+	/** Unit vector which points north. */
+	FVector North = { 1,0,0 };
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	/** Data input for the simulation. */
 	USimulationDataProviderBase* Data;
 
@@ -72,14 +84,14 @@ private:
 	}
 
 	/**
-	* Co
+	* Computes the array index from the two dimensional grid indices X and Y.
 	*
-	* @param Index the index of the cell
-	* @return the cell at the given index or nullptr if the index is out of bounds
+	* @param X the X cell index
+	* @param Y the Y cell index
+	* @return the array index from the two dimensional grid indices X and Y.
 	*/
 	int ToArrayIndex(int X, int Y) 
 	{
 		abort();
 	}
-
 };

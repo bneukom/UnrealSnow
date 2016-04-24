@@ -64,10 +64,6 @@
     <ClInclude Include="..\..\Source\SnowSimulation\PremozeCPUSimulation.h">
       <Filter>Source\SnowSimulation\Simulation\Simulation\Premoze</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\SnowSimulation\SolarRadiation.h" />
-    <ClInclude Include="..\..\Source\SnowSimulation\CPUSimulation.h" />
-    <ClInclude Include="..\..\Source\SnowSimulation\GPUSimulation.h" />
-    <ClInclude Include="..\..\Source\SnowSimulation\SimulationDataInterpolator.h" />
     <ClInclude Include="..\..\Source\SnowSimulation\PremozeGPUSimulation.h">
       <Filter>Source\SnowSimulation\Simulation\Simulation\Premoze</Filter>
     </ClInclude>
@@ -76,6 +72,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\SnowSimulation\SimulationDataInterpolatorBase.h">
       <Filter>Source\SnowSimulation\Simulation\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\MathUtil.h">
+      <Filter>Source\SnowSimulation\Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -94,10 +93,6 @@
     <ClCompile Include="..\..\Source\SnowSimulation\PremozeCPUSimulation.cpp">
       <Filter>Source\SnowSimulation\Simulation\Simulation\Premoze</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\SnowSimulation\CPUSimulation.cpp" />
-    <ClCompile Include="..\..\Source\SnowSimulation\GPUSimulation.cpp" />
-    <ClCompile Include="..\..\Source\SnowSimulation\SimulationBase.cpp" />
-    <ClCompile Include="..\..\Source\SnowSimulation\SimulationDataProviderBase.cpp" />
     <ClCompile Include="..\..\Source\SnowSimulation\PremozeGPUSimulation.cpp">
       <Filter>Source\SnowSimulation\Simulation\Simulation\Premoze</Filter>
     </ClCompile>
@@ -120,6 +115,9 @@
     </Filter>
     <Filter Include="Source\SnowSimulation\Simulation\Simulation\Premoze">
       <UniqueIdentifier>{9e0c420c-9a3c-436f-8a28-dc4eda24691a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\SnowSimulation\Util">
+      <UniqueIdentifier>{4217d208-9294-461e-9626-4b1b0a06b1fa}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

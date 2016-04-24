@@ -2,6 +2,7 @@
 #include "UnrealMathUtility.h"
 #include "SnowSimulationActor.h"
 //#include "RuntimeLandscapeDataAccess.h"
+#include "MathUtil.h"
 #include "Runtime/Landscape/Classes/Landscape.h"
 #include "Runtime/Landscape/Classes/LandscapeComponent.h"
 #include "Runtime/Landscape/Classes/LandscapeInfo.h"
@@ -28,7 +29,9 @@ void ASnowSimulationActor::BeginPlay()
 
 	if (Simulation) {
 		Simulation->Initialize(Cells, Data);
-		Simulation->Simulate(Cells, Data, Interpolator, FDateTime(2015, 1, 1), FDateTime(2015, 12, 1));
+		// @TODO setting FDateTime in blueprints does not work
+		// Simulation->Simulate(Cells, Data, Interpolator, StartTime, EndTime);
+		Simulation->Simulate(Cells, Data, Interpolator, FDateTime(2015, 1, 1), FDateTime(2015, 4, 1));
 	}
 }
 
@@ -38,12 +41,10 @@ void ASnowSimulationActor::Tick(float DeltaTime)
 
 	// @TODO update SimulationCells according to landscape and LOD
 
-
-
 #if SIMULATION_DEBUG
 	if (Simulation)
 	{
-		Simulation->RenderDebug(Cells);
+		Simulation->RenderDebug(Cells, GetWorld());
 	}
 #endif // SIMULATION_DEBUG
 	
@@ -65,7 +66,7 @@ void ASnowSimulationActor::Tick(float DeltaTime)
 			DrawDebugLine(GetWorld(), Cell.P3 + zOffset, Cell.P4 + zOffset, FColor(255, 255, 0), false, -1, 0, 0.0f);
 
 			// Draw normal
-			DrawDebugLine(GetWorld(), Cell.Centroid + zOffset, Cell.Centroid + zOffset + (Normal * 100), FColor(255, 0, 0), false, -1, 0, 0.0f);
+			// DrawDebugLine(GetWorld(), Cell.Centroid + zOffset, Cell.Centroid + zOffset + (Normal * 100), FColor(255, 0, 0), false, -1, 0, 0.0f);
 		}
 	}
 
@@ -124,7 +125,8 @@ void ASnowSimulationActor::CreateCells()
 				const int32 CellsDimension = LandscapeSizeQuads / CellSize - 1; // -1 because we create cells and use 4 vertices
 				const int32 NumCells = CellsDimension * CellsDimension;
 
-				const float Latitude = FMath::DegreesToRadians(47); //  @TODO assume constant for the moment
+				// @TODO assume constant for the moment, later handle in input data
+				const float Latitude = FMath::DegreesToRadians(47); 
 
 				for (int32 Y = 0; Y < CellsDimension; Y++) 
 				{
@@ -144,8 +146,9 @@ void ASnowSimulationActor::CreateCells()
 						float Area = FMath::Abs(FVector::CrossProduct(P0 - P3, P1 - P3).Size() / 2 + FVector::CrossProduct(P2 - P3, P0 - P3).Size() / 2);
 
 						FVector NormalProjXY = FVector(Normal.X, Normal.Y, 0);
-						float Inclination = FMath::Abs(FMath::Acos(FVector::DotProduct(Normal, NormalProjXY) / (Normal.Size() * NormalProjXY.Size())));
-						float Aspect = 0; // @TODO calculate aspect
+						float Inclination =  IsAlmostZero(NormalProjXY.Size()) ? 0 : FMath::Abs(FMath::Acos(FVector::DotProduct(Normal, NormalProjXY) / (Normal.Size() * NormalProjXY.Size())));
+						// @TODO what is the aspect of the XY plane?
+						float Aspect = IsAlmostZero(NormalProjXY.Size()) ? 0 : FMath::Abs(FMath::Acos(FVector::DotProduct(North, NormalProjXY) / NormalProjXY.Size()));
 						FSimulationCell Cell(P0, P1, P2, P3, Normal, Area, Centroid, Altitude, Aspect, Inclination, Latitude);
 
 						Cells.Add(Cell);
