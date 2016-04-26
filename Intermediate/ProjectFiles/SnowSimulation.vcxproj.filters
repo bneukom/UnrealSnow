@@ -76,6 +76,9 @@
     <ClInclude Include="..\..\Source\SnowSimulation\MathUtil.h">
       <Filter>Source\SnowSimulation\Util</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\SimulationHUD.h">
+      <Filter>Source\HUD</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\SnowSimulation\SnowSimulationActor.cpp">
@@ -99,6 +102,9 @@
     <ClCompile Include="..\..\Source\SnowSimulation\DefaultDataInterpolator.cpp">
       <Filter>Source\SnowSimulation\Simulation\Data</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\SnowSimulation\SimulationHUD.cpp">
+      <Filter>Source\HUD</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source\SnowSimulation\Simulation">
@@ -118,6 +124,9 @@
     </Filter>
     <Filter Include="Source\SnowSimulation\Util">
       <UniqueIdentifier>{4217d208-9294-461e-9626-4b1b0a06b1fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\HUD">
+      <UniqueIdentifier>{a3646838-75e5-491a-9698-6de4fa6ff6ba}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

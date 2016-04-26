@@ -21,10 +21,12 @@ struct SNOWSIMULATION_API FSimulationCell
 
 	const FVector Normal;
 
+	const int Index;
+
 	/** Eight neighborhood starting from north. */
 	TArray<FSimulationCell*> Neighbours;
 
-	/** Area in cm^3. */
+	/** Area in cm^2. */
 	const float Area;
 
 	/** Midpoint of the cell. */
@@ -43,8 +45,10 @@ struct SNOWSIMULATION_API FSimulationCell
 	const float Latitude;
 
 	// @TODO Create template (subclasses?) with this data, other simulations might use other data.
-	/** Snow water equivalent (SWE) as the mass of water stored as liter/m^2 or mm. */
+	/** Snow water equivalent (SWE) as the mass of water stored as liter */
 	float SnowWaterEquivalent = 0;
+
+	float InstableSnow = 0;
 
 	/** The albedo of the snow [0-1.0]. */
 	float SnowAlbedo = 0;
@@ -56,13 +60,13 @@ struct SNOWSIMULATION_API FSimulationCell
 		return Altitude + SnowWaterEquivalent / 10;
 	}
 
-	FSimulationCell() : P1(FVector::ZeroVector), P2(FVector::ZeroVector), P3(FVector::ZeroVector), P4(FVector::ZeroVector),
+	FSimulationCell() : Index(0), P1(FVector::ZeroVector), P2(FVector::ZeroVector), P3(FVector::ZeroVector), P4(FVector::ZeroVector),
 		Normal(FVector::ZeroVector), Area(0), Centroid(FVector::ZeroVector), Altitude(0), Aspect(0), Inclination(0), Latitude(0) {}
 
 	FSimulationCell(
-		FVector& p1, FVector& p2, FVector& p3, FVector& p4, FVector& Normal, 
+		int Index, FVector& p1, FVector& p2, FVector& p3, FVector& p4, FVector& Normal,
 		float Area, FVector Centroid, float Altitude, float Aspect, float Inclination, float Latitude) :
-		P1(p1), P2(p2), P3(p3), P4(p4), Normal(Normal), 
+		Index(Index), P1(p1), P2(p2), P3(p3), P4(p4), Normal(Normal),
 		Area(Area), 
 		Centroid(Centroid), 
 		Altitude(Altitude), 

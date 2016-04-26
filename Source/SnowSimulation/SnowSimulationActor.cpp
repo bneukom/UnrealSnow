@@ -9,6 +9,7 @@
 #include "Runtime/Landscape/Classes/LandscapeProxy.h"
 #include "Runtime/Landscape/Public/LandscapeDataAccess.h"
 
+DEFINE_LOG_CATEGORY(SimulationLog);
 
 ASnowSimulationActor::ASnowSimulationActor()
 {
@@ -21,17 +22,11 @@ void ASnowSimulationActor::BeginPlay()
 
 	CreateCells();
 
-#if SIMULATION_DEBUG
-	if (Simulation) {
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Simulation type used: " + Simulation->GetSimulationName());
-	}
-#endif
+	CurrentSimulationTime = StartTime;
 
 	if (Simulation) {
+		UE_LOG(SimulationLog, Display, TEXT("Simulation type used: %s"), *Simulation->GetSimulationName());
 		Simulation->Initialize(Cells, Data);
-		// @TODO setting FDateTime in blueprints does not work
-		// Simulation->Simulate(Cells, Data, Interpolator, StartTime, EndTime);
-		Simulation->Simulate(Cells, Data, Interpolator, FDateTime(2015, 1, 1), FDateTime(2015, 4, 1));
 	}
 }
 
@@ -39,18 +34,23 @@ void ASnowSimulationActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// @TODO update SimulationCells according to landscape and LOD
+	NextStep += DeltaTime;
 
-#if SIMULATION_DEBUG
-	if (Simulation)
+	if (NextStep >= 5.0f)
+	{
+		NextStep = 0;
+		Simulation->Simulate(Cells, Data, Interpolator, CurrentSimulationTime, CurrentSimulationTime + SimulationStep);
+
+		CurrentSimulationTime += SimulationStep;
+	}
+
+	if (RenderDebugInfo)
 	{
 		Simulation->RenderDebug(Cells, GetWorld());
 	}
-#endif // SIMULATION_DEBUG
 	
-
-	// @TODO implement custom rendering for better performance (DrawPrimitiveUP)
-	if (RenderGrid) {
+	if (RenderGrid) 
+	{
 		for (FSimulationCell& Cell : Cells)
 		{
 			FVector Normal(Cell.Normal);
@@ -59,14 +59,12 @@ void ASnowSimulationActor::Tick(float DeltaTime)
 			// @TODO get exact position using the height map
 			FVector zOffset(0, 0, 50);
 
+			// @TODO implement custom rendering for better performance (DrawPrimitiveUP)
 			// Draw Cells
 			DrawDebugLine(GetWorld(), Cell.P1 + zOffset, Cell.P2 + zOffset, FColor(255, 255, 0), false, -1, 0, 0.0f);
 			DrawDebugLine(GetWorld(), Cell.P1 + zOffset, Cell.P3 + zOffset, FColor(255, 255, 0), false, -1, 0, 0.0f);
 			DrawDebugLine(GetWorld(), Cell.P2 + zOffset, Cell.P4 + zOffset, FColor(255, 255, 0), false, -1, 0, 0.0f);
 			DrawDebugLine(GetWorld(), Cell.P3 + zOffset, Cell.P4 + zOffset, FColor(255, 255, 0), false, -1, 0, 0.0f);
-
-			// Draw normal
-			// DrawDebugLine(GetWorld(), Cell.Centroid + zOffset, Cell.Centroid + zOffset + (Normal * 100), FColor(255, 0, 0), false, -1, 0, 0.0f);
 		}
 	}
 
@@ -79,9 +77,6 @@ void ASnowSimulationActor::CreateCells()
 
 	if (GetWorld())
 	{
-#if SIMULATION_DEBUG
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Create Cells");
-#endif
 		ULevel* Level = GetWorld()->PersistentLevel;
 
 		for (int32 iActor = 0; iActor < Level->Actors.Num(); iActor++)
@@ -93,13 +88,11 @@ void ASnowSimulationActor::CreateCells()
 				auto& LandscapeComponents = Landscape->LandscapeComponents;
 				const int32 LandscapeSizeQuads = FMath::Sqrt(LandscapeComponents.Num() * (Landscape->ComponentSizeQuads) * (Landscape->ComponentSizeQuads));
 
-#if SIMULATION_DEBUG
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Num components: " + FString::FromInt(LandscapeComponents.Num()));
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Num subsections: " + FString::FromInt(Landscape->NumSubsections));
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "SubsectionSizeQuads: " + FString::FromInt(Landscape->SubsectionSizeQuads));
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "ComponentSizeQuads: " + FString::FromInt(Landscape->ComponentSizeQuads));
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "LandscapeSizeQuads: " + FString::FromInt(LandscapeSizeQuads));
-#endif
+				UE_LOG(SimulationLog, Display, TEXT("Num components: %d"), LandscapeComponents.Num());
+				UE_LOG(SimulationLog, Display, TEXT("Num subsections: %d"), Landscape->NumSubsections);
+				UE_LOG(SimulationLog, Display, TEXT("SubsectionSizeQuads: %d"), Landscape->SubsectionSizeQuads);
+				UE_LOG(SimulationLog, Display, TEXT("ComponentSizeQuads: %d"), Landscape->ComponentSizeQuads);
+				UE_LOG(SimulationLog, Display, TEXT("LandscapeSizeQuads: %d"), LandscapeSizeQuads);
 
 				// @TODO what about sections?
 				// Get Vertices from all components in the landscape
@@ -128,6 +121,7 @@ void ASnowSimulationActor::CreateCells()
 				// @TODO assume constant for the moment, later handle in input data
 				const float Latitude = FMath::DegreesToRadians(47); 
 
+				int Index = 0;
 				for (int32 Y = 0; Y < CellsDimension; Y++) 
 				{
 					for (int32 X = 0; X < CellsDimension; X++)
@@ -149,9 +143,10 @@ void ASnowSimulationActor::CreateCells()
 						float Inclination =  IsAlmostZero(NormalProjXY.Size()) ? 0 : FMath::Abs(FMath::Acos(FVector::DotProduct(Normal, NormalProjXY) / (Normal.Size() * NormalProjXY.Size())));
 						// @TODO what is the aspect of the XY plane?
 						float Aspect = IsAlmostZero(NormalProjXY.Size()) ? 0 : FMath::Abs(FMath::Acos(FVector::DotProduct(North, NormalProjXY) / NormalProjXY.Size()));
-						FSimulationCell Cell(P0, P1, P2, P3, Normal, Area, Centroid, Altitude, Aspect, Inclination, Latitude);
+						FSimulationCell Cell(Index, P0, P1, P2, P3, Normal, Area, Centroid, Altitude, Aspect, Inclination, Latitude);
 
 						Cells.Add(Cell);
+						Index++;
 					}
 				}
 
@@ -179,9 +174,7 @@ void ASnowSimulationActor::CreateCells()
 			}
 		}
 
-#if SIMULATION_DEBUG
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Num cells: " + FString::FromInt(Cells.Num()));
-#endif
+		UE_LOG(SimulationLog, Display, TEXT("Num Cells: %d"), Cells.Num());
 
 	}
 
@@ -198,13 +191,6 @@ void ASnowSimulationActor::PostEditChangeProperty(FPropertyChangedEvent& Propert
 	if ((PropertyName == GET_MEMBER_NAME_CHECKED(ASnowSimulationActor, CellSize))) {
 		CreateCells();
 	}
-
-#if SIMULATION_DEBUG
-	if (PropertyChangedEvent.Property) {
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, "Property has changed: " + PropertyChangedEvent.Property->GetName());
-	}
-#endif
-
 }
 #endif
 

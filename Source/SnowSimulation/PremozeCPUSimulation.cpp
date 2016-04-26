@@ -26,54 +26,17 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 	auto SimulationSpan = EndTime - StartTime;
 	int32 SimulationHours = SimulationSpan.GetTotalHours();
 
+	const int Tests = 10;
 	
 	FDateTime Time = StartTime;
 	for (int32 Hours = 0; Hours < SimulationHours; Hours += 24) // @TODO timesteps
 	{
-
-		// Sort the cells by total altitude
-		StabilityTestCells.Sort([](const FSimulationCell& A, const FSimulationCell& B) {
-			return A.AltitudeWithSnow() > B.AltitudeWithSnow();
-		});
-
-		// Snow stability test similar to the method described in "Computer Modelling Of Fallen Snow"
-		for (auto Cell : StabilityTestCells)
-		{
-			if (Cell->SnowWaterEquivalent > 0)
-			{
-				for (auto Neighbour : Cell->Neighbours)
-				{
-					if (Neighbour != nullptr && Neighbour->AltitudeWithSnow() < Cell->AltitudeWithSnow())
-					{
-						const FVector& P0 = Cell->Centroid + FVector(0, 0, Cell->SnowWaterEquivalent / 10.f);
-						const FVector& P1 = Neighbour->Centroid + FVector(0, 0, Neighbour->SnowWaterEquivalent / 10.f);
-
-						const FVector ToNeighbour = P1 - P0;
-						const FVector NeighbourProjXY(ToNeighbour.X, ToNeighbour.Y, 0);
-						const float Slope = FMath::Abs(FMath::Acos(FVector::DotProduct(ToNeighbour, NeighbourProjXY) / (ToNeighbour.Size() * NeighbourProjXY.Size())));
-
-						const float SupportProbability = FMath::Min(Slope < FMath::DegreesToRadians(40) ? 1 : 1 - (Slope / FMath::DegreesToRadians(70)), 1.0f);
-						const bool Support = FMath::RandRange(0, 1) <= SupportProbability;
-
-						if (!Support) {
-							const float InstableSnow = Cell->SnowWaterEquivalent * 0.25f;
-
-							Cell->SnowWaterEquivalent -= InstableSnow;
-							Neighbour->SnowWaterEquivalent += InstableSnow;
-
-						}
-
-					}
-				}
-			}
-		}
-
 		// Simulation
 		Time += FTimespan(24, 0, 0); // @TODO timesteps
 		for (auto& Cell : Cells)
 		{
 			const FVector& CellCentroid = Cell.Centroid;
-			FTemperature Temperature = Data->GetTemperatureData(Time, Time + FTimespan(24, 0,0), FVector2D(CellCentroid.X, CellCentroid.Y), ETimespan::TicksPerDay); // @TODO timesteps
+			FTemperature Temperature = Data->GetTemperatureData(Time, Time + FTimespan(24, 0, 0), FVector2D(CellCentroid.X, CellCentroid.Y), ETimespan::TicksPerDay); // @TODO timesteps
 			
 			const float TAir = Interpolator->GetInterpolatedTemperatureData(Temperature, CellCentroid).Average; // degree Celsius
 			const float Precipitation = Data->GetPrecipitationAt(Time, Time + FTimespan(24, 0, 0), FVector2D(CellCentroid.X, CellCentroid.Y), ETimespan::TicksPerDay); // l/m^2 or mm // @TODO timesteps
@@ -128,6 +91,75 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 
 			Cell.DaysSinceLastSnowfall++;
 		}
+
+		TArray<FSimulationCell*> CurrentTestCells = StabilityTestCells;
+		
+
+		for (int StabilitTest = 0; StabilitTest < Tests; ++StabilitTest)
+		{
+			TArray<FSimulationCell*> UnstableCells;
+			// UnstableCells.Init(StabilityTestCells.Num());
+
+			// Sort the cells by total altitude
+			CurrentTestCells.Sort([](const FSimulationCell& A, const FSimulationCell& B) {
+				return A.AltitudeWithSnow() > B.AltitudeWithSnow();
+			});
+
+			// Snow stability test similar to the method described in "Computer Modelling Of Fallen Snow"
+			for (auto Cell : CurrentTestCells)
+			{
+				if (Cell->SnowWaterEquivalent > 0)
+				{
+					bool SnowAvalanched = false;
+
+					for (int NeighbourIndex = 0; NeighbourIndex < 8; ++NeighbourIndex)
+					{
+						auto Neighbour = Cell->Neighbours[NeighbourIndex];
+						const float InstableSnow = Cell->SnowWaterEquivalent * 1 / (Tests - StabilitTest);
+
+						// @TODO for gullies the assumption that the neighbor snow altitude has to be lower is not correct.
+						if (Neighbour != nullptr && Neighbour->AltitudeWithSnow() < Cell->AltitudeWithSnow())
+						{
+							auto CellAreaSquareMeters = Cell->Area / (100 * 100);
+							auto CellSWE = Cell->SnowWaterEquivalent / CellAreaSquareMeters; // l/m^2 or mm
+							auto CellSnowHeightOffset = Cell->Normal.GetSafeNormal() * CellSWE * 10;
+							const FVector& P0 = Cell->Centroid + CellSnowHeightOffset;
+
+							auto NeighbourAreaSquareMeters = Neighbour->Area / (100 * 100);
+							auto NeighbourSWE = Neighbour->SnowWaterEquivalent / NeighbourAreaSquareMeters; // l/m^2 or mm
+							auto NeighbourSnowHeightOffset = Neighbour->Normal.GetSafeNormal() * NeighbourSWE * 10;
+							const FVector& P1 = Neighbour->Centroid + NeighbourSnowHeightOffset;
+
+							const FVector ToNeighbour = P1 - P0;
+							const FVector NeighbourProjXY(ToNeighbour.X, ToNeighbour.Y, 0);
+							const float Slope = FMath::Abs(FMath::Acos(FVector::DotProduct(ToNeighbour, NeighbourProjXY) / (ToNeighbour.Size() * NeighbourProjXY.Size())));
+
+							const float SupportProbability = FMath::Min(Slope < FMath::DegreesToRadians(40) ? 1 : 1 - (Slope / FMath::DegreesToRadians(50)), 1.0f);
+							const bool Support = FMath::FRandRange(0.0f, 1.0f) <= SupportProbability;
+
+							if (!Support) {
+
+								const float Avalanche = (Cell->SnowWaterEquivalent * (Slope / (PI / 2)) *  0.5f);
+								
+								Cell->SnowWaterEquivalent -= Avalanche;
+								Cell->Neighbours[NeighbourIndex]->SnowWaterEquivalent += Avalanche;
+
+								UnstableCells.AddUnique(Cell->Neighbours[NeighbourIndex]);
+
+								SnowAvalanched = true;
+							}
+						}
+					}
+
+					if (SnowAvalanched)
+					{
+						UnstableCells.AddUnique(Cell);
+					}
+				}
+			}
+
+			CurrentTestCells = UnstableCells;
+		}
 	}
 }
 
@@ -154,8 +186,11 @@ void UPremozeCPUSimulation::RenderDebug(TArray<FSimulationCell>& Cells, UWorld* 
 			// @TODO get exact position using the height map
 			FVector zOffset(0, 0, 50);
 
-			// Draw normal
-			DrawDebugLine(World, Cell.Centroid + zOffset, Cell.Centroid + zOffset + (Normal * Cell.SnowWaterEquivalent / 10), FColor(255, 0, 0), false, -1, 0, 0.0f);
+			// Height of the snow for this cell
+			auto AreaSquareMeters = Cell.Area / (100 * 100);
+			auto SWE = Cell.SnowWaterEquivalent / AreaSquareMeters; // l/m^2 or mm
+			//DrawDebugLine(World, Cell.Centroid + zOffset, Cell.Centroid + zOffset + (Normal * SWE * 10), FColor(255, 0, 0), false, -1, 0, 0.0f);
+			DrawDebugLine(World, Cell.Centroid + zOffset, Cell.Centroid + FVector(0, 0, SWE * 10), FColor(255, 0, 0), false, -1, 0, 0.0f);
 		}
 	}
 
@@ -184,9 +219,11 @@ void UPremozeCPUSimulation::RenderDebug(TArray<FSimulationCell>& Cells, UWorld* 
 			World->LineTraceSingleByChannel(HitOut, Location, Cell.P1 + Offset, ECC_WorldStatic, TraceParams);
 
 			auto Hit = HitOut.GetActor();
+
 			//Hit any Actor?
 			if (Hit == NULL)
 			{
+				// Total SWE
 				DrawDebugString(World, Cell.Centroid, FString::FromInt(static_cast<int>(Cell.SnowWaterEquivalent)), nullptr, FColor::Purple, 0, true);
 			}
 		}

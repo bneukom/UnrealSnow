@@ -11,6 +11,8 @@
 #include "SimulationDataInterpolatorBase.h"
 #include "SnowSimulationActor.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(SimulationLog, Log, All);
+
 UCLASS()
 class SNOWSIMULATION_API ASnowSimulationActor : public AActor
 {
@@ -26,6 +28,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	/** Render the simulation grid over the landscape. */
 	bool RenderGrid = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
+	/** If true, render debug information over the landscape. */
+	bool RenderDebugInfo = true;
+
+	/** The current date of the simulation. */
+	FDateTime CurrentSimulationTime;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
+	/** The step with which the simulation runs. */
+	float SimulationStep = ETimespan::TicksPerDay;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	/** Simulation start time. */
@@ -71,6 +84,10 @@ public:
 	void CreateCells();
 
 private:
+	/** Current simulation step time passed. */
+	float NextStep;
+
+
 
 	/**
 	* Returns the cell at the given index or nullptr if the index is out of bounds.
@@ -92,6 +109,9 @@ private:
 	*/
 	int ToArrayIndex(int X, int Y) 
 	{
+		//@TODO implement
 		abort();
 	}
+
+
 };
