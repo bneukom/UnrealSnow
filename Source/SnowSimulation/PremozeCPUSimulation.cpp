@@ -41,7 +41,8 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 			const float TAir = Interpolator->GetInterpolatedTemperatureData(Temperature, CellCentroid).Average; // degree Celsius
 			const float Precipitation = Data->GetPrecipitationAt(Time, Time + FTimespan(24, 0, 0), FVector2D(CellCentroid.X, CellCentroid.Y), ETimespan::TicksPerDay); // l/m^2 or mm // @TODO timesteps
 			
-			const float AreaSquareMeters = Cell.Area / (100 * 100); // m^2
+			// @TODO use AreaXY because very steep slopes with big areas would recieve too much snow
+			const float AreaSquareMeters = Cell.AreaXY / (100 * 100); // m^2
 
 			if (Precipitation > 0)
 			{
@@ -56,6 +57,10 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 				}
 				else 
 				{
+					// @TODO modify how much snow a surface receives by aspect? A surface with a 90° slope should not receive much snow. (FIND PAPER)
+					// @TODO if we assume no wind we could calculate the area by projecting the plane onto the XY plane
+
+
 					Cell.SnowWaterEquivalent += (Precipitation * AreaSquareMeters); // l/m^2 * m^2 = l
 					Cell.SnowAlbedo = 0.8; // New snow sets the albedo to 0.8
 				}

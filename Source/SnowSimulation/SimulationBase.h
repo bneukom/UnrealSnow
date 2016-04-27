@@ -29,6 +29,9 @@ struct SNOWSIMULATION_API FSimulationCell
 	/** Area in cm^2. */
 	const float Area;
 
+	/** Area of the cell projected onto the XY plane in cm^2. */
+	const float AreaXY;
+
 	/** Midpoint of the cell. */
 	const FVector Centroid;
 
@@ -61,13 +64,13 @@ struct SNOWSIMULATION_API FSimulationCell
 	}
 
 	FSimulationCell() : Index(0), P1(FVector::ZeroVector), P2(FVector::ZeroVector), P3(FVector::ZeroVector), P4(FVector::ZeroVector),
-		Normal(FVector::ZeroVector), Area(0), Centroid(FVector::ZeroVector), Altitude(0), Aspect(0), Inclination(0), Latitude(0) {}
+		Normal(FVector::ZeroVector), Area(0), AreaXY(0), Centroid(FVector::ZeroVector), Altitude(0), Aspect(0), Inclination(0), Latitude(0) {}
 
 	FSimulationCell(
 		int Index, FVector& p1, FVector& p2, FVector& p3, FVector& p4, FVector& Normal,
-		float Area, FVector Centroid, float Altitude, float Aspect, float Inclination, float Latitude) :
+		float Area, float AreaXY, FVector Centroid, float Altitude, float Aspect, float Inclination, float Latitude) :
 		Index(Index), P1(p1), P2(p2), P3(p3), P4(p4), Normal(Normal),
-		Area(Area), 
+		Area(Area), AreaXY(AreaXY),
 		Centroid(Centroid), 
 		Altitude(Altitude), 
 		Aspect(Aspect), 

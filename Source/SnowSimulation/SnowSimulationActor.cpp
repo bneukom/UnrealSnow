@@ -1,13 +1,12 @@
 #include "SnowSimulation.h"
 #include "UnrealMathUtility.h"
 #include "SnowSimulationActor.h"
-//#include "RuntimeLandscapeDataAccess.h"
 #include "MathUtil.h"
 #include "Runtime/Landscape/Classes/Landscape.h"
 #include "Runtime/Landscape/Classes/LandscapeComponent.h"
 #include "Runtime/Landscape/Classes/LandscapeInfo.h"
 #include "Runtime/Landscape/Classes/LandscapeProxy.h"
-#include "Runtime/Landscape/Public/LandscapeDataAccess.h"
+#include "Runtime/Landscape/Public/LandscapeDataAccess.h" //#include "RuntimeLandscapeDataAccess.h"
 
 DEFINE_LOG_CATEGORY(SimulationLog);
 
@@ -139,11 +138,17 @@ void ASnowSimulationActor::CreateCells()
 						float Altitude = Centroid.Z;
 						float Area = FMath::Abs(FVector::CrossProduct(P0 - P3, P1 - P3).Size() / 2 + FVector::CrossProduct(P2 - P3, P0 - P3).Size() / 2);
 
-						FVector NormalProjXY = FVector(Normal.X, Normal.Y, 0);
-						float Inclination =  IsAlmostZero(NormalProjXY.Size()) ? 0 : FMath::Abs(FMath::Acos(FVector::DotProduct(Normal, NormalProjXY) / (Normal.Size() * NormalProjXY.Size())));
+						float AreaXY = FMath::Abs(FVector2D::CrossProduct(FVector2D(P0 - P3), FVector2D(P1 - P3)) / 2
+												+ FVector2D::CrossProduct(FVector2D(P2 - P3), FVector2D(P0 - P3)) / 2);
+
+						FVector P0toP3 = P3 - P0;
+						FVector P0toP3ProjXY = FVector(P0toP3.X, P0toP3.Y, 0);
+						float Inclination =  IsAlmostZero(P0toP3.Size()) ? 0 : FMath::Abs(FMath::Acos(FVector::DotProduct(P0toP3, P0toP3ProjXY) / (P0toP3.Size() * P0toP3ProjXY.Size())));
+						
 						// @TODO what is the aspect of the XY plane?
+						FVector NormalProjXY = FVector(Normal.X, Normal.Y, 0);
 						float Aspect = IsAlmostZero(NormalProjXY.Size()) ? 0 : FMath::Abs(FMath::Acos(FVector::DotProduct(North, NormalProjXY) / NormalProjXY.Size()));
-						FSimulationCell Cell(Index, P0, P1, P2, P3, Normal, Area, Centroid, Altitude, Aspect, Inclination, Latitude);
+						FSimulationCell Cell(Index, P0, P1, P2, P3, Normal, Area, AreaXY, Centroid, Altitude, Aspect, Inclination, Latitude);
 
 						Cells.Add(Cell);
 						Index++;
