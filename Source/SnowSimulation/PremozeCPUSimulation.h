@@ -126,6 +126,10 @@ public:
 	/** Temperature decay in degrees Celsius per 100 meters of altitude. -0.6 was proposed by Premoze et al. */
 	float TemperatureDecay = -10;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
+	/** Iterations of the Fearing snow stability Tests. [5-20]*/
+	int StabilityIterations = 10;
+
 	virtual FString GetSimulationName() override final;
 
 	virtual void Simulate(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime) override final;

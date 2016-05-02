@@ -11,28 +11,23 @@ FString UPremozeCPUSimulation::GetSimulationName()
 }
 
 // @TODO what is the time step of Premozes simulation?
+// @TODO Test Solar Radiations values from the paper
+
 // Flops per iteration: (2 * 20 + 6 * 2) + (20 * 20 + 38 * 2)
 void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime)
 {
-	// @TODO Test values from paper
-	// SolarRadiationIndex(FMath::DegreesToRadians(65), FMath::DegreesToRadians(0), FMath::DegreesToRadians(35), 174);
-	// auto N = SolarRadiationIndex(FMath::DegreesToRadians(65), FMath::DegreesToRadians(0), FMath::DegreesToRadians(35), 10);
-	// auto E = SolarRadiationIndex(FMath::DegreesToRadians(65), FMath::DegreesToRadians(90), FMath::DegreesToRadians(35), 10);
-	// auto S = SolarRadiationIndex(FMath::DegreesToRadians(65), FMath::DegreesToRadians(180), FMath::DegreesToRadians(35), 10);
-	// auto W = SolarRadiationIndex(FMath::DegreesToRadians(65), FMath::DegreesToRadians(270), FMath::DegreesToRadians(35), 10);
-
-
 	// @TODO run Premoze in daily timesteps, other timesteps do not make any sense!
 	auto SimulationSpan = EndTime - StartTime;
 	int32 SimulationHours = SimulationSpan.GetTotalHours();
 
-	const int Tests = 10;
-	
 	FDateTime Time = StartTime;
-	for (int32 Hours = 0; Hours < SimulationHours; Hours += 24) // @TODO timesteps
+
+	// @TODO timesteps
+	for (int32 Hours = 0; Hours < SimulationHours; Hours += 24) 
 	{
 		// Simulation
-		Time += FTimespan(24, 0, 0); // @TODO timesteps
+		// @TODO timesteps
+		Time += FTimespan(24, 0, 0); 
 		for (auto& Cell : Cells)
 		{
 			const FVector& CellCentroid = Cell.Centroid;
@@ -41,7 +36,7 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 			const float TAir = Interpolator->GetInterpolatedTemperatureData(Temperature, CellCentroid).Average; // degree Celsius
 			const float Precipitation = Data->GetPrecipitationAt(Time, Time + FTimespan(24, 0, 0), FVector2D(CellCentroid.X, CellCentroid.Y), ETimespan::TicksPerDay); // l/m^2 or mm // @TODO timesteps
 			
-			// @TODO use AreaXY because very steep slopes with big areas would recieve too much snow
+			// @TODO use AreaXY because very steep slopes with big areas would receive too much snow
 			const float AreaSquareMeters = Cell.AreaXY / (100 * 100); // m^2
 
 			if (Precipitation > 0)
@@ -58,8 +53,8 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 				else 
 				{
 					// @TODO modify how much snow a surface receives by aspect? A surface with a 90° slope should not receive much snow. (FIND PAPER)
+					//		-  http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.461.563&rep=rep1&type=pdf
 					// @TODO if we assume no wind we could calculate the area by projecting the plane onto the XY plane
-
 
 					Cell.SnowWaterEquivalent += (Precipitation * AreaSquareMeters); // l/m^2 * m^2 = l
 					Cell.SnowAlbedo = 0.8; // New snow sets the albedo to 0.8
@@ -76,10 +71,12 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 				// Temperature bigger than melt threshold and cell contains snow
 				if (TAir > TMelt)
 				{
-					const float DayNormalization = 24 / 24.0f; // day // @TODO timesteps
+					// @TODO timesteps
+					const float DayNormalization = 24 / 24.0f; // day 
 
 					// @TODO radiation index at nighttime? How about newer simulations?
 					// @TODO Blöschl (???) used different radiation values at night time
+
 					// Radiation Index
 					const float R_i = SolarRadiationIndex(Cell.Inclination, Cell.Aspect, Cell.Latitude, Time.GetDayOfYear()); // 1
 
@@ -100,7 +97,7 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 		TArray<FSimulationCell*> CurrentTestCells = StabilityTestCells;
 		
 
-		for (int StabilitTest = 0; StabilitTest < Tests; ++StabilitTest)
+		for (int StabilitTest = 0; StabilitTest < StabilityIterations; ++StabilitTest)
 		{
 			TArray<FSimulationCell*> UnstableCells;
 			// UnstableCells.Init(StabilityTestCells.Num());
@@ -120,7 +117,7 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 					for (int NeighbourIndex = 0; NeighbourIndex < 8; ++NeighbourIndex)
 					{
 						auto Neighbour = Cell->Neighbours[NeighbourIndex];
-						const float InstableSnow = Cell->SnowWaterEquivalent * 1 / (Tests - StabilitTest);
+						const float InstableSnow = Cell->SnowWaterEquivalent * 1 / (StabilityIterations - StabilitTest);
 
 						// @TODO for gullies the assumption that the neighbor snow altitude has to be lower is not correct.
 						if (Neighbour != nullptr && Neighbour->AltitudeWithSnow() < Cell->AltitudeWithSnow())
@@ -179,8 +176,6 @@ void UPremozeCPUSimulation::Initialize(TArray<FSimulationCell>& Cells, USimulati
 #if SIMULATION_DEBUG
 void UPremozeCPUSimulation::RenderDebug(TArray<FSimulationCell>& Cells, UWorld* World)
 {
-
-
 	for (auto& Cell : Cells)
 	{
 		if (Cell.SnowWaterEquivalent > 0) 

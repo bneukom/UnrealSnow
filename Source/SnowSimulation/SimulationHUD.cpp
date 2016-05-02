@@ -9,10 +9,10 @@ void ASimulationHUD::DrawHUD()
 	if (SimulationActor)
 	{
 		const auto Location = GetWorld()->GetFirstPlayerController()->PlayerCameraManager->GetCameraLocation();
-		auto Temperature = SimulationActor->Data->GetTemperatureData(SimulationActor->CurrentSimulationTime, SimulationActor->CurrentSimulationTime + FTimespan(24, 0, 0), FVector2D(Location.X, Location.Y), ETimespan::TicksPerDay);
-		auto Precipitation = SimulationActor->Data->GetPrecipitationAt(SimulationActor->CurrentSimulationTime, SimulationActor->CurrentSimulationTime + FTimespan(24, 0, 0), FVector2D(Location.X, Location.Y), ETimespan::TicksPerDay);
+		auto Temperature = SimulationActor->Data->GetTemperatureData(SimulationActor->GetCurrentSimulationTime(), SimulationActor->GetCurrentSimulationTime() + FTimespan(24, 0, 0), FVector2D(Location.X, Location.Y), ETimespan::TicksPerDay);
+		auto Precipitation = SimulationActor->Data->GetPrecipitationAt(SimulationActor->GetCurrentSimulationTime(), SimulationActor->GetCurrentSimulationTime() + FTimespan(24, 0, 0), FVector2D(Location.X, Location.Y), ETimespan::TicksPerDay);
 
-		DrawText(SimulationActor->CurrentSimulationTime.ToString() + " Temperature: " + FString::SanitizeFloat(Temperature.Average) + "C" + " Precipitation: " + FString::FromInt(Precipitation) + "mm", FLinearColor::White, 5, 5, GEngine->GetLargeFont());
+		DrawText(SimulationActor->GetCurrentSimulationTime().ToString() + " Temperature: " + FString::SanitizeFloat(Temperature.Average) + "C" + " Precipitation: " + FString::FromInt(Precipitation) + "mm", FLinearColor::White, 5, 5, GEngine->GetLargeFont());
 	}
 }
 

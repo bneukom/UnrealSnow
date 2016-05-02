@@ -6,7 +6,7 @@ public class SnowSimulation : ModuleRules
 {
 	public SnowSimulation(TargetInfo Target)
 	{
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "RenderCore", "Landscape" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "RenderCore", "Landscape", "RHI" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

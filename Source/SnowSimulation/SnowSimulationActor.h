@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Landscape.h"
 #include "SnowSimulation.h"
 #include "GameFramework/Actor.h"
 #include "GenericPlatformFile.h"
@@ -10,6 +11,7 @@
 #include "DefaultDataProvider.h"
 #include "SimulationDataInterpolatorBase.h"
 #include "SnowSimulationActor.generated.h"
+
 
 DECLARE_LOG_CATEGORY_EXTERN(SimulationLog, Log, All);
 
@@ -20,26 +22,20 @@ class SNOWSIMULATION_API ASnowSimulationActor : public AActor
 	
 public:	
 
+	/** The Material which will be set to the landscape. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
+	UMaterial* LandscapeMaterial;
+
 	//@TODO make cell creation algorithm independent of section size
 	/** Size of one cell of the simulation, should be divisible by the quad section size. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	int CellSize = 9;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
-	/** Render the simulation grid over the landscape. */
-	bool RenderGrid = true;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
-	/** If true, render debug information over the landscape. */
-	bool RenderDebugInfo = true;
-
-	/** The current date of the simulation. */
-	FDateTime CurrentSimulationTime;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	/** The step with which the simulation runs. */
 	float SimulationStep = ETimespan::TicksPerDay;
 
+	// @TODO setting these does not work in the editor
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	/** Simulation start time. */
 	FDateTime StartTime = FDateTime(2015, 1, 1);
@@ -64,7 +60,25 @@ public:
 	/** The simulation used. */
 	USimulationBase* Simulation;
 
-	TArray<FSimulationCell> Cells;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
+	/** Time in seconds until the next step of the simulation is executed. */
+	float SleepTime = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
+	/** Render the simulation grid over the landscape. */
+	bool RenderGrid = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
+	/** If true, render debug information over the landscape. */
+	bool RenderDebugInfo = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
+	/** If true, writes the snow map to the path specified in Snow Map Path. */
+	bool WriteSnowMap = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
+	/** The path the snow map gets written when Write Snow Map is set to true. */
+	FString SnowMapPath = "c:\\temp\\snowmap";
 
 	ASnowSimulationActor();
 
@@ -80,14 +94,35 @@ public:
 #endif
 	
 	// @TODO CreateCells in SimulationBase.h?
-	/** Removes old cells and creates the cells for the simulation. */
-	void CreateCells();
+	/** Initializes the simulation. */
+	void Initialize();
 
+	/** Returns the current simulation time. */
+	FDateTime GetCurrentSimulationTime() const { return CurrentSimulationTime; }
 private:
+	/** The landscape of the world. */
+	ALandscape* Landscape;
+
+	/** The current date of the simulation. */
+	FDateTime CurrentSimulationTime;
+
 	/** Current simulation step time passed. */
 	float NextStep;
 
+	/** The snow mask used by the landscape material. */
+	UTexture2D* SnowMaskTexture;
 
+	/** Color buffer for the snow mask texture. */
+	TArray<FLinearColor> SnowMaskData;
+
+	/** The cells used by the simulation. */
+	TArray<FSimulationCell> Cells;
+
+	/** Total number of simulation cells. */
+	int32 NumCells;
+
+	/** Number of simulation cells per dimension. */
+	int32 CellsDimension;
 
 	/**
 	* Returns the cell at the given index or nullptr if the index is out of bounds.
@@ -113,5 +148,8 @@ private:
 		abort();
 	}
 
-
+	/** 
+	* Updates the material with data from the simulation.
+	*/
+	void UpdateMaterialTexture();
 };
