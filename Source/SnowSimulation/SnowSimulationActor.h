@@ -113,7 +113,7 @@ private:
 	UTexture2D* SnowMaskTexture;
 
 	/** Color buffer for the snow mask texture. */
-	TArray<FLinearColor> SnowMaskData;
+	TArray<FColor> SnowMaskData;
 
 	/** The cells used by the simulation. */
 	TArray<FSimulationCell> Cells;

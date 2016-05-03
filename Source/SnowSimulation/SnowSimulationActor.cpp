@@ -11,13 +11,154 @@
 #include "Runtime/Landscape/Classes/LandscapeInfo.h"
 #include "Runtime/Landscape/Classes/LandscapeProxy.h"
 #include "Runtime/Landscape/Public/LandscapeDataAccess.h" //#include "RuntimeLandscapeDataAccess.h"
-
+#include "UObject/NameTypes.h"
+#include "Materials/MaterialInstance.h"
+#include "Materials/MaterialInterface.h"
+#include "Materials/Material.h"
+#include "Public/RenderingThread.h"
+#include "Runtime/Engine/Private/Materials/MaterialInstanceSupport.h"
 
 
 
 DEFINE_LOG_CATEGORY(SimulationLog);
 
 #define WRITE_SNOWMAP_TO_DISK 1
+
+/**
+* Start of code taken from MaterialInstance.cpp
+*/
+ENQUEUE_UNIQUE_RENDER_COMMAND_THREEPARAMETER_DECLARE_TEMPLATE(
+	SetMIParameterValue, ParameterType,
+	const UMaterialInstance*, Instance, Instance,
+	FName, ParameterName, Parameter.ParameterName,
+	typename ParameterType::ValueType, Value, ParameterType::GetValue(Parameter),
+	{
+		Instance->Resources[0]->RenderThread_UpdateParameter(ParameterName, Value);
+if (Instance->Resources[1])
+{
+	Instance->Resources[1]->RenderThread_UpdateParameter(ParameterName, Value);
+}
+if (Instance->Resources[2])
+{
+	Instance->Resources[2]->RenderThread_UpdateParameter(ParameterName, Value);
+}
+	});
+
+/**
+* Updates a parameter on the material instance from the game thread.
+*/
+template <typename ParameterType>
+void GameThread_UpdateMIParameter(const UMaterialInstance* Instance, const ParameterType& Parameter)
+{
+	ENQUEUE_UNIQUE_RENDER_COMMAND_THREEPARAMETER_CREATE_TEMPLATE(
+		SetMIParameterValue, ParameterType,
+		const UMaterialInstance*, Instance,
+		FName, Parameter.ParameterName,
+		typename ParameterType::ValueType, ParameterType::GetValue(Parameter)
+		);
+}
+
+/**
+* Cache uniform expressions for the given material.
+*  @param MaterialInstance - The material instance for which to cache uniform expressions.
+*/
+void CacheMaterialInstanceUniformExpressions(const UMaterialInstance* MaterialInstance)
+{
+	// Only cache the unselected + unhovered material instance. Selection color
+	// can change at runtime and would invalidate the parameter cache.
+	if (MaterialInstance->Resources[0])
+	{
+		MaterialInstance->Resources[0]->CacheUniformExpressions_GameThread();
+	}
+}
+
+void SetVectorParameterValue(ALandscapeProxy* Landscape, FName ParameterName, FLinearColor Value)
+{
+	if (Landscape)
+	{
+		for (int32 Index = 0; Index < Landscape->LandscapeComponents.Num(); ++Index)
+		{
+			if (Landscape->LandscapeComponents[Index])
+			{
+				UMaterialInstanceConstant* MIC = Landscape->LandscapeComponents[Index]->MaterialInstance;
+				if (MIC)
+				{
+					/**
+					* Start of code taken from UMaterialInstance::SetSetVectorParameterValueInternal and adjusted to use MIC instead of this
+					*/
+					FVectorParameterValue* ParameterValue = GameThread_FindParameterByName( //from MaterialInstanceSupport.h
+						MIC->VectorParameterValues,
+						ParameterName
+						);
+
+					if (!ParameterValue)
+					{
+						// If there's no element for the named parameter in array yet, add one.
+						ParameterValue = new(MIC->VectorParameterValues) FVectorParameterValue;
+						ParameterValue->ParameterName = ParameterName;
+						ParameterValue->ExpressionGUID.Invalidate();
+						// Force an update on first use
+						ParameterValue->ParameterValue.B = Value.B - 1.f;
+					}
+
+					// Don't enqueue an update if it isn't needed
+					if (ParameterValue->ParameterValue != Value)
+					{
+						ParameterValue->ParameterValue = Value;
+						// Update the material instance data in the rendering thread.
+						GameThread_UpdateMIParameter(MIC, *ParameterValue);
+						CacheMaterialInstanceUniformExpressions(MIC);
+					}
+					/**
+					* End of code taken from UMaterialInstance::SetSetVectorParameterValueInternal and adjusted to use MIC instead of this
+					*/
+				}
+			}
+		}
+	}
+}
+void SetTextureParameterValue(ALandscapeProxy* Landscape, FName ParameterName, UTexture* Value)
+{
+	if (Landscape)
+	{
+		for (int32 Index = 0; Index < Landscape->LandscapeComponents.Num(); ++Index)
+		{
+			if (Landscape->LandscapeComponents[Index])
+			{
+				UMaterialInstanceConstant* MIC = Landscape->LandscapeComponents[Index]->MaterialInstance;
+				if (MIC)
+				{
+					FTextureParameterValue* ParameterValue = GameThread_FindParameterByName(
+						MIC->TextureParameterValues,
+						ParameterName
+						);
+
+					if (!ParameterValue)
+					{
+						// If there's no element for the named parameter in array yet, add one.
+						ParameterValue = new(MIC->TextureParameterValues) FTextureParameterValue;
+						ParameterValue->ParameterName = ParameterName;
+						ParameterValue->ExpressionGUID.Invalidate();
+						// Force an update on first use
+						ParameterValue->ParameterValue = Value == GEngine->DefaultDiffuseTexture ? NULL : GEngine->DefaultDiffuseTexture;
+					}
+
+					// Don't enqueue an update if it isn't needed
+					if (ParameterValue->ParameterValue != Value)
+					{
+						checkf(!Value || Value->IsA(UTexture::StaticClass()), TEXT("Expecting a UTexture! Value='%s' class='%s'"), *Value->GetName(), *Value->GetClass()->GetName());
+
+						ParameterValue->ParameterValue = Value;
+						// Update the material instance data in the rendering thread.
+						GameThread_UpdateMIParameter(MIC, *ParameterValue);
+						CacheMaterialInstanceUniformExpressions(MIC);
+					}
+				}
+			}
+		}
+	}
+}
+
 
 ASnowSimulationActor::ASnowSimulationActor()
 {
@@ -207,6 +348,7 @@ void ASnowSimulationActor::Initialize()
 void ASnowSimulationActor::UpdateMaterialTexture()
 {
 	// @TODO what about garbage collection and concurrency when creating this texture?
+
 	// Update Texture Data
 	SnowMaskTexture = UTexture2D::CreateTransient(CellsDimension, CellsDimension, EPixelFormat::PF_B8G8R8A8);
 	SnowMaskTexture->UpdateResource();
@@ -214,105 +356,48 @@ void ASnowSimulationActor::UpdateMaterialTexture()
 
 	if (SnowMaskTexture->Resource)
 	{
-		struct FUpdateTextureData
-		{
-			FTexture2DResource* Texture2DResource;
-			int32 MipIndex;
-			FUpdateTextureRegion2D Region;
-			uint32 SrcPitch;
-			uint32 SrcBpp;
-			uint8* SrcData;
-			ASnowSimulationActor* SimulationActor;
-		};
-
+		// @TODO faster method for this?
 		for (int32 Y = 0; Y < CellsDimension; ++Y)
 		{
 			for (int32 X = 0; X < CellsDimension; ++X)
 			{
-				if (Cells[Y * CellsDimension + X].SnowWaterEquivalent > 0)
+				// @TODO how big should the SWE be for it to be visible
+				if (Cells[Y * CellsDimension + X].SnowWaterEquivalent > 1)
 				{
-					SnowMaskData.Add(FLinearColor(1, 1, 1));
+					SnowMaskData.Add(FColor(255, 255, 255));
 				}
 				else 
 				{
-					SnowMaskData.Add(FLinearColor(0, 0, 0));
+					SnowMaskData.Add(FColor(0, 0, 0));
 				}
 			}
 		}
 
 		if (WriteSnowMap)
 		{
-			TArray<FColor> ColorArray;
-			for (int32 Index = 0; Index < SnowMaskData.Num(); ++Index)
-			{
-				int32 R = static_cast<int32>(SnowMaskData[Index].R * 255);
-				int32 G = static_cast<int32>(SnowMaskData[Index].G * 255);
-				int32 B = static_cast<int32>(SnowMaskData[Index].B * 255);
-				ColorArray.Add(FColor(R, G, B));
-			}
-
-			FFileHelper::CreateBitmap(*SnowMapPath, CellsDimension, CellsDimension, ColorArray.GetData());
-		
+			FFileHelper::CreateBitmap(*SnowMapPath, CellsDimension, CellsDimension, SnowMaskData.GetData());
 		}
 
 		FRenderCommandFence UpdateTextureFence;
-		FUpdateTextureData* UpdateTextureData = new FUpdateTextureData;
-
-		UpdateTextureData->Texture2DResource = (FTexture2DResource*)SnowMaskTexture->Resource;
-		UpdateTextureData->MipIndex = 0;
-		UpdateTextureData->Region = FUpdateTextureRegion2D(0, 0, 0, 0, SnowMaskTexture->GetSizeX(), SnowMaskTexture->GetSizeY());
-		UpdateTextureData->SrcPitch = SnowMaskTexture->GetSizeX() * sizeof(FLinearColor);
-		UpdateTextureData->SrcBpp = sizeof(FLinearColor);
-		UpdateTextureData->SrcData = (uint8*)SnowMaskData.GetData();
-		UpdateTextureData->SimulationActor = this;
 
 		UpdateTextureFence.BeginFence();
-		{
-			
-			ENQUEUE_UNIQUE_RENDER_COMMAND_ONEPARAMETER(
-				UpdateTextureRegionsData,
-				FUpdateTextureData*, UpdateTextureData, UpdateTextureData,
-			{
-				int32 CurrentFirstMip = UpdateTextureData->Texture2DResource->GetCurrentFirstMip();
-				if (UpdateTextureData->MipIndex >= CurrentFirstMip)
-				{
-						
-					RHIUpdateTexture2D(
-						UpdateTextureData->Texture2DResource->GetTexture2DRHI(),
-						UpdateTextureData->MipIndex - CurrentFirstMip,
-						UpdateTextureData->Region,
-						UpdateTextureData->SrcPitch,
-						UpdateTextureData->SrcData
-						+ UpdateTextureData->Region.SrcY * UpdateTextureData->SrcPitch
-						+ UpdateTextureData->Region.SrcX * UpdateTextureData->SrcBpp
-					);
-				}
 
+		FUpdateTextureRegion2D* RegionData = new FUpdateTextureRegion2D(0, 0, 0, 0, SnowMaskTexture->GetSizeX(), SnowMaskTexture->GetSizeY());
 		
-
-				delete UpdateTextureData;
-			});
+		// Update the texture
+		SnowMaskTexture->UpdateTextureRegions(
+			0, 1, 
+			RegionData, SnowMaskTexture->GetSizeX() * 4, 4, 
+			(uint8*)SnowMaskData.GetData(), 
+			[](uint8* SrcData, const FUpdateTextureRegion2D* Regions) 
+			{
+				delete Regions;
+			}
+		);
 			
-		}
-
 		UpdateTextureFence.Wait();
 
-		//auto MaterialInstance = UMaterialInstanceDynamic::Create(LandscapeMaterial, this);
-		//MaterialInstance->SetTextureParameterValue("SnowMap", SnowMaskTexture);
-
-		for (auto Component : Landscape->LandscapeComponents)
-		{
-			auto MaterialInstance =  Component->CreateAndSetMaterialInstanceDynamic(0);
-			MaterialInstance->SetTextureParameterValue("SnowMap", SnowMaskTexture);
-			Component->UpdateMaterialInstances();
-		}
-		/*
-		for (auto Component : SimulationActor->Landscape->LandscapeComponents)
-		{
-			Component->SetMaterial(0, MaterialInstance);
-		}
-		*/
-		
+		SetTextureParameterValue(Landscape, TEXT("SnowMap"), SnowMaskTexture);
 	}
 }
 
