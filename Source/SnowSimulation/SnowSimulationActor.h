@@ -21,11 +21,6 @@ class SNOWSIMULATION_API ASnowSimulationActor : public AActor
 	GENERATED_BODY()
 	
 public:	
-
-	/** The Material which will be set to the landscape. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
-	UMaterial* LandscapeMaterial;
-
 	//@TODO make cell creation algorithm independent of section size
 	/** Size of one cell of the simulation, should be divisible by the quad section size. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
@@ -33,7 +28,7 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	/** The step with which the simulation runs. */
-	float SimulationStep = ETimespan::TicksPerDay;
+	float TimeStepHours = 1;
 
 	// @TODO setting these does not work in the editor
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
@@ -77,6 +72,9 @@ public:
 	bool WriteSnowMap = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
+	int CellDebugInfoDisplayDistance = 15000;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	/** The path the snow map gets written when Write Snow Map is set to true. */
 	FString SnowMapPath = "c:\\temp\\snowmap";
 
@@ -107,13 +105,22 @@ private:
 	FDateTime CurrentSimulationTime;
 
 	/** Current simulation step time passed. */
-	float NextStep;
+	float CurrentStepTime;
 
 	/** The snow mask used by the landscape material. */
 	UTexture2D* SnowMaskTexture;
 
 	/** Color buffer for the snow mask texture. */
-	TArray<FColor> SnowMaskData;
+	TArray<FColor> SnowMaskTextureData;
+
+	/** The snow mask used by the landscape material. */
+	UTexture2D* SWETexture;
+
+	/** Color buffer for the snow mask texture. */
+	TArray<FColor> SWETextureData;
+
+	/** Minimum and maximum snow water equivalent (SWE) of the landscape. */
+	float MinSWE, MaxSWE;
 
 	/** The cells used by the simulation. */
 	TArray<FSimulationCell> Cells;
@@ -152,4 +159,6 @@ private:
 	* Updates the material with data from the simulation.
 	*/
 	void UpdateMaterialTexture();
+
+	void UpdateTexture();
 };

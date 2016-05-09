@@ -9,7 +9,7 @@
 * Snow simulation similar to the one proposed by Simon Premoze in "Geospecific rendering of alpine terrain". 
 * Snow deposition is implemented similar to Fearings "Computer Modelling Of Fallen Snow".
 */
-UCLASS(BlueprintType)
+UCLASS(Blueprintable, BlueprintType)
 class SNOWSIMULATION_API UPremozeCPUSimulation : public USimulationBase
 {
 	GENERATED_BODY()
@@ -132,17 +132,10 @@ public:
 
 	virtual FString GetSimulationName() override final;
 
-	virtual void Simulate(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime) override final;
+	virtual void Simulate(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime, int32 TimeStepHours) override final;
 
 	virtual void Initialize(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data) override final;
 
-#if SIMULATION_DEBUG
-	/** Slope threshold for the snow deposition of the cells in radians.*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation Debug")
-	int CellDebugInfoDisplayDistance = 15000;
-
-	virtual void RenderDebug(TArray<FSimulationCell>& Cells, UWorld* World) override final;
-#endif 
-
+	virtual void RenderDebug(TArray<FSimulationCell>& Cells, UWorld* World, int CellDebugInfoDisplayDistance) override final;
 };
 

@@ -79,6 +79,9 @@
     <ClInclude Include="..\..\Source\SnowSimulation\SimulationHUD.h">
       <Filter>Source\HUD</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\RuntimeMaterialChange.h">
+      <Filter>Source\SnowSimulation\Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\SnowSimulation\SnowSimulationActor.cpp">

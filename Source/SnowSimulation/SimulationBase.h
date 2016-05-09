@@ -57,7 +57,7 @@ struct SNOWSIMULATION_API FSimulationCell
 	float SnowAlbedo = 0;
 
 	/** The days since the last snow has fallen on this cell. */
-	int DaysSinceLastSnowfall = 0;
+	float DaysSinceLastSnowfall = 0;
 
 	float AltitudeWithSnow() const {
 		return Altitude + SnowWaterEquivalent / 10;
@@ -113,12 +113,12 @@ public:
 	* @param Cells			cells on which the simulation runs
 	* @param Data			input data used for the simulation
 	* @param Interpolator	used to interpolate input data
-	* @param RunTime		time to run the simulation in hours
+	* @param StartTime		Start of the simulation
+	* @param EndTime		End of the simulation
+	* @param TimeStepHours	Time step of the simulation in hours
 	*/
-	virtual void Simulate(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime) PURE_VIRTUAL(USimulationBase::Run, ;);
+	virtual void Simulate(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime, int32 TimeStepHours) PURE_VIRTUAL(USimulationBase::Run, ;);
 
-#if SIMULATION_DEBUG
 	/** Renders debug information of the simulation every tick. */
-	virtual void RenderDebug(TArray<FSimulationCell>& Cells, UWorld* World) PURE_VIRTUAL(USimulationBase::RenderDebug, ;);
-#endif 
+	virtual void RenderDebug(TArray<FSimulationCell>& Cells, UWorld* World, int CellDebugInfoDisplayDistance) PURE_VIRTUAL(USimulationBase::RenderDebug, ;);
 };

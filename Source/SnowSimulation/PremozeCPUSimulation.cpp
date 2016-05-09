@@ -14,7 +14,7 @@ FString UPremozeCPUSimulation::GetSimulationName()
 // @TODO Test Solar Radiations values from the paper
 
 // Flops per iteration: (2 * 20 + 6 * 2) + (20 * 20 + 38 * 2)
-void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime)
+void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime, int32 TimeStepHours)
 {
 	// @TODO run Premoze in daily timesteps, other timesteps do not make any sense!
 	auto SimulationSpan = EndTime - StartTime;
@@ -23,18 +23,17 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 	FDateTime Time = StartTime;
 
 	// @TODO timesteps
-	for (int32 Hours = 0; Hours < SimulationHours; Hours += 24) 
+	for (int32 Hours = 0; Hours < SimulationHours; Hours += TimeStepHours)
 	{
 		// Simulation
-		// @TODO timesteps
-		Time += FTimespan(24, 0, 0); 
+		Time += FTimespan(TimeStepHours, 0, 0);
 		for (auto& Cell : Cells)
 		{
 			const FVector& CellCentroid = Cell.Centroid;
-			FTemperature Temperature = Data->GetTemperatureData(Time, Time + FTimespan(24, 0, 0), FVector2D(CellCentroid.X, CellCentroid.Y), ETimespan::TicksPerDay); // @TODO timesteps
+			FTemperature Temperature = Data->GetTemperatureData(Time, Time + FTimespan(TimeStepHours, 0, 0), FVector2D(CellCentroid.X, CellCentroid.Y), TimeStepHours * ETimespan::TicksPerHour); // @TODO timesteps
 			
 			const float TAir = Interpolator->GetInterpolatedTemperatureData(Temperature, CellCentroid).Average; // degree Celsius
-			const float Precipitation = Data->GetPrecipitationAt(Time, Time + FTimespan(24, 0, 0), FVector2D(CellCentroid.X, CellCentroid.Y), ETimespan::TicksPerDay); // l/m^2 or mm // @TODO timesteps
+			const float Precipitation = Data->GetPrecipitationAt(Time, Time + FTimespan(TimeStepHours, 0, 0), FVector2D(CellCentroid.X, CellCentroid.Y), TimeStepHours * ETimespan::TicksPerHour); // l/m^2 or mm // @TODO timesteps
 			
 			// @TODO use AreaXY because very steep slopes with big areas would receive too much snow
 			const float AreaSquareMeters = Cell.AreaXY / (100 * 100); // m^2
@@ -68,11 +67,11 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 					Cell.SnowAlbedo = 0.4 * (1 + FMath::Exp(-k_e * Cell.DaysSinceLastSnowfall)); // @TODO is time T the degree-days or the time since the last snowfall?;
 				}
 
+				// @TODO is this correct?
 				// Temperature bigger than melt threshold and cell contains snow
 				if (TAir > TMelt)
 				{
-					// @TODO timesteps
-					const float DayNormalization = 24 / 24.0f; // day 
+					const float DayNormalization = 24.0f / TimeStepHours; // day 
 
 					// @TODO radiation index at nighttime? How about newer simulations?
 					// @TODO Blöschl (???) used different radiation values at night time
@@ -91,7 +90,7 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 				}
 			}
 
-			Cell.DaysSinceLastSnowfall++;
+			Cell.DaysSinceLastSnowfall += 24.0f / TimeStepHours;
 		}
 
 		TArray<FSimulationCell*> CurrentTestCells = StabilityTestCells;
@@ -136,17 +135,17 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 							const FVector NeighbourProjXY(ToNeighbour.X, ToNeighbour.Y, 0);
 							const float Slope = FMath::Abs(FMath::Acos(FVector::DotProduct(ToNeighbour, NeighbourProjXY) / (ToNeighbour.Size() * NeighbourProjXY.Size())));
 
-							const float SupportProbability = FMath::Min(Slope < FMath::DegreesToRadians(40) ? 1 : 1 - (Slope / FMath::DegreesToRadians(50)), 1.0f);
+							const float SupportProbability = FMath::Min(Slope < FMath::DegreesToRadians(50) ? 1 : 1 - (Slope / FMath::DegreesToRadians(60)), 1.0f);
 							const bool Support = FMath::FRandRange(0.0f, 1.0f) <= SupportProbability;
 
 							if (!Support) {
-
-								const float Avalanche = (Cell->SnowWaterEquivalent * (Slope / (PI / 2)) *  0.5f);
+								// const float Avalanche = (Cell->SnowWaterEquivalent * (Slope / (PI / 2)) *  0.5f);
+								const float Avalanche = Cell->SnowWaterEquivalent < 5 ? Cell->SnowWaterEquivalent : (Cell->SnowWaterEquivalent * (Slope / (PI / 2)) * 0.5f);
 								
 								Cell->SnowWaterEquivalent -= Avalanche;
 								Cell->Neighbours[NeighbourIndex]->SnowWaterEquivalent += Avalanche;
 
-								UnstableCells.AddUnique(Cell->Neighbours[NeighbourIndex]);
+								UnstableCells.Add(Cell->Neighbours[NeighbourIndex]);
 
 								SnowAvalanched = true;
 							}
@@ -155,7 +154,7 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 
 					if (SnowAvalanched)
 					{
-						UnstableCells.AddUnique(Cell);
+						UnstableCells.Add(Cell);
 					}
 				}
 			}
@@ -174,7 +173,7 @@ void UPremozeCPUSimulation::Initialize(TArray<FSimulationCell>& Cells, USimulati
 }
 
 #if SIMULATION_DEBUG
-void UPremozeCPUSimulation::RenderDebug(TArray<FSimulationCell>& Cells, UWorld* World)
+void UPremozeCPUSimulation::RenderDebug(TArray<FSimulationCell>& Cells, UWorld* World, int CellDebugInfoDisplayDistance)
 {
 	for (auto& Cell : Cells)
 	{
