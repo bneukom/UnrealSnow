@@ -14,6 +14,10 @@ class SNOWSIMULATION_API UPremozeCPUSimulation : public USimulationBase
 {
 	GENERATED_BODY()
 private:
+	/** The max SWE of the current time step. */
+	float MaxSWE;
+
+	/** The cells used for the stability tests. */
 	TArray<FSimulationCell*> StabilityTestCells;
 
 	// @TODO Degrees or radians?
@@ -137,5 +141,7 @@ public:
 	virtual void Initialize(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data) override final;
 
 	virtual void RenderDebug(TArray<FSimulationCell>& Cells, UWorld* World, int CellDebugInfoDisplayDistance) override final;
+
+	virtual float GetMaxSWE() override final;
 };
 

@@ -219,56 +219,71 @@ void ASnowSimulationActor::UpdateMaterialTexture()
 	// @TODO what about garbage collection and concurrency when creating this texture?
 	// @TODO always create new texture too slow?
 
-	// Update Texture Data
+	// Create new textures
 	SnowMaskTexture = UTexture2D::CreateTransient(CellsDimension, CellsDimension, EPixelFormat::PF_B8G8R8A8);
 	SnowMaskTexture->UpdateResource();
 	SnowMaskTextureData.Empty(NumCells);
 
-	if (SnowMaskTexture->Resource)
+	SWETexture = UTexture2D::CreateTransient(CellsDimension, CellsDimension, EPixelFormat::PF_B8G8R8A8);
+	SWETexture->UpdateResource();
+	SWETextureData.Empty(NumCells);
+
+	// Update textures
+	for (int32 Y = 0; Y < CellsDimension; ++Y)
 	{
-		// @TODO faster method for this?
-		for (int32 Y = 0; Y < CellsDimension; ++Y)
+		for (int32 X = 0; X < CellsDimension; ++X)
 		{
-			for (int32 X = 0; X < CellsDimension; ++X)
-			{
-				// @TODO how big should the SWE be for it to be visible
-				if (Cells[Y * CellsDimension + X].SnowWaterEquivalent > 1)
-				{
-					SnowMaskTextureData.Add(FColor(255, 255, 255));
-				}
-				else 
-				{
-					SnowMaskTextureData.Add(FColor(0, 0, 0));
-				}
-			}
+			auto& Cell = Cells[Y * CellsDimension + X];
+
+			// Snow mask texture
+			if (Cell.SnowWaterEquivalent > 0) SnowMaskTextureData.Add(FColor(255, 255, 255));
+			else SnowMaskTextureData.Add(FColor(0, 0, 0));
+
+			// SWE gray scale texture
+			float Gray = Cell.SnowWaterEquivalent / Simulation->GetMaxSWE() * 255;
+			uint8 GrayInt = static_cast<uint8>(Gray);
+			SWETextureData.Add(FColor(GrayInt, GrayInt, GrayInt));
 		}
-
-		if (WriteSnowMap)
-		{
-			FFileHelper::CreateBitmap(*SnowMapPath, CellsDimension, CellsDimension, SnowMaskTextureData.GetData());
-		}
-
-		FRenderCommandFence UpdateTextureFence;
-
-		UpdateTextureFence.BeginFence();
-
-		FUpdateTextureRegion2D* RegionData = new FUpdateTextureRegion2D(0, 0, 0, 0, SnowMaskTexture->GetSizeX(), SnowMaskTexture->GetSizeY());
-		
-		// Update the texture
-		SnowMaskTexture->UpdateTextureRegions(
-			0, 1, 
-			RegionData, SnowMaskTexture->GetSizeX() * 4, 4, 
-			(uint8*)SnowMaskTextureData.GetData(), 
-			[](uint8* SrcData, const FUpdateTextureRegion2D* Regions) 
-			{
-				delete Regions;
-			}
-		);
-			
-		UpdateTextureFence.Wait();
-
-		SetTextureParameterValue(Landscape, TEXT("SnowMap"), SnowMaskTexture, GEngine);
 	}
+
+	// Debug snow texture output
+	if (WriteSnowMap)
+	{
+		auto SnowMapPath = DebugTexturePath + "\\SnowMask";
+		auto SWEMapPath = DebugTexturePath + "\\SWE";
+		FFileHelper::CreateBitmap(*SnowMapPath, CellsDimension, CellsDimension, SnowMaskTextureData.GetData());
+		FFileHelper::CreateBitmap(*SWEMapPath, CellsDimension, CellsDimension, SnowMaskTextureData.GetData());
+	}
+
+	// Update material
+	FRenderCommandFence UpdateTextureFence;
+
+	UpdateTextureFence.BeginFence();
+
+	UpdateTexture(SnowMaskTexture, SnowMaskTextureData);
+	UpdateTexture(SWETexture, SWETextureData);
+		
+	UpdateTextureFence.Wait();
+
+	SetTextureParameterValue(Landscape, TEXT("SnowMap"), SnowMaskTexture, GEngine);
+}
+
+void ASnowSimulationActor::UpdateTexture(UTexture2D* Texture, TArray<FColor>& TextureData)
+{
+	FUpdateTextureRegion2D* RegionData = new FUpdateTextureRegion2D(0, 0, 0, 0, Texture->GetSizeX(), Texture->GetSizeY());
+
+	auto CleanupFunction = [](uint8* SrcData, const FUpdateTextureRegion2D* Regions)
+	{
+		delete Regions;
+	};
+
+	// Update the texture
+	Texture->UpdateTextureRegions(
+		0, 1,
+		RegionData, Texture->GetSizeX() * 4, 4,
+		(uint8*)TextureData.GetData(),
+		CleanupFunction
+	);
 }
 
 #if WITH_EDITOR

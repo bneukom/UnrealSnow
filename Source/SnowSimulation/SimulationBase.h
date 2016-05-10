@@ -121,4 +121,8 @@ public:
 
 	/** Renders debug information of the simulation every tick. */
 	virtual void RenderDebug(TArray<FSimulationCell>& Cells, UWorld* World, int CellDebugInfoDisplayDistance) PURE_VIRTUAL(USimulationBase::RenderDebug, ;);
+
+	/** Returns the maximum SWE of the last simulation step. */
+	virtual float GetMaxSWE() PURE_VIRTUAL(USimulationBase::GetMaxSWE, return 0.0f;);
 };
+

@@ -22,6 +22,8 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 
 	FDateTime Time = StartTime;
 
+	MaxSWE = 0;
+
 	// @TODO timesteps
 	for (int32 Hours = 0; Hours < SimulationHours; Hours += TimeStepHours)
 	{
@@ -99,7 +101,6 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 		for (int StabilitTest = 0; StabilitTest < StabilityIterations; ++StabilitTest)
 		{
 			TArray<FSimulationCell*> UnstableCells;
-			// UnstableCells.Init(StabilityTestCells.Num());
 
 			// Sort the cells by total altitude
 			CurrentTestCells.Sort([](const FSimulationCell& A, const FSimulationCell& B) {
@@ -148,6 +149,7 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 								UnstableCells.Add(Cell->Neighbours[NeighbourIndex]);
 
 								SnowAvalanched = true;
+
 							}
 						}
 					}
@@ -157,9 +159,17 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 						UnstableCells.Add(Cell);
 					}
 				}
+
+			
 			}
 
 			CurrentTestCells = UnstableCells;
+		}
+
+		// Store max SWE
+		for (auto& Cell : Cells)
+		{
+			MaxSWE = FMath::Max(Cell.SnowWaterEquivalent, MaxSWE);
 		}
 	}
 }
@@ -228,6 +238,12 @@ void UPremozeCPUSimulation::RenderDebug(TArray<FSimulationCell>& Cells, UWorld* 
 		}
 	}
 }
+
+float UPremozeCPUSimulation::GetMaxSWE()
+{
+	return MaxSWE;
+}
+
 #endif // SIMULATION_DEBUG
 
 

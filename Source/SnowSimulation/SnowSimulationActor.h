@@ -76,7 +76,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	/** The path the snow map gets written when Write Snow Map is set to true. */
-	FString SnowMapPath = "c:\\temp\\snowmap";
+	FString DebugTexturePath = "c:\\temp\\snowmap";
 
 	ASnowSimulationActor();
 
@@ -160,5 +160,8 @@ private:
 	*/
 	void UpdateMaterialTexture();
 
-	void UpdateTexture();
+	/** 
+	* Updates the texture with the given texture data.
+	*/
+	void UpdateTexture(UTexture2D* Texture, TArray<FColor>& TextureData);
 };

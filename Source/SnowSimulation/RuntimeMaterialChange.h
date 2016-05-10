@@ -14,15 +14,16 @@ ENQUEUE_UNIQUE_RENDER_COMMAND_THREEPARAMETER_DECLARE_TEMPLATE(
 	typename ParameterType::ValueType, Value, ParameterType::GetValue(Parameter),
 	{
 		Instance->Resources[0]->RenderThread_UpdateParameter(ParameterName, Value);
-if (Instance->Resources[1])
-{
-	Instance->Resources[1]->RenderThread_UpdateParameter(ParameterName, Value);
-}
-if (Instance->Resources[2])
-{
-	Instance->Resources[2]->RenderThread_UpdateParameter(ParameterName, Value);
-}
-	});
+		if (Instance->Resources[1])
+		{
+			Instance->Resources[1]->RenderThread_UpdateParameter(ParameterName, Value);
+		}
+		if (Instance->Resources[2])
+		{
+			Instance->Resources[2]->RenderThread_UpdateParameter(ParameterName, Value);
+		}
+	}
+);
 
 /**
 * Updates a parameter on the material instance from the game thread.
@@ -35,7 +36,7 @@ void GameThread_UpdateMIParameter(const UMaterialInstance* Instance, const Param
 		const UMaterialInstance*, Instance,
 		FName, Parameter.ParameterName,
 		typename ParameterType::ValueType, ParameterType::GetValue(Parameter)
-		);
+	);
 }
 
 /**
@@ -137,4 +138,46 @@ void SetTextureParameterValue(ALandscapeProxy* Landscape, FName ParameterName, U
 			}
 		}
 	}
+}
+
+void SetScalarParameterValue(ALandscapeProxy* Landscape, FName ParameterName, float Value)
+{
+	if (Landscape)
+	{
+		for (int32 Index = 0; Index < Landscape->LandscapeComponents.Num(); ++Index)
+		{
+			if (Landscape->LandscapeComponents[Index])
+			{
+				UMaterialInstanceConstant* MIC = Landscape->LandscapeComponents[Index]->MaterialInstance;
+				if (MIC)
+				{
+					FScalarParameterValue* ParameterValue = GameThread_FindParameterByName(
+						MIC->ScalarParameterValues,
+						ParameterName
+						);
+
+					if (!ParameterValue)
+					{
+						// If there's no element for the named parameter in array yet, add one.
+						ParameterValue = new(MIC->ScalarParameterValues) FScalarParameterValue;
+						ParameterValue->ParameterName = ParameterName;
+						ParameterValue->ExpressionGUID.Invalidate();
+						// Force an update on first use
+						ParameterValue->ParameterValue = Value - 1.f;
+					}
+
+					// Don't enqueue an update if it isn't needed
+					if (ParameterValue->ParameterValue != Value)
+					{
+						ParameterValue->ParameterValue = Value;
+						// Update the material instance data in the rendering thread.
+						GameThread_UpdateMIParameter(MIC, *ParameterValue);
+						CacheMaterialInstanceUniformExpressions(MIC);
+					}
+
+				}
+			}
+		}
+	}
+	
 }
