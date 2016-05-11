@@ -26,9 +26,8 @@ FTemperature UDefaultSimulationDataProvider::GetTemperatureData(const FDateTime&
 		Average += AverageMonthlyTemperature.Average;
 	}
 
-	float T = FMath::FRandRange(-4, 4);
 
-	return FTemperature(AverageLow / TotalTicks + T, AverageHigh / TotalTicks, Average / TotalTicks + T);
+	return FTemperature(AverageLow / TotalTicks, AverageHigh / TotalTicks, Average / TotalTicks);
 }
 
 float UDefaultSimulationDataProvider::GetPrecipitationAt(const FDateTime& From, const FDateTime& To, const FVector2D& Position, int64 Resolution)

@@ -127,10 +127,6 @@ public:
 	float k_m = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
-	/** Temperature decay in degrees Celsius per 100 meters of altitude. -0.6 was proposed by Premoze et al. */
-	float TemperatureDecay = -10;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	/** Iterations of the Fearing snow stability Tests. [5-20]*/
 	int StabilityIterations = 10;
 
