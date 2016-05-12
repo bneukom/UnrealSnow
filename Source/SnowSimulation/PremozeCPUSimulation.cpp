@@ -22,7 +22,7 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 
 	FDateTime Time = StartTime;
 
-	MaxSWE = 0;
+	MaxSnow = 0;
 
 	// @TODO timesteps
 	for (int32 Hours = 0; Hours < SimulationHours; Hours += TimeStepHours)
@@ -166,10 +166,11 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 			CurrentTestCells = UnstableCells;
 		}
 
-		// Store max SWE
+		// Store max snow
 		for (auto& Cell : Cells)
 		{
-			MaxSWE = FMath::Max(Cell.SnowWaterEquivalent, MaxSWE);
+			auto AreaSquareMeters = Cell.Area / (100 * 100);
+			MaxSnow = FMath::Max(Cell.SnowWaterEquivalent / AreaSquareMeters, MaxSnow);
 		}
 	}
 }
@@ -239,9 +240,9 @@ void UPremozeCPUSimulation::RenderDebug(TArray<FSimulationCell>& Cells, UWorld* 
 	}
 }
 
-float UPremozeCPUSimulation::GetMaxSWE()
+float UPremozeCPUSimulation::GetMaxSnow()
 {
-	return MaxSWE;
+	return MaxSnow;
 }
 
 #endif // SIMULATION_DEBUG

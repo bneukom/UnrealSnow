@@ -58,7 +58,7 @@ void ASnowSimulationActor::Tick(float DeltaTime)
 		// Update the snow material to reflect changes from the simulation
 		UpdateMaterialTexture();
 
-		SetScalarParameterValue(Landscape, TEXT("MaxSWE"), Simulation->GetMaxSWE());
+		SetScalarParameterValue(Landscape, TEXT("MaxSnow"), Simulation->GetMaxSnow());
 			
 		CurrentSimulationTime += FTimespan(TimeStepHours, 0, 0);
 	}
@@ -221,13 +221,9 @@ void ASnowSimulationActor::UpdateMaterialTexture()
 	// @TODO always create new texture too slow?
 
 	// Create new textures
-	SnowMaskTexture = UTexture2D::CreateTransient(CellsDimension, CellsDimension, EPixelFormat::PF_B8G8R8A8);
-	SnowMaskTexture->UpdateResource();
-	SnowMaskTextureData.Empty(NumCells);
-
-	SWETexture = UTexture2D::CreateTransient(CellsDimension, CellsDimension, EPixelFormat::PF_B8G8R8A8);
-	SWETexture->UpdateResource();
-	SWETextureData.Empty(NumCells);
+	SnowMapTexture = UTexture2D::CreateTransient(CellsDimension, CellsDimension, EPixelFormat::PF_B8G8R8A8);
+	SnowMapTexture->UpdateResource();
+	SnowMapTextureData.Empty(NumCells);
 
 	// Update textures
 	for (int32 Y = 0; Y < CellsDimension; ++Y)
@@ -236,24 +232,20 @@ void ASnowSimulationActor::UpdateMaterialTexture()
 		{
 			auto& Cell = Cells[Y * CellsDimension + X];
 
-			// Snow mask texture
-			if (Cell.SnowWaterEquivalent > 0) SnowMaskTextureData.Add(FColor(255, 255, 255));
-			else SnowMaskTextureData.Add(FColor(0, 0, 0));
-
-			// SWE gray scale texture
-			float Gray = Cell.SnowWaterEquivalent / Simulation->GetMaxSWE() * 255;
+			// Snow map texture
+			float AreaSquareMeters = Cell.Area / (100 * 100);
+			float SnowMM = Cell.SnowWaterEquivalent / AreaSquareMeters;
+			float Gray = SnowMM / Simulation->GetMaxSnow() * 255;
 			uint8 GrayInt = static_cast<uint8>(Gray);
-			SWETextureData.Add(FColor(GrayInt, GrayInt, GrayInt));
+			SnowMapTextureData.Add(FColor(GrayInt, GrayInt, GrayInt));
 		}
 	}
 
 	// Debug snow texture output
 	if (WriteSnowMap)
 	{
-		auto SnowMapPath = DebugTexturePath + "\\SnowMask";
-		auto SWEMapPath = DebugTexturePath + "\\SWE";
-		FFileHelper::CreateBitmap(*SnowMapPath, CellsDimension, CellsDimension, SnowMaskTextureData.GetData());
-		FFileHelper::CreateBitmap(*SWEMapPath, CellsDimension, CellsDimension, SWETextureData.GetData());
+		auto SnowMapPath = DebugTexturePath + "\\SnowMap";
+		FFileHelper::CreateBitmap(*SnowMapPath, CellsDimension, CellsDimension, SnowMapTextureData.GetData());
 	}
 
 	// Update material
@@ -261,13 +253,11 @@ void ASnowSimulationActor::UpdateMaterialTexture()
 
 	UpdateTextureFence.BeginFence();
 
-	UpdateTexture(SnowMaskTexture, SnowMaskTextureData);
-	UpdateTexture(SWETexture, SWETextureData);
+	UpdateTexture(SnowMapTexture, SnowMapTextureData);
 		
 	UpdateTextureFence.Wait();
 
-	SetTextureParameterValue(Landscape, TEXT("SnowMap"), SnowMaskTexture, GEngine);
-	SetTextureParameterValue(Landscape, TEXT("SWEMap"), SnowMaskTexture, GEngine);
+	SetTextureParameterValue(Landscape, TEXT("SnowMap"), SnowMapTexture, GEngine);
 }
 
 void ASnowSimulationActor::UpdateTexture(UTexture2D* Texture, TArray<FColor>& TextureData)

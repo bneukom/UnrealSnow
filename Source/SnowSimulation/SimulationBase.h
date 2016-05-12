@@ -48,10 +48,8 @@ struct SNOWSIMULATION_API FSimulationCell
 	const float Latitude;
 
 	// @TODO Create template (subclasses?) with this data, other simulations might use other data.
-	/** Snow water equivalent (SWE) as the mass of water stored as liter */
+	/** Snow water equivalent (SWE) as the mass of water stored in liters. */
 	float SnowWaterEquivalent = 0;
-
-	float InstableSnow = 0;
 
 	/** The albedo of the snow [0-1.0]. */
 	float SnowAlbedo = 0;
@@ -122,7 +120,7 @@ public:
 	/** Renders debug information of the simulation every tick. */
 	virtual void RenderDebug(TArray<FSimulationCell>& Cells, UWorld* World, int CellDebugInfoDisplayDistance) PURE_VIRTUAL(USimulationBase::RenderDebug, ;);
 
-	/** Returns the maximum SWE of the last simulation step. */
-	virtual float GetMaxSWE() PURE_VIRTUAL(USimulationBase::GetMaxSWE, return 0.0f;);
+	/** Returns the maximum snow amount of any cell in mm. */
+	virtual float GetMaxSnow() PURE_VIRTUAL(USimulationBase::GetMaxSnow, return 0.0f;);
 };
 

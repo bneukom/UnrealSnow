@@ -108,16 +108,10 @@ private:
 	float CurrentStepTime;
 
 	/** The snow mask used by the landscape material. */
-	UTexture2D* SnowMaskTexture;
+	UTexture2D* SnowMapTexture;
 
 	/** Color buffer for the snow mask texture. */
-	TArray<FColor> SnowMaskTextureData;
-
-	/** The snow mask used by the landscape material. */
-	UTexture2D* SWETexture;
-
-	/** Color buffer for the snow mask texture. */
-	TArray<FColor> SWETextureData;
+	TArray<FColor> SnowMapTextureData;
 
 	/** Minimum and maximum snow water equivalent (SWE) of the landscape. */
 	float MinSWE, MaxSWE;
