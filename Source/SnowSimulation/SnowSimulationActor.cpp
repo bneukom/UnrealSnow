@@ -1,7 +1,8 @@
 #include "SnowSimulation.h"
 #include "UnrealMathUtility.h"
 #include "SnowSimulationActor.h"
-#include "MathUtil.h"
+#include "Util/MathUtil.h"
+#include "Util/RuntimeMaterialChange.h"
 #include "TextureResource.h"
 #include "RenderingThread.h"
 #include "RHICommandList.h"
@@ -15,7 +16,7 @@
 #include "Materials/MaterialInstance.h"
 #include "Materials/MaterialInterface.h"
 #include "Materials/Material.h"
-#include "RuntimeMaterialChange.h"
+
 
 
 DEFINE_LOG_CATEGORY(SimulationLog);
@@ -34,7 +35,7 @@ void ASnowSimulationActor::BeginPlay()
 	Initialize();
 
 	// Initialize simulation
-	Simulation->Initialize(Cells, Data);
+	Simulation->Initialize(Cells, WeatherData);
 	UE_LOG(SimulationLog, Display, TEXT("Simulation type used: %s"), *Simulation->GetSimulationName());
 	CurrentSimulationTime = StartTime;
 
@@ -53,7 +54,7 @@ void ASnowSimulationActor::Tick(float DeltaTime)
 		CurrentStepTime = 0;
 
 		// Simulate next step
-		Simulation->Simulate(Cells, Data, Interpolator, CurrentSimulationTime, CurrentSimulationTime + FTimespan(TimeStepHours, 0, 0), TimeStepHours);
+		Simulation->Simulate(Cells, WeatherData, Interpolator, CurrentSimulationTime, CurrentSimulationTime + FTimespan(TimeStepHours, 0, 0), TimeStepHours);
 
 		// Update the snow material to reflect changes from the simulation
 		UpdateMaterialTexture();
@@ -205,6 +206,42 @@ void ASnowSimulationActor::Initialize()
 					Current.Neighbours[7] = GetCellChecked(CellIndex - CellsDimension - 1);		// NW
 			}
 
+			// Set inclination map
+			InclinationTexture = UTexture2D::CreateTransient(CellsDimension, CellsDimension, EPixelFormat::PF_B8G8R8A8);
+			InclinationTexture->UpdateResource();
+			InclinationTextureData.Empty(NumCells);
+
+			auto MaxInclination = 0.0f;
+			for (int32 Y = 0; Y < CellsDimension; ++Y)
+			{
+				for (int32 X = 0; X < CellsDimension; ++X)
+				{
+					auto& Cell = Cells[Y * CellsDimension + X];
+					MaxInclination = FMath::Max(MaxInclination, Cell.Inclination);
+
+					auto Inclination = Cell.Inclination / (PI / 2) * 255;
+					auto Gray = static_cast<uint8>(Inclination);
+					InclinationTextureData.Add(FColor(Gray, Gray, Gray));
+
+				}
+			}
+
+			// Debug inclination texture output
+			if (WriteTextureMaps)
+			{
+				auto InclinationMapPath = DebugTexturePath + "\\InclinationMap";
+				FFileHelper::CreateBitmap(*InclinationMapPath, CellsDimension, CellsDimension, InclinationTextureData.GetData());
+			}
+
+			// Update material
+			FRenderCommandFence UpdateTextureFence;
+
+			UpdateTextureFence.BeginFence();
+			UpdateTexture(InclinationTexture, InclinationTextureData);
+			UpdateTextureFence.Wait();
+
+			SetTextureParameterValue(Landscape, TEXT("InclinationMap"), SnowMapTexture, GEngine);
+
 			int32 OverallResolution = Landscape->SubsectionSizeQuads * FMath::Sqrt(LandscapeComponents.Num());
 			SetScalarParameterValue(Landscape, TEXT("CellsDimension"), CellsDimension);
 			SetScalarParameterValue(Landscape, TEXT("Resolution"), OverallResolution);
@@ -225,7 +262,7 @@ void ASnowSimulationActor::UpdateMaterialTexture()
 	SnowMapTexture->UpdateResource();
 	SnowMapTextureData.Empty(NumCells);
 
-	// Update textures
+	// Update snow map texture
 	for (int32 Y = 0; Y < CellsDimension; ++Y)
 	{
 		for (int32 X = 0; X < CellsDimension; ++X)
@@ -242,7 +279,7 @@ void ASnowSimulationActor::UpdateMaterialTexture()
 	}
 
 	// Debug snow texture output
-	if (WriteSnowMap)
+	if (WriteTextureMaps)
 	{
 		auto SnowMapPath = DebugTexturePath + "\\SnowMap";
 		FFileHelper::CreateBitmap(*SnowMapPath, CellsDimension, CellsDimension, SnowMapTextureData.GetData());

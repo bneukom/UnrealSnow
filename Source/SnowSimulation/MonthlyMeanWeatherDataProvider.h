@@ -1,8 +1,8 @@
 #pragma once
 
-#include "SimulationDataProviderBase.h"
+#include "SimulationWeatherDataProviderBase.h"
 #include "Array.h"
-#include "DefaultDataProvider.generated.h"
+#include "MonthlyMeanWeatherDataProvider.generated.h"
 
 /**
 */
@@ -26,10 +26,11 @@ public:
 };
 
 /**
-* Base class for all data provides for the simulation.
+* Weather data provider with monthly input data. Precipitation is assumed to be only at the beginning of the month (< AverageNumberOfDays).
+* @TODO implement http://meteora.ucsd.edu/cap/pdffiles/downscaling_comparison.pdf
 */
 UCLASS(Blueprintable, BlueprintType)
-class SNOWSIMULATION_API UDefaultSimulationDataProvider : public USimulationDataProviderBase
+class SNOWSIMULATION_API UMonthlyMeanSimulationDataProvider : public USimulationWeatherDataProviderBase
 {
 	GENERATED_BODY()
 
@@ -42,7 +43,7 @@ public:
 	/** Monthly precipitation values. Month 0 meaning January, 1 February and so on.*/
 	TArray<FMonthlyPrecipitation> MonthlyPrecipitation;
 
-	UDefaultSimulationDataProvider() 
+	UMonthlyMeanSimulationDataProvider() 
 	{
 		// Temperature and precipitation values for Chur (CH)(http://www.weatherbase.com/weather/weather.php3?s=590618&cityname=Chur-Switzerland)
 		MonthlyTemperatures.Add(FTemperature(-3,	4.7,	0.4));	// January
@@ -76,5 +77,4 @@ public:
 
 	virtual float GetPrecipitationAt(const FDateTime& From, const FDateTime& To, const FVector2D& Position, int64 Resolution) override final;
 
-	virtual float GetVegetationDensityAt(const FVector& Position) override final;
 };

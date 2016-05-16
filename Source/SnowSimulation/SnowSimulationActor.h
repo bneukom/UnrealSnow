@@ -6,9 +6,8 @@
 #include "SnowSimulation.h"
 #include "GameFramework/Actor.h"
 #include "GenericPlatformFile.h"
-#include "SimulationDataProviderBase.h"
+#include "SimulationWeatherDataProviderBase.h"
 #include "SimulationBase.h"
-#include "DefaultDataProvider.h"
 #include "SimulationDataInterpolatorBase.h"
 #include "SnowSimulationActor.generated.h"
 
@@ -45,7 +44,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	/** Data input for the simulation. */
-	USimulationDataProviderBase* Data;
+	USimulationWeatherDataProviderBase* WeatherData;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	/** Interpolator for the data for the simulation. */
@@ -69,14 +68,14 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	/** If true, writes the snow map to the path specified in Snow Map Path. */
-	bool WriteSnowMap = true;
+	bool WriteTextureMaps = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	int CellDebugInfoDisplayDistance = 15000;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	/** The path the snow map gets written when Write Snow Map is set to true. */
-	FString DebugTexturePath = "c:\\temp\\snowmap";
+	FString DebugTexturePath = "c:\\temp";
 
 	ASnowSimulationActor();
 
@@ -112,6 +111,12 @@ private:
 
 	/** Color buffer for the snow mask texture. */
 	TArray<FColor> SnowMapTextureData;
+
+	/** The snow mask used by the landscape material. */
+	UTexture2D* InclinationTexture;
+
+	/** Color buffer for the snow mask texture. */
+	TArray<FColor> InclinationTextureData;
 
 	/** Minimum and maximum snow water equivalent (SWE) of the landscape. */
 	float MinSWE, MaxSWE;

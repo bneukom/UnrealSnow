@@ -2,7 +2,7 @@
 
 #include "SnowSimulation.h"
 #include "PremozeCPUSimulation.h"
-#include "MathUtil.h"
+#include "Util/MathUtil.h"
 #include "SimulationDataInterpolatorBase.h"
 
 FString UPremozeCPUSimulation::GetSimulationName()
@@ -14,7 +14,7 @@ FString UPremozeCPUSimulation::GetSimulationName()
 // @TODO Test Solar Radiations values from the paper
 
 // Flops per iteration: (2 * 20 + 6 * 2) + (20 * 20 + 38 * 2)
-void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime, int32 TimeStepHours)
+void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulationWeatherDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime, int32 TimeStepHours)
 {
 	// @TODO run Premoze in daily timesteps, other timesteps do not make any sense!
 	auto SimulationSpan = EndTime - StartTime;
@@ -24,7 +24,6 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 
 	MaxSnow = 0;
 
-	// @TODO timesteps
 	for (int32 Hours = 0; Hours < SimulationHours; Hours += TimeStepHours)
 	{
 		// Simulation
@@ -34,7 +33,7 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 			const FVector& CellCentroid = Cell.Centroid;
 			FTemperature Temperature = Data->GetTemperatureData(Time, Time + FTimespan(TimeStepHours, 0, 0), FVector2D(CellCentroid.X, CellCentroid.Y), TimeStepHours * ETimespan::TicksPerHour); // @TODO timesteps
 			
-			const float TAir = Interpolator->GetInterpolatedTemperatureData(Temperature, CellCentroid).Average; // degree Celsius
+			const float TAir = Interpolator->InterpolateTemperatureByAltitude(Temperature, CellCentroid).Average; // degree Celsius
 			const float Precipitation = Data->GetPrecipitationAt(Time, Time + FTimespan(TimeStepHours, 0, 0), FVector2D(CellCentroid.X, CellCentroid.Y), TimeStepHours * ETimespan::TicksPerHour); // l/m^2 or mm // @TODO timesteps
 			
 			// @TODO use AreaXY because very steep slopes with big areas would receive too much snow
@@ -82,7 +81,8 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 					const float R_i = SolarRadiationIndex(Cell.Inclination, Cell.Aspect, Cell.Latitude, Time.GetDayOfYear()); // 1
 
 					// Melt factor
-					const float k_v = FMath::Exp(-4 * Data->GetVegetationDensityAt(Cell.Centroid)); // 1
+					const float VegetationDensity = 0;
+					const float k_v = FMath::Exp(-4 * VegetationDensity); // 1
 					const float c_m = k_m * k_v * R_i *  (1 - Cell.SnowAlbedo) * DayNormalization * AreaSquareMeters; // l/m^2/C°/day * day * m^2 = l/m^2 * 1/day * day * m^2 = l/C°
 					const float M = c_m * (TAir - TMelt); // l/C° * C° = l
 
@@ -175,7 +175,7 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 	}
 }
 
-void UPremozeCPUSimulation::Initialize(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data)
+void UPremozeCPUSimulation::Initialize(TArray<FSimulationCell>& Cells, USimulationWeatherDataProviderBase* Data)
 {
 	for (auto& Cell : Cells)
 	{

@@ -16,6 +16,6 @@ public:
 	/**
 	* Returns the interpolated temperature with the given base temperature at the given position.
 	*/
-	virtual FTemperature GetInterpolatedTemperatureData(FTemperature& BaseTemperatur, const FVector& Position) PURE_VIRTUAL(USimulationDataInterpolator::GetDailyTemperatureData, return FTemperature(););
+	virtual FTemperature InterpolateTemperatureByAltitude(FTemperature& BaseTemperatur, const FVector& Position) PURE_VIRTUAL(USimulationDataInterpolator::GetDailyTemperatureData, return FTemperature(););
 
 };

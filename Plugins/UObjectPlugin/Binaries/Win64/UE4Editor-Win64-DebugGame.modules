@@ -1,0 +1,8 @@
+{
+	"Changelist" : 2934540,
+	"BuildId" : "081d3d25-3298-40e0-9b16-4ad028cc976f",
+	"Modules" : 
+	{
+		"UObjectPlugin" : "UE4Editor-UObjectPlugin-Win64-DebugGame.dll"
+	}
+}

@@ -132,9 +132,9 @@ public:
 
 	virtual FString GetSimulationName() override final;
 
-	virtual void Simulate(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime, int32 TimeStepHours) override final;
+	virtual void Simulate(TArray<FSimulationCell>& Cells, USimulationWeatherDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime, int32 TimeStepHours) override final;
 
-	virtual void Initialize(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data) override final;
+	virtual void Initialize(TArray<FSimulationCell>& Cells, USimulationWeatherDataProviderBase* Data) override final;
 
 	virtual void RenderDebug(TArray<FSimulationCell>& Cells, UWorld* World, int CellDebugInfoDisplayDistance) override final;
 

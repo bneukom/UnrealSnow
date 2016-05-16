@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SnowSimulation.h"
-#include "DefaultDataProvider.h"
+#include "MonthlyMeanWeatherDataProvider.h"
 
 // @TODO At the beginning create temperature as well as precipitation data from the input.
 
-FTemperature UDefaultSimulationDataProvider::GetTemperatureData(const FDateTime& From, const FDateTime& To, const FVector2D& Position, int64 Resolution)
+FTemperature UMonthlyMeanSimulationDataProvider::GetTemperatureData(const FDateTime& From, const FDateTime& To, const FVector2D& Position, int64 Resolution)
 {
 	FDateTime Time = From;
 	FTimespan Timespan = To - From;
@@ -30,7 +30,7 @@ FTemperature UDefaultSimulationDataProvider::GetTemperatureData(const FDateTime&
 	return FTemperature(AverageLow / TotalTicks, AverageHigh / TotalTicks, Average / TotalTicks);
 }
 
-float UDefaultSimulationDataProvider::GetPrecipitationAt(const FDateTime& From, const FDateTime& To, const FVector2D& Position, int64 Resolution)
+float UMonthlyMeanSimulationDataProvider::GetPrecipitationAt(const FDateTime& From, const FDateTime& To, const FVector2D& Position, int64 Resolution)
 {
 	FDateTime Time = From;
 	FTimespan Timespan = To - From;
@@ -54,7 +54,3 @@ float UDefaultSimulationDataProvider::GetPrecipitationAt(const FDateTime& From, 
 	return AveragePrecipitation;
 }
 
-float UDefaultSimulationDataProvider::GetVegetationDensityAt(const FVector& Position)
-{
-	return 0.0f;
-}

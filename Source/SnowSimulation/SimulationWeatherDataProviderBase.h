@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "SimulationDataProviderBase.generated.h"
+#include "SimulationWeatherDataProviderBase.generated.h"
 
 /**
 * Precipitation data.
@@ -48,7 +48,7 @@ struct FTemperature
  * Base class for all data providers for the simulation.
  */
 UCLASS(BlueprintType)
-class SNOWSIMULATION_API USimulationDataProviderBase : public UObject
+class SNOWSIMULATION_API USimulationWeatherDataProviderBase : public UObject
 {
 	GENERATED_BODY()
 
@@ -62,9 +62,4 @@ public:
 	* Returns the precipitation in mm (liter/m^2) at base elevation at the given time and position (2D).
 	*/
 	virtual float GetPrecipitationAt(const FDateTime& From, const FDateTime& To, const FVector2D& Position, int64 Resolution) PURE_VIRTUAL(USimulationDataProviderBase::GetPrecipitationAt, return 0.0f;);
-
-	/**
-	* Returns the vegetation density [0-1.0] at the given position.
-	*/
-	virtual float GetVegetationDensityAt(const FVector& Position) PURE_VIRTUAL(USimulationDataProviderBase::GetVegetationDensityAt, return 0.0f;);
 };

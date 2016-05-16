@@ -4,7 +4,7 @@
 
 #include "Array.h"
 #include "DateTime.h"
-#include "SimulationDataProviderBase.h"
+#include "SimulationWeatherDataProviderBase.h"
 #include "SimulationDataInterpolatorBase.h"
 #include "SimulationBase.generated.h"
 
@@ -104,7 +104,7 @@ public:
 	/** 
 	* Initializes the simulation.
 	*/
-	virtual void Initialize(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data) PURE_VIRTUAL(USimulationBase::Initialize, ;);
+	virtual void Initialize(TArray<FSimulationCell>& Cells, USimulationWeatherDataProviderBase* Data) PURE_VIRTUAL(USimulationBase::Initialize, ;);
 
 	/** 
 	* Runs the simulation on the given cells until the given end time is reached.
@@ -115,7 +115,7 @@ public:
 	* @param EndTime		End of the simulation
 	* @param TimeStepHours	Time step of the simulation in hours
 	*/
-	virtual void Simulate(TArray<FSimulationCell>& Cells, USimulationDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime, int32 TimeStepHours) PURE_VIRTUAL(USimulationBase::Run, ;);
+	virtual void Simulate(TArray<FSimulationCell>& Cells, USimulationWeatherDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime, int32 TimeStepHours) PURE_VIRTUAL(USimulationBase::Run, ;);
 
 	/** Renders debug information of the simulation every tick. */
 	virtual void RenderDebug(TArray<FSimulationCell>& Cells, UWorld* World, int CellDebugInfoDisplayDistance) PURE_VIRTUAL(USimulationBase::RenderDebug, ;);

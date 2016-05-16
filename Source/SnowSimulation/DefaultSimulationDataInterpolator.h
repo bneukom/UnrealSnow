@@ -2,7 +2,7 @@
 
 #include "SimulationDataInterpolatorBase.h"
 #include "Array.h"
-#include "DefaultDataInterpolator.generated.h"
+#include "DefaultSimulationDataInterpolator.generated.h"
 
 /**
 * Base class for all data provides for the simulation.
@@ -18,5 +18,5 @@ public:
 	/** Temperature Decay per 100m of altitude. */
 	float TemperatureDecay = -0.6;
 
-	virtual FTemperature GetInterpolatedTemperatureData(FTemperature& BaseTemperatur, const FVector& Position) override final;
+	virtual FTemperature InterpolateTemperatureByAltitude(FTemperature& BaseTemperatur, const FVector& Position) override final;
 };
