@@ -1,7 +1,7 @@
 
 #include "WorldClimDataPrivatePCH.h"
 #include "UnrealEd.h"
-#include "Classes/BILData.h"
+#include "Public/BILData.h"
 #include "Classes/BILDataAssetTypeActions.h"
 
 FText FBILDataAssetTypeActions::GetName() const

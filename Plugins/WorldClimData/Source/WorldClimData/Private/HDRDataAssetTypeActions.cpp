@@ -1,7 +1,7 @@
 
 #include "WorldClimDataPrivatePCH.h"
 #include "UnrealEd.h"
-#include "Classes/HDRData.h"
+#include "Public/HDRData.h"
 #include "Classes/HDRDataAssetTypeActions.h"
 
 FText FHDRDataAssetTypeActions::GetName() const

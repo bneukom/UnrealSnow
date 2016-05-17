@@ -44,6 +44,8 @@ struct FTemperature
 	FTemperature() : AverageLow(0), AverageHigh(0), Average(0) {}
 };
 
+// @TODO simplify API because most weather data sources only provide monthly or daily average values.
+// @TODO use stochastic downscaling for hourly weather data
 /**
  * Base class for all data providers for the simulation.
  */

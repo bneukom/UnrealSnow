@@ -1,6 +1,6 @@
 #include "WorldClimDataPrivatePCH.h"
 #include "BILDataFactory.h"
-#include "Classes/BILData.h"
+#include "Public/BILData.h"
 
 UBILDataFactory::UBILDataFactory(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -15,8 +15,7 @@ UBILDataFactory::UBILDataFactory(const FObjectInitializer& ObjectInitializer)
 
 UObject* UBILDataFactory::FactoryCreateBinary(UClass* Class, UObject* InParent, FName Name, EObjectFlags Flags, UObject* Context, const TCHAR* Type, const uint8*& Buffer, const uint8* BufferEnd, FFeedbackContext* Warn)
 {
-	FString NewName = Name.ToString() + ".bil";
-	UBILData* BILData = NewObject<UBILData>(InParent, SupportedClass, FName(*NewName), Flags | RF_Transactional);
+	UBILData* BILData = NewObject<UBILData>(InParent, SupportedClass, Name, Flags | RF_Transactional);
 
 	SIZE_T DataSize = BufferEnd - Buffer;
 

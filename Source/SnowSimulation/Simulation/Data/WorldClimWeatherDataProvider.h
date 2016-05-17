@@ -1,8 +1,10 @@
 #pragma once
 
+#include "WorldClimDataAsset.h"
 #include "SimulationWeatherDataProviderBase.h"
 #include "Array.h"
 #include "WorldClimWeatherDataProvider.generated.h"
+
 
 /**
 * Weather data provider which provides data from www.worldclim.org downscaled to hourly data as described in "Utility of daily vs. monthly large-scale climate data: an
@@ -12,10 +14,10 @@ UCLASS(Blueprintable, BlueprintType)
 class SNOWSIMULATION_API UWorldClimWeatherDataProvider : public USimulationWeatherDataProviderBase
 {
 	GENERATED_BODY()
-
-
-
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	TArray<UWorldClimDataAsset*> WorldClimData;
+
 	virtual FTemperature GetTemperatureData(const FDateTime& From, const FDateTime& To, const FVector2D& Position, int64 Resolution) override final;
 
 	virtual float GetPrecipitationAt(const FDateTime& From, const FDateTime& To, const FVector2D& Position, int64 Resolution) override final;

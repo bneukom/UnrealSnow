@@ -6,7 +6,7 @@
 #include "SnowSimulation.h"
 #include "GameFramework/Actor.h"
 #include "GenericPlatformFile.h"
-#include "SimulationWeatherDataProviderBase.h"
+#include "Data/SimulationWeatherDataProviderBase.h"
 #include "SimulationBase.h"
 #include "SimulationDataInterpolatorBase.h"
 #include "SnowSimulationActor.generated.h"
@@ -42,6 +42,14 @@ public:
 	/** Unit vector which points north. */
 	FVector North = { 1,0,0 };
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
+	/** The Longitude in degrees of the top left vertex of the top left cell (Northwest). */
+	float Longitude;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
+	/** The Longitude in degrees of the top left vertex of the top left cell (Northwest). */
+	float Latitude;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	/** Data input for the simulation. */
 	USimulationWeatherDataProviderBase* WeatherData;
@@ -76,6 +84,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	/** The path the snow map gets written when Write Snow Map is set to true. */
 	FString DebugTexturePath = "c:\\temp";
+
+
 
 	ASnowSimulationActor();
 

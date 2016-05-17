@@ -1,6 +1,6 @@
 #include "WorldClimDataPrivatePCH.h"
 #include "HDRDataFactory.h"
-#include "Classes/HDRData.h"
+#include "Public/HDRData.h"
 
 UHDRDataFactory::UHDRDataFactory(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -32,9 +32,7 @@ UObject* UHDRDataFactory::FactoryCreateBinary(UClass* Class, UObject* InParent, 
 		}
 	}
 
-	FString NewName = Name.ToString() + ".hdr";
-	UHDRData* Data = NewObject<UHDRData>(InParent, SupportedClass, FName(*NewName), Flags | RF_Transactional);
-	
+	UHDRData* Data = NewObject<UHDRData>(InParent, SupportedClass, Name, Flags | RF_Transactional);
 	
 	Data->ULXMAP = FCString::Atof(*DataMap["ULXMAP"]);
 	Data->ULYMAP = FCString::Atof(*DataMap["ULYMAP"]);
@@ -43,6 +41,10 @@ UObject* UHDRDataFactory::FactoryCreateBinary(UClass* Class, UObject* InParent, 
 	Data->MinValue = FCString::Atoi(*DataMap["MinValue"]);
 	Data->MaxValue = FCString::Atoi(*DataMap["MaxValue"]);
 	Data->Month = DataMap["Month"];
+	Data->NROWS = FCString::Atoi(*DataMap["NROWS"]);
+	Data->NCOLS = FCString::Atoi(*DataMap["NCOLS"]);
+	Data->NBANDS = FCString::Atoi(*DataMap["NBANDS"]);
+	Data->NBITS = FCString::Atoi(*DataMap["NBITS"]);
 
 	// @TODO rest of the data
 
