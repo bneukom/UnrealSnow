@@ -1,0 +1,24 @@
+{
+	"FileVersion" : 2,
+	"Version" : 2,
+	"VersionName" : "2.0",
+	"FriendlyName" : "WorldClim.org Asset",
+	"Description" : "WorldClim.org data source for the snow simulation.",
+	"Category" : "Snow Simulation Data Source",
+	"CreatedBy" : "FHNW",
+	"CreatedByURL" : "http://fhnw.ch",
+	"DocsURL" : "",
+	"MarketplaceURL" : "",
+	"SupportURL" : "",
+	"EnabledByDefault" : true,
+	"CanContainContent" : false,
+	"IsBetaVersion" : false,
+	"Installed" : false,
+	"Modules" :
+	[
+		{
+			"Name" : "WorldClimData",
+			"Type" : "EditorNoCommandlet"
+		}
+	]
+}
