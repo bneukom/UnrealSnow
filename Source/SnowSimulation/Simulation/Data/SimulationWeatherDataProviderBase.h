@@ -4,6 +4,8 @@
 
 #include "SimulationWeatherDataProviderBase.generated.h"
 
+class ASnowSimulationActor;
+
 /**
 * Precipitation data.
 */
@@ -58,10 +60,14 @@ public:
 	/** 
 	* Returns the temperature data at base elevation at the given day of the year and position (2D).
 	*/
-	virtual FTemperature GetTemperatureData(const FDateTime& From, const FDateTime& To, const FVector2D& Position, int64 Resolution) PURE_VIRTUAL(USimulationDataProviderBase::GetDailyTemperatureData, return FTemperature(););
+	virtual FTemperature GetTemperatureData(const FDateTime& Date, const FVector2D& Position, ASnowSimulationActor* Simulation, int64 Resolution)  PURE_VIRTUAL(USimulationDataProviderBase::GetTemperatureData, return FTemperature(););
 
 	/**
 	* Returns the precipitation in mm (liter/m^2) at base elevation at the given time and position (2D).
 	*/
-	virtual float GetPrecipitationAt(const FDateTime& From, const FDateTime& To, const FVector2D& Position, int64 Resolution) PURE_VIRTUAL(USimulationDataProviderBase::GetPrecipitationAt, return 0.0f;);
+	virtual float GetPrecipitationAt(const FDateTime& Date, const FVector2D& Position, int64 Resolution) PURE_VIRTUAL(USimulationDataProviderBase::GetPrecipitationAt, return 0.0f;);
+
+	/** Returns the resolution of the data provider. */
+	virtual int32 GetResolution() PURE_VIRTUAL(USimulationDataProviderBase::GetResolution, return 0;);
 };
+

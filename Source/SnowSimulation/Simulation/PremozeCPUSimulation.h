@@ -111,19 +111,19 @@ public:
 	float SlopeThreshold = PI / 18;
 
 	/** Threshold air temperature above which all precipitation is assumed to be rain. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation",  DisplayName = "TSnow")
 	float TSnow = 0;
 
 	/** Threshold air temperature above which snow starts melting. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation", DisplayName = "TMelt")
 	float TMelt = 0;
 
 	/** Time constant. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation", DisplayName = "k_e")
 	float k_e = 0.2;
 
 	/** Proportional constant. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation", DisplayName = "k_m")
 	float k_m = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
@@ -132,11 +132,11 @@ public:
 
 	virtual FString GetSimulationName() override final;
 
-	virtual void Simulate(TArray<FSimulationCell>& Cells, USimulationWeatherDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime, int32 TimeStepHours) override final;
+	virtual void Simulate(ASnowSimulationActor* SimulationActor, USimulationWeatherDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime, int32 TimeStepHours) override final;
 
 	virtual void Initialize(TArray<FSimulationCell>& Cells, USimulationWeatherDataProviderBase* Data) override final;
 
-	virtual void RenderDebug(TArray<FSimulationCell>& Cells, UWorld* World, int CellDebugInfoDisplayDistance) override final;
+	virtual void RenderDebug(TArray<FSimulationCell>& Cells, UWorld* World, int CellDebugInfoDisplayDistance, EDebugVisualizationType DebugVisualizationType) override final;
 
 	virtual float GetMaxSnow() override final;
 };

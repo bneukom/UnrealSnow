@@ -139,14 +139,14 @@
     <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\WorldClimDataAsset.h">
       <Filter>Source\SnowSimulation\Simulation\Data</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\DefaultSimulationDataInterpolator.h">
-      <Filter>Source\SnowSimulation\Simulation</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\SimulationDataInterpolatorBase.h">
-      <Filter>Source\SnowSimulation\Simulation</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\SnowSimulation\Spectator\PlayerCharacter.h">
       <Filter>Source\SnowSimulation\Spectator</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\SimulationDataInterpolatorBase.h">
+      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\DefaultSimulationDataInterpolator.h">
+      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -194,13 +194,13 @@
     <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Data\WorldClimWeatherDataProvider.cpp">
       <Filter>Source\SnowSimulation\Simulation\Data</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\DefaultSimulationDataInterpolator.cpp">
-      <Filter>Source\SnowSimulation\Simulation</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\SnowSimulation\Spectator\PlayerCharacter.cpp">
       <Filter>Source\SnowSimulation\Spectator</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Data\WorldClimDataAsset.cpp">
+      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Data\DefaultSimulationDataInterpolator.cpp">
       <Filter>Source\SnowSimulation\Simulation\Data</Filter>
     </ClCompile>
   </ItemGroup>

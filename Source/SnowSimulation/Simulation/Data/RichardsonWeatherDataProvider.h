@@ -14,8 +14,8 @@ class SNOWSIMULATION_API URichardsonWeatherDataProvider : public USimulationWeat
 	GENERATED_BODY()
 
 public:
-	virtual FTemperature GetTemperatureData(const FDateTime& From, const FDateTime& To, const FVector2D& Position, int64 Resolution) override final;
+	virtual FTemperature GetTemperatureData(const FDateTime& Date, const FVector2D& Position, ASnowSimulationActor* SnowSimulation, int64 Resolution) override final;
 
-	virtual float GetPrecipitationAt(const FDateTime& From, const FDateTime& To, const FVector2D& Position, int64 Resolution) override final;
+	virtual float GetPrecipitationAt(const FDateTime& Date, const FVector2D& Position, int64 Resolution) override final;
 
 };

@@ -54,7 +54,7 @@ void ASnowSimulationActor::Tick(float DeltaTime)
 		CurrentStepTime = 0;
 
 		// Simulate next step
-		Simulation->Simulate(Cells, WeatherData, Interpolator, CurrentSimulationTime, CurrentSimulationTime + FTimespan(TimeStepHours, 0, 0), TimeStepHours);
+		Simulation->Simulate(this, WeatherData, Interpolator, CurrentSimulationTime, CurrentSimulationTime + FTimespan(TimeStepHours, 0, 0), TimeStepHours);
 
 		// Update the snow material to reflect changes from the simulation
 		UpdateMaterialTexture();
@@ -65,35 +65,33 @@ void ASnowSimulationActor::Tick(float DeltaTime)
 	}
 
 	// Render debug information
-	if (RenderDebugInfo)
-	{
-		Simulation->RenderDebug(Cells, GetWorld(), CellDebugInfoDisplayDistance);
-	}
-	
-	if (RenderGrid) 
-	{
-		const auto Location = GetWorld()->GetFirstPlayerController()->PlayerCameraManager->GetCameraLocation();
+	if (DebugVisualizationType != EDebugVisualizationType::VE_Nothing) Simulation->RenderDebug(Cells, GetWorld(), CellDebugInfoDisplayDistance, DebugVisualizationType);
+	if (RenderGrid) DoRenderGrid();
 
-		for (FSimulationCell& Cell : Cells)
+}
+
+void ASnowSimulationActor::DoRenderGrid()
+{
+	const auto Location = GetWorld()->GetFirstPlayerController()->PlayerCameraManager->GetCameraLocation();
+
+	for (FSimulationCell& Cell : Cells)
+	{
+		FVector Normal(Cell.Normal);
+		Normal.Normalize();
+
+		// @TODO get exact position using the height map
+		FVector zOffset(0, 0, 50);
+
+		if (FVector::Dist(Cell.Centroid, Location) < CellDebugInfoDisplayDistance)
 		{
-			FVector Normal(Cell.Normal);
-			Normal.Normalize();
-
-			// @TODO get exact position using the height map
-			FVector zOffset(0, 0, 50);
-
-			if (FVector::Dist(Cell.Centroid, Location) < CellDebugInfoDisplayDistance)
-			{
-				// @TODO implement custom rendering for better performance (DrawPrimitiveUP)
-				// Draw Cells
-				DrawDebugLine(GetWorld(), Cell.P1 + zOffset, Cell.P2 + zOffset, FColor(255, 255, 0), false, -1, 0, 0.0f);
-				DrawDebugLine(GetWorld(), Cell.P1 + zOffset, Cell.P3 + zOffset, FColor(255, 255, 0), false, -1, 0, 0.0f);
-				DrawDebugLine(GetWorld(), Cell.P2 + zOffset, Cell.P4 + zOffset, FColor(255, 255, 0), false, -1, 0, 0.0f);
-				DrawDebugLine(GetWorld(), Cell.P3 + zOffset, Cell.P4 + zOffset, FColor(255, 255, 0), false, -1, 0, 0.0f);
-			}
+			// @TODO implement custom rendering for better performance (DrawPrimitiveUP)
+			// Draw Cells
+			DrawDebugLine(GetWorld(), Cell.P1 + zOffset, Cell.P2 + zOffset, FColor(255, 255, 0), false, -1, 0, 0.0f);
+			DrawDebugLine(GetWorld(), Cell.P1 + zOffset, Cell.P3 + zOffset, FColor(255, 255, 0), false, -1, 0, 0.0f);
+			DrawDebugLine(GetWorld(), Cell.P2 + zOffset, Cell.P4 + zOffset, FColor(255, 255, 0), false, -1, 0, 0.0f);
+			DrawDebugLine(GetWorld(), Cell.P3 + zOffset, Cell.P4 + zOffset, FColor(255, 255, 0), false, -1, 0, 0.0f);
 		}
 	}
-
 }
 
 void ASnowSimulationActor::Initialize()

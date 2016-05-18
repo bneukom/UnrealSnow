@@ -1,9 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+
 #include "SnowSimulation.h"
 #include "PremozeCPUSimulation.h"
-#include "Util/MathUtil.h"
-#include "SimulationDataInterpolatorBase.h"
+#include "SnowSimulationActor.h"
+#include "SnowSimulation/Util/MathUtil.h"
+#include "SnowSimulation/Simulation/Data/SimulationDataInterpolatorBase.h"
 
 FString UPremozeCPUSimulation::GetSimulationName()
 {
@@ -14,9 +16,10 @@ FString UPremozeCPUSimulation::GetSimulationName()
 // @TODO Test Solar Radiations values from the paper
 
 // Flops per iteration: (2 * 20 + 6 * 2) + (20 * 20 + 38 * 2)
-void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulationWeatherDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime, int32 TimeStepHours)
+void UPremozeCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, USimulationWeatherDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime, int32 TimeStepHours)
 {
-	// @TODO run Premoze in daily timesteps, other timesteps do not make any sense!
+	auto& Cells = SimulationActor->GetCells();
+
 	auto SimulationSpan = EndTime - StartTime;
 	int32 SimulationHours = SimulationSpan.GetTotalHours();
 
@@ -31,10 +34,10 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 		for (auto& Cell : Cells)
 		{
 			const FVector& CellCentroid = Cell.Centroid;
-			FTemperature Temperature = Data->GetTemperatureData(Time, Time + FTimespan(TimeStepHours, 0, 0), FVector2D(CellCentroid.X, CellCentroid.Y), TimeStepHours * ETimespan::TicksPerHour); // @TODO timesteps
+			FTemperature Temperature = Data->GetTemperatureData(Time, FVector2D(CellCentroid.X, CellCentroid.Y), SimulationActor, TimeStepHours * ETimespan::TicksPerHour); // @TODO timesteps
 			
 			const float TAir = Interpolator->InterpolateTemperatureByAltitude(Temperature, CellCentroid).Average; // degree Celsius
-			const float Precipitation = Data->GetPrecipitationAt(Time, Time + FTimespan(TimeStepHours, 0, 0), FVector2D(CellCentroid.X, CellCentroid.Y), TimeStepHours * ETimespan::TicksPerHour); // l/m^2 or mm // @TODO timesteps
+			const float Precipitation = Data->GetPrecipitationAt(Time, FVector2D(CellCentroid.X, CellCentroid.Y), TimeStepHours * ETimespan::TicksPerHour); // l/m^2 or mm // @TODO timesteps
 			
 			// @TODO use AreaXY because very steep slopes with big areas would receive too much snow
 			const float AreaSquareMeters = Cell.AreaXY / (100 * 100); // m^2
@@ -69,7 +72,7 @@ void UPremozeCPUSimulation::Simulate(TArray<FSimulationCell>& Cells, USimulation
 				}
 
 				// @TODO is this correct?
-				// Temperature bigger than melt threshold and cell contains snow
+				// Temperature higher than melt threshold and cell contains snow
 				if (TAir > TMelt)
 				{
 					const float DayNormalization = 24.0f / TimeStepHours; // day 
@@ -184,26 +187,30 @@ void UPremozeCPUSimulation::Initialize(TArray<FSimulationCell>& Cells, USimulati
 }
 
 #if SIMULATION_DEBUG
-void UPremozeCPUSimulation::RenderDebug(TArray<FSimulationCell>& Cells, UWorld* World, int CellDebugInfoDisplayDistance)
+void UPremozeCPUSimulation::RenderDebug(TArray<FSimulationCell>& Cells, UWorld* World, int CellDebugInfoDisplayDistance, EDebugVisualizationType DebugVisualizationType)
 {
-	for (auto& Cell : Cells)
+	// Draw SWE normal
+	if (DebugVisualizationType == EDebugVisualizationType::VE_SWE)
 	{
-		if (Cell.SnowWaterEquivalent > 0) 
+		for (auto& Cell : Cells)
 		{
-			FVector Normal(Cell.Normal);
-			Normal.Normalize();
+			if (Cell.SnowWaterEquivalent > 0) 
+			{
+				FVector Normal(Cell.Normal);
+				Normal.Normalize();
 
-			// @TODO get exact position using the height map
-			FVector zOffset(0, 0, 50);
+				// @TODO get exact position using the height map
+				FVector zOffset(0, 0, 50);
 
-			// Height of the snow for this cell
-			auto AreaSquareMeters = Cell.Area / (100 * 100);
-			auto SWE = Cell.SnowWaterEquivalent / AreaSquareMeters; // l/m^2 or mm
-			//DrawDebugLine(World, Cell.Centroid + zOffset, Cell.Centroid + zOffset + (Normal * SWE * 10), FColor(255, 0, 0), false, -1, 0, 0.0f);
-			DrawDebugLine(World, Cell.Centroid + zOffset, Cell.Centroid + FVector(0, 0, SWE * 10), FColor(255, 0, 0), false, -1, 0, 0.0f);
+
+				// Height of the snow for this cell
+				auto AreaSquareMeters = Cell.Area / (100 * 100);
+				auto SWE = Cell.SnowWaterEquivalent / AreaSquareMeters; // l/m^2 or mm
+				//DrawDebugLine(World, Cell.Centroid + zOffset, Cell.Centroid + zOffset + (Normal * SWE * 10), FColor(255, 0, 0), false, -1, 0, 0.0f);
+				DrawDebugLine(World, Cell.Centroid + zOffset, Cell.Centroid + FVector(0, 0, SWE * 10), FColor(255, 0, 0), false, -1, 0, 0.0f);
+			}
 		}
 	}
-
 	const auto Location = World->GetFirstPlayerController()->PlayerCameraManager->GetCameraLocation();
 	auto PlayerController = World->GetFirstPlayerController();
 	auto Pawn = PlayerController->GetPawn();
@@ -233,8 +240,17 @@ void UPremozeCPUSimulation::RenderDebug(TArray<FSimulationCell>& Cells, UWorld* 
 			//Hit any Actor?
 			if (Hit == NULL)
 			{
-				// Total SWE
-				DrawDebugString(World, Cell.Centroid, FString::FromInt(static_cast<int>(Cell.SnowWaterEquivalent)), nullptr, FColor::Purple, 0, true);
+				switch (DebugVisualizationType)
+				{
+				case EDebugVisualizationType::VE_SWE:
+					DrawDebugString(World, Cell.Centroid, FString::FromInt(static_cast<int>(Cell.SnowWaterEquivalent)), nullptr, FColor::Purple, 0, true);
+					break;
+				case EDebugVisualizationType::VE_Position:
+					DrawDebugString(World, Cell.Centroid, "(" + FString::FromInt(static_cast<int>(Cell.Centroid.X / 100)) + "/" + FString::FromInt(static_cast<int>(Cell.Centroid.Y / 100)) + ")", nullptr, FColor::Purple, 0, true);
+					break;
+				default:
+					break;
+				}
 			}
 		}
 	}

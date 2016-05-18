@@ -7,12 +7,21 @@
 #include "GameFramework/Actor.h"
 #include "GenericPlatformFile.h"
 #include "Data/SimulationWeatherDataProviderBase.h"
+#include "Data/SimulationDataInterpolatorBase.h"
 #include "SimulationBase.h"
-#include "SimulationDataInterpolatorBase.h"
 #include "SnowSimulationActor.generated.h"
 
 
 DECLARE_LOG_CATEGORY_EXTERN(SimulationLog, Log, All);
+
+UENUM(BlueprintType)
+enum class EDebugVisualizationType : uint8
+{
+	VE_Nothing 		UMETA(DisplayName = "Nothing"),
+	VE_SWE 			UMETA(DisplayName = "Snow Water Equivalent"),
+	VE_Position 	UMETA(DisplayName = "Position"),
+};
+
 
 UCLASS()
 class SNOWSIMULATION_API ASnowSimulationActor : public AActor
@@ -42,11 +51,11 @@ public:
 	/** Unit vector which points north. */
 	FVector North = { 1,0,0 };
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	/** The Longitude in degrees of the top left vertex of the top left cell (Northwest). */
 	float Longitude;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	/** The Longitude in degrees of the top left vertex of the top left cell (Northwest). */
 	float Latitude;
 
@@ -67,12 +76,12 @@ public:
 	float SleepTime = 1.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
-	/** Render the simulation grid over the landscape. */
-	bool RenderGrid = true;
+	/** What should be visualized.  */
+	EDebugVisualizationType DebugVisualizationType = EDebugVisualizationType::VE_SWE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
-	/** If true, render debug information over the landscape. */
-	bool RenderDebugInfo = true;
+	/** Render the simulation grid over the landscape. */
+	bool RenderGrid = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	/** If true, writes the snow map to the path specified in Snow Map Path. */
@@ -85,8 +94,7 @@ public:
 	/** The path the snow map gets written when Write Snow Map is set to true. */
 	FString DebugTexturePath = "c:\\temp";
 
-
-
+	/** Default constructor. */
 	ASnowSimulationActor();
 
 	/** Called when the game starts or when spawned */
@@ -94,6 +102,7 @@ public:
 	
 	/** Called every frame */
 	virtual void Tick( float DeltaSeconds ) override;
+
 
 #if WITH_EDITOR
 	// Called after a property has changed
@@ -106,6 +115,9 @@ public:
 
 	/** Returns the current simulation time. */
 	FDateTime GetCurrentSimulationTime() const { return CurrentSimulationTime; }
+
+	/** Returns the simulation cells. */
+	TArray<FSimulationCell>& GetCells() { return Cells; }
 private:
 	/** The landscape of the world. */
 	ALandscape* Landscape;
@@ -173,4 +185,10 @@ private:
 	* Updates the texture with the given texture data.
 	*/
 	void UpdateTexture(UTexture2D* Texture, TArray<FColor>& TextureData);
+
+	/** 
+	* Renders appropriate debug information.
+	*/
+	void DoRenderGrid();
+
 };

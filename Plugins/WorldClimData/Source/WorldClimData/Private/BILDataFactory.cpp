@@ -19,8 +19,8 @@ UObject* UBILDataFactory::FactoryCreateBinary(UClass* Class, UObject* InParent, 
 
 	SIZE_T DataSize = BufferEnd - Buffer;
 
-	BILData->Data.Reset(DataSize);
-	BILData->Data.AddUninitialized(DataSize);
+	BILData->Data.Reset(DataSize / 2); // Divide by 2 because 16 to 8 bit
+	BILData->Data.AddUninitialized(DataSize / 2);
 	FMemory::Memcpy(BILData->Data.GetData(), Buffer, DataSize);
 
 	return BILData;

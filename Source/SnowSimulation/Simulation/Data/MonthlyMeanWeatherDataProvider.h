@@ -1,8 +1,10 @@
 #pragma once
 
+#include "Simulation/SnowSimulationActor.h"
 #include "SimulationWeatherDataProviderBase.h"
 #include "Array.h"
 #include "MonthlyMeanWeatherDataProvider.generated.h"
+
 
 /**
 */
@@ -73,8 +75,8 @@ public:
 		MonthlyPrecipitation.Add(FMonthlyPrecipitation(54.9,	7.9));	// December
 	}
 
-	virtual FTemperature GetTemperatureData(const FDateTime& From, const FDateTime& To, const FVector2D& Position, int64 Resolution) override final;
+	virtual FTemperature GetTemperatureData(const FDateTime& Date, const FVector2D& Position, ASnowSimulationActor* SnowSimulation, int64 Resolution) override final;
 
-	virtual float GetPrecipitationAt(const FDateTime& From, const FDateTime& To, const FVector2D& Position, int64 Resolution) override final;
+	virtual float GetPrecipitationAt(const FDateTime& Date, const FVector2D& Position, int64 Resolution) override final;
 
 };
