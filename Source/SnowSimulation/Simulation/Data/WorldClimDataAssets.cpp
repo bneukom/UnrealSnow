@@ -1,5 +1,5 @@
 #include "SnowSimulation.h"
-#include "WorldClimDataAsset.h"
+#include "WorldClimDataAssets.h"
 
 // @TODO how to round?
 // @TODO Only works for single band images

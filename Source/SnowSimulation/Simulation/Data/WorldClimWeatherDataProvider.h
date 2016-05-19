@@ -1,6 +1,6 @@
 #pragma once
 
-#include "WorldClimDataAsset.h"
+#include "WorldClimDataAssets.h"
 #include "SimulationWeatherDataProviderBase.h"
 #include "Array.h"
 #include "WorldClimWeatherDataProvider.generated.h"
@@ -16,7 +16,7 @@ class SNOWSIMULATION_API UWorldClimWeatherDataProvider : public USimulationWeath
 	GENERATED_BODY()
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
-	TArray<UWorldClimDataAsset*> WorldClimData;
+	TArray<UMonthlyWorldClimDataAsset*> MonthlyData;
 
 	virtual FTemperature GetTemperatureData(const FDateTime& Date, const FVector2D& Position, ASnowSimulationActor* Simulation, int64 Resolution) override final;
 

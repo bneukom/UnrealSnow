@@ -3,7 +3,7 @@
   <ItemGroup>
     <None Include="..\..\SnowSimulation.uproject" />
     <Filter Include="Source">
-      <UniqueIdentifier>{64975F86-6A0D-48DB-AE95-808BDA048207}</UniqueIdentifier>
+      <UniqueIdentifier>{6F803222-B138-4CFD-911A-D37A583FAC20}</UniqueIdentifier>
     </Filter>
     <None Include="..\..\Source\SnowSimulation.Target.cs">
       <Filter>Source</Filter>
@@ -12,7 +12,7 @@
       <Filter>Source</Filter>
     </None>
     <Filter Include="Config">
-      <UniqueIdentifier>{D8A59580-D188-4CDB-B0F7-E504EA3CD087}</UniqueIdentifier>
+      <UniqueIdentifier>{AD68E242-BF1C-4382-9940-2A246B47AEFB}</UniqueIdentifier>
     </Filter>
     <None Include="..\..\Config\DefaultEditor.ini">
       <Filter>Config</Filter>
@@ -27,22 +27,22 @@
       <Filter>Config</Filter>
     </None>
     <Filter Include="Plugins">
-      <UniqueIdentifier>{4D611E81-2BD3-4106-928C-03B6078500CE}</UniqueIdentifier>
+      <UniqueIdentifier>{6959973A-7BDB-4F01-BEA7-5EE7F4246044}</UniqueIdentifier>
     </Filter>
     <Filter Include="Plugins\WorldClimData">
-      <UniqueIdentifier>{D0C9641B-38F6-4F17-A84D-8B989F883E2C}</UniqueIdentifier>
+      <UniqueIdentifier>{CA378C6D-97E4-43B4-86E8-39B44DE24794}</UniqueIdentifier>
     </Filter>
     <Filter Include="Plugins\WorldClimData\Source">
-      <UniqueIdentifier>{5A8865AF-9245-4AFA-95F7-F019517D790F}</UniqueIdentifier>
+      <UniqueIdentifier>{2A01D97D-88D7-40E7-A7B5-37FB3B7869E0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Plugins\WorldClimData\Source\WorldClimData">
-      <UniqueIdentifier>{D9869F26-000E-45FC-A5A0-3E5556F7676E}</UniqueIdentifier>
+      <UniqueIdentifier>{71350639-815D-4FBC-BA20-9528DB5439D9}</UniqueIdentifier>
     </Filter>
     <None Include="..\..\Plugins\WorldClimData\Source\WorldClimData\WorldClimData.Build.cs">
       <Filter>Plugins\WorldClimData\Source\WorldClimData</Filter>
     </None>
     <Filter Include="Plugins\WorldClimData\Source\WorldClimData\Classes">
-      <UniqueIdentifier>{7B88DE0F-2F48-4785-B9EF-050100B99DE9}</UniqueIdentifier>
+      <UniqueIdentifier>{724F3512-EEB6-4A6F-BF05-C1CA04AC1AD0}</UniqueIdentifier>
     </Filter>
     <ClInclude Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Classes\BILDataAssetTypeActions.h">
       <Filter>Plugins\WorldClimData\Source\WorldClimData\Classes</Filter>
@@ -51,7 +51,7 @@
       <Filter>Plugins\WorldClimData\Source\WorldClimData\Classes</Filter>
     </ClInclude>
     <Filter Include="Plugins\WorldClimData\Source\WorldClimData\Private">
-      <UniqueIdentifier>{F8E88C73-296F-463E-B02F-CA4FF55C0666}</UniqueIdentifier>
+      <UniqueIdentifier>{9EAFAE6D-8510-4AFC-9F38-D23964FF84F8}</UniqueIdentifier>
     </Filter>
     <ClCompile Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Private\BILDataAssetTypeActions.cpp">
       <Filter>Plugins\WorldClimData\Source\WorldClimData\Private</Filter>
@@ -77,11 +77,20 @@
     <ClInclude Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Private\WorldClimDataPrivatePCH.h">
       <Filter>Plugins\WorldClimData\Source\WorldClimData\Private</Filter>
     </ClInclude>
+    <Filter Include="Plugins\WorldClimData\Source\WorldClimData\Public">
+      <UniqueIdentifier>{043E2FF1-A894-4B8C-AACE-CA6C7718F117}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Public\BILData.h">
+      <Filter>Plugins\WorldClimData\Source\WorldClimData\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Public\HDRData.h">
+      <Filter>Plugins\WorldClimData\Source\WorldClimData\Public</Filter>
+    </ClInclude>
     <None Include="..\..\Plugins\WorldClimData\WorldClimData.uplugin">
       <Filter>Plugins\WorldClimData</Filter>
     </None>
     <Filter Include="Source\SnowSimulation">
-      <UniqueIdentifier>{169CF9FB-F911-4F9D-9874-9BA98DFF4EA0}</UniqueIdentifier>
+      <UniqueIdentifier>{FBD0EF5A-DA5D-4F73-A47F-D6D7AD0D56BD}</UniqueIdentifier>
     </Filter>
     <None Include="..\..\Source\SnowSimulation\SnowSimulation.Build.cs">
       <Filter>Source\SnowSimulation</Filter>
@@ -92,10 +101,76 @@
     <ClInclude Include="..\..\Source\SnowSimulation\SnowSimulation.h">
       <Filter>Source\SnowSimulation</Filter>
     </ClInclude>
+    <Filter Include="Source\SnowSimulation\Simulation">
+      <UniqueIdentifier>{8CDDD800-975E-4951-B379-ACB90B2BFB6F}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\PremozeCPUSimulation.cpp">
+      <Filter>Source\SnowSimulation\Simulation</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\PremozeCPUSimulation.h">
+      <Filter>Source\SnowSimulation\Simulation</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\PremozeGPUSimulation.cpp">
+      <Filter>Source\SnowSimulation\Simulation</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\PremozeGPUSimulation.h">
+      <Filter>Source\SnowSimulation\Simulation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\SimulationBase.h">
+      <Filter>Source\SnowSimulation\Simulation</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\SnowSimulationActor.cpp">
+      <Filter>Source\SnowSimulation\Simulation</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\SnowSimulationActor.h">
+      <Filter>Source\SnowSimulation\Simulation</Filter>
+    </ClInclude>
+    <Filter Include="Source\SnowSimulation\Simulation\Data">
+      <UniqueIdentifier>{B7D368D7-57AE-4099-9AD6-21095A0EA4DC}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Data\DefaultSimulationDataInterpolator.cpp">
+      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\DefaultSimulationDataInterpolator.h">
+      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Data\MonthlyMeanWeatherDataProvider.cpp">
+      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\MonthlyMeanWeatherDataProvider.h">
+      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\SimulationDataInterpolatorBase.h">
+      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\SimulationWeatherDataProviderBase.h">
+      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Data\WorldClimWeatherDataProvider.cpp">
+      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\WorldClimWeatherDataProvider.h">
+      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
+    </ClInclude>
+    <Filter Include="Source\SnowSimulation\Spectator">
+      <UniqueIdentifier>{599AC920-59EA-49AC-AC66-35A69BEA0285}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SnowSimulation\Spectator\PlayerCharacter.cpp">
+      <Filter>Source\SnowSimulation\Spectator</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\SnowSimulation\Spectator\PlayerCharacter.h">
+      <Filter>Source\SnowSimulation\Spectator</Filter>
+    </ClInclude>
     <Filter Include="Source\SnowSimulation\Util">
-      <UniqueIdentifier>{9BDA48AE-1DFB-4E91-BE96-49B8239AA666}</UniqueIdentifier>
+      <UniqueIdentifier>{226AB93C-16D5-436C-9B22-257173BF17B1}</UniqueIdentifier>
     </Filter>
     <ClInclude Include="..\..\Source\SnowSimulation\Util\MathUtil.h">
+      <Filter>Source\SnowSimulation\Util</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\SnowSimulation\Util\RuntimeLandscapeDataAccess.cpp">
+      <Filter>Source\SnowSimulation\Util</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\SnowSimulation\Util\RuntimeLandscapeDataAccess.h">
       <Filter>Source\SnowSimulation\Util</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\SnowSimulation\Util\RuntimeMaterialChange.h">
@@ -103,105 +178,19 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\PremozeCPUSimulation.h">
-      <Filter>Source\SnowSimulation\Simulation</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\PremozeGPUSimulation.h">
-      <Filter>Source\SnowSimulation\Simulation</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\SimulationBase.h">
-      <Filter>Source\SnowSimulation\Simulation</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\SnowSimulationActor.h">
-      <Filter>Source\SnowSimulation\Simulation</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SnowSimulation\Util\RuntimeLandscapeDataAccess.h">
-      <Filter>Source\SnowSimulation\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\MonthlyMeanWeatherDataProvider.h">
-      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\RichardsonWeatherDataProvider.h">
-      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\SimulationWeatherDataProviderBase.h">
-      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\WorldClimWeatherDataProvider.h">
-      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Public\BILData.h">
-      <Filter>Plugins\WorldClimData\Source\WorldClimData\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Public\HDRData.h">
-      <Filter>Plugins\WorldClimData\Source\WorldClimData\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\WorldClimDataAsset.h">
-      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SnowSimulation\Spectator\PlayerCharacter.h">
-      <Filter>Source\SnowSimulation\Spectator</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\SimulationDataInterpolatorBase.h">
-      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\DefaultSimulationDataInterpolator.h">
-      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Filter Include="Source\SnowSimulation\Simulation">
-      <UniqueIdentifier>{661100ca-ad50-4092-9ea3-995b2b598560}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\SnowSimulation\Simulation\Data">
-      <UniqueIdentifier>{e8754a45-35af-41d9-8404-2bffc5e49f2f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Plugins\WorldClimData\Source\WorldClimData\Public">
-      <UniqueIdentifier>{78410195-212c-4e8e-b67e-e19517c2eafe}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\SnowSimulation\Simulation\Data\WorldClim">
-      <UniqueIdentifier>{83731c64-2051-4dfa-bd43-7c53e57d2334}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\SnowSimulation\Simulation\Data\Richardson">
-      <UniqueIdentifier>{28eecbc9-2a4b-479c-930e-f7ad4c55d20a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\SnowSimulation\Simulation\Data\Mean">
-      <UniqueIdentifier>{a9ed045a-5628-4f95-831e-d3babecb367a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\SnowSimulation\Spectator">
-      <UniqueIdentifier>{a331e285-f327-4cce-9cce-96a9d8aadbd5}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\PremozeCPUSimulation.cpp">
-      <Filter>Source\SnowSimulation\Simulation</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\PremozeGPUSimulation.cpp">
-      <Filter>Source\SnowSimulation\Simulation</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\SnowSimulationActor.cpp">
-      <Filter>Source\SnowSimulation\Simulation</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\SnowSimulation\Util\RuntimeLandscapeDataAccess.cpp">
-      <Filter>Source\SnowSimulation\Util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Data\MonthlyMeanWeatherDataProvider.cpp">
+    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Data\WorldClimDataAssets.cpp">
       <Filter>Source\SnowSimulation\Simulation\Data</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Data\RichardsonWeatherDataProvider.cpp">
       <Filter>Source\SnowSimulation\Simulation\Data</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Data\WorldClimWeatherDataProvider.cpp">
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\WorldClimDataAssets.h">
       <Filter>Source\SnowSimulation\Simulation\Data</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\SnowSimulation\Spectator\PlayerCharacter.cpp">
-      <Filter>Source\SnowSimulation\Spectator</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Data\WorldClimDataAsset.cpp">
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\RichardsonWeatherDataProvider.h">
       <Filter>Source\SnowSimulation\Simulation\Data</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Data\DefaultSimulationDataInterpolator.cpp">
-      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
-    </ClCompile>
+    </ClInclude>
   </ItemGroup>
 </Project>
