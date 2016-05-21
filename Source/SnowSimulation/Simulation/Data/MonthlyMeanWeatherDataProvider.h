@@ -28,7 +28,7 @@ public:
 };
 
 /**
-* Weather data provider with monthly input data. Precipitation is assumed to be only at the beginning of the month (< AverageNumberOfDays).
+* Monthly average precipitation and temperature data for a given single site.
 * @TODO implement http://meteora.ucsd.edu/cap/pdffiles/downscaling_comparison.pdf
 */
 UCLASS(Blueprintable, BlueprintType)
@@ -75,8 +75,8 @@ public:
 		MonthlyPrecipitation.Add(FMonthlyPrecipitation(54.9,	7.9));	// December
 	}
 
-	virtual FTemperature GetTemperatureData(const FDateTime& Date, const FVector2D& Position, ASnowSimulationActor* SnowSimulation, int64 Resolution) override final;
+	virtual FTemperature GetTemperatureData(const FDateTime& Date, const FDateTime& To, const FVector2D& Position, ASnowSimulationActor* SnowSimulation, int64 Resolution) override final;
 
-	virtual float GetPrecipitationAt(const FDateTime& Date, const FVector2D& Position, int64 Resolution) override final;
+	virtual float GetPrecipitationAt(const FDateTime& Date, const FDateTime& To, const FVector2D& Position, int64 Resolution) override final;
 
 };

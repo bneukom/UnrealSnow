@@ -15,6 +15,10 @@ struct FPrecipitation
 	GENERATED_USTRUCT_BODY()
 	// Amount of precipitation in liter/(m^2) = mm.
 	float Amount;
+
+	FPrecipitation(float Amount) : Amount(Amount) {}
+
+	FPrecipitation() : Amount(0.0f) {}
 };
 
 /**
@@ -48,26 +52,32 @@ struct FTemperature
 
 // @TODO simplify API because most weather data sources only provide monthly or daily average values.
 // @TODO use stochastic downscaling for hourly weather data
+// @TODO extend ActorComponent?
 /**
  * Base class for all data providers for the simulation.
  */
 UCLASS(BlueprintType)
-class SNOWSIMULATION_API USimulationWeatherDataProviderBase : public UObject
+class SNOWSIMULATION_API USimulationWeatherDataProviderBase : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
+
+	/** Initializes the data provider. */
+	virtual void Initialize() PURE_VIRTUAL(USimulationWeatherDataProviderBase::Initialize, ;);
+
 	/** 
 	* Returns the temperature data at base elevation at the given day of the year and position (2D).
 	*/
-	virtual FTemperature GetTemperatureData(const FDateTime& Date, const FVector2D& Position, ASnowSimulationActor* Simulation, int64 Resolution)  PURE_VIRTUAL(USimulationDataProviderBase::GetTemperatureData, return FTemperature(););
+	virtual FTemperature GetTemperatureData(const FDateTime& From, const FDateTime& To, const FVector2D& Position, ASnowSimulationActor* SnowSimulation, int64 Resolution) PURE_VIRTUAL(USimulationWeatherDataProviderBase::GetTemperatureData, return FTemperature(););
 
 	/**
 	* Returns the precipitation in mm (liter/m^2) at base elevation at the given time and position (2D).
 	*/
-	virtual float GetPrecipitationAt(const FDateTime& Date, const FVector2D& Position, int64 Resolution) PURE_VIRTUAL(USimulationDataProviderBase::GetPrecipitationAt, return 0.0f;);
+	virtual float GetPrecipitationAt(const FDateTime& From, const FDateTime& To, const FVector2D& Position, int64 Resolution) PURE_VIRTUAL(USimulationWeatherDataProviderBase::GetPrecipitationAt, return 0.0f;);
 
 	/** Returns the resolution of the data provider. */
-	virtual int32 GetResolution() PURE_VIRTUAL(USimulationDataProviderBase::GetResolution, return 0;);
+	virtual int32 GetResolution() PURE_VIRTUAL(USimulationWeatherDataProviderBase::GetResolution, return 0;);
 };
+
 

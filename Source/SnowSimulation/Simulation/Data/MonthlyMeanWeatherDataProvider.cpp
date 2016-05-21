@@ -5,7 +5,7 @@
 
 // @TODO At the beginning create temperature as well as precipitation data from the input.
 
-FTemperature UMonthlyMeanSimulationDataProvider::GetTemperatureData(const FDateTime& Date, const FVector2D& Position, ASnowSimulationActor* Simulation, int64 Resolution)
+FTemperature UMonthlyMeanSimulationDataProvider::GetTemperatureData(const FDateTime& Date, const FDateTime& To, const FVector2D& Position, ASnowSimulationActor* Simulation, int64 Resolution)
 {
 	auto MonthIndex = Date.GetMonth() - 1;
 	auto AverageMonthlyTemperature = MonthlyTemperatures[MonthIndex];
@@ -13,7 +13,7 @@ FTemperature UMonthlyMeanSimulationDataProvider::GetTemperatureData(const FDateT
 	return AverageMonthlyTemperature;
 }
 
-float UMonthlyMeanSimulationDataProvider::GetPrecipitationAt(const FDateTime& Date, const FVector2D& Position, int64 Resolution)
+float UMonthlyMeanSimulationDataProvider::GetPrecipitationAt(const FDateTime& Date, const FDateTime& To, const FVector2D& Position, int64 Resolution)
 {
 	auto MonthIndex = Date.GetMonth() - 1;
 	auto Precipitation = MonthlyPrecipitation[MonthIndex];

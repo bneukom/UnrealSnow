@@ -17,9 +17,10 @@ DECLARE_LOG_CATEGORY_EXTERN(SimulationLog, Log, All);
 UENUM(BlueprintType)
 enum class EDebugVisualizationType : uint8
 {
-	VE_Nothing 		UMETA(DisplayName = "Nothing"),
-	VE_SWE 			UMETA(DisplayName = "Snow Water Equivalent"),
-	VE_Position 	UMETA(DisplayName = "Position"),
+	Nothing 		UMETA(DisplayName = "Nothing"),
+	SWE 			UMETA(DisplayName = "Snow Water Equivalent"),
+	Position 		UMETA(DisplayName = "Position"),
+	Altitude 		UMETA(DisplayName = "Altitude"),
 };
 
 
@@ -38,7 +39,11 @@ public:
 	/** The step with which the simulation runs. */
 	float TimeStepHours = 1;
 
-	// @TODO setting these does not work in the editor
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Simulation")
+	/** The current date of the simulation. */
+	FDateTime CurrentSimulationTime;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	/** Simulation start time. */
 	FDateTime StartTime = FDateTime(2015, 1, 1);
@@ -60,10 +65,6 @@ public:
 	float Latitude;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
-	/** Data input for the simulation. */
-	USimulationWeatherDataProviderBase* WeatherData;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	/** Interpolator for the data for the simulation. */
 	USimulationDataInterpolatorBase* Interpolator;
 
@@ -77,7 +78,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	/** What should be visualized.  */
-	EDebugVisualizationType DebugVisualizationType = EDebugVisualizationType::VE_SWE;
+	EDebugVisualizationType DebugVisualizationType = EDebugVisualizationType::SWE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	/** Render the simulation grid over the landscape. */
@@ -85,7 +86,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	/** If true, writes the snow map to the path specified in Snow Map Path. */
-	bool WriteTextureMaps = true;
+	bool WriteDebugTextures = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	int CellDebugInfoDisplayDistance = 15000;
@@ -93,6 +94,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	/** The path the snow map gets written when Write Snow Map is set to true. */
 	FString DebugTexturePath = "c:\\temp";
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Debug")
+	/** Number of simulation cells per dimension. */
+	int32 CellsDimension;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Debug")
+	/** Landscape scale. */
+	FVector LandscapeScale;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Debug")
+	/** Overall landscape resolution. */
+	float OverallResolution;
+
 
 	/** Default constructor. */
 	ASnowSimulationActor();
@@ -122,8 +136,7 @@ private:
 	/** The landscape of the world. */
 	ALandscape* Landscape;
 
-	/** The current date of the simulation. */
-	FDateTime CurrentSimulationTime;
+
 
 	/** Current simulation step time passed. */
 	float CurrentStepTime;
@@ -149,8 +162,9 @@ private:
 	/** Total number of simulation cells. */
 	int32 NumCells;
 
-	/** Number of simulation cells per dimension. */
-	int32 CellsDimension;
+	USimulationWeatherDataProviderBase* WeatherDataComponent;
+
+
 
 	/**
 	* Returns the cell at the given index or nullptr if the index is out of bounds.

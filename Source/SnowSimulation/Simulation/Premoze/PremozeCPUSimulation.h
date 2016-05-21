@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "SimulationBase.h"
+#include "SnowSimulation/Simulation/SimulationBase.h"
 #include "PremozeCPUSimulation.generated.h"
 
 /**

@@ -25,6 +25,7 @@ DEFINE_LOG_CATEGORY(SimulationLog);
 ASnowSimulationActor::ASnowSimulationActor()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	
 }
 
 void ASnowSimulationActor::BeginPlay()
@@ -34,8 +35,12 @@ void ASnowSimulationActor::BeginPlay()
 	// Create the cells and the texture data for the material
 	Initialize();
 
+	// Initialize components
+	WeatherDataComponent = Cast<USimulationWeatherDataProviderBase>(GetComponentByClass(USimulationWeatherDataProviderBase::StaticClass()));
+	WeatherDataComponent->Initialize();
+
 	// Initialize simulation
-	Simulation->Initialize(Cells, WeatherData);
+	Simulation->Initialize(Cells, WeatherDataComponent);
 	UE_LOG(SimulationLog, Display, TEXT("Simulation type used: %s"), *Simulation->GetSimulationName());
 	CurrentSimulationTime = StartTime;
 
@@ -54,7 +59,7 @@ void ASnowSimulationActor::Tick(float DeltaTime)
 		CurrentStepTime = 0;
 
 		// Simulate next step
-		Simulation->Simulate(this, WeatherData, Interpolator, CurrentSimulationTime, CurrentSimulationTime + FTimespan(TimeStepHours, 0, 0), TimeStepHours);
+		Simulation->Simulate(this, WeatherDataComponent, Interpolator, CurrentSimulationTime, CurrentSimulationTime + FTimespan(TimeStepHours, 0, 0), TimeStepHours);
 
 		// Update the snow material to reflect changes from the simulation
 		UpdateMaterialTexture();
@@ -65,7 +70,7 @@ void ASnowSimulationActor::Tick(float DeltaTime)
 	}
 
 	// Render debug information
-	if (DebugVisualizationType != EDebugVisualizationType::VE_Nothing) Simulation->RenderDebug(Cells, GetWorld(), CellDebugInfoDisplayDistance, DebugVisualizationType);
+	if (DebugVisualizationType != EDebugVisualizationType::Nothing) Simulation->RenderDebug(Cells, GetWorld(), CellDebugInfoDisplayDistance, DebugVisualizationType);
 	if (RenderGrid) DoRenderGrid();
 
 }
@@ -107,6 +112,8 @@ void ASnowSimulationActor::Initialize()
 
 		// Take the first available landscape
 		Landscape = *LandscapeIterator;
+
+		LandscapeScale = Landscape->GetActorScale();
 
 		if (Landscape)
 		{
@@ -225,7 +232,7 @@ void ASnowSimulationActor::Initialize()
 			}
 
 			// Debug inclination texture output
-			if (WriteTextureMaps)
+			if (WriteDebugTextures)
 			{
 				auto InclinationMapPath = DebugTexturePath + "\\InclinationMap";
 				FFileHelper::CreateBitmap(*InclinationMapPath, CellsDimension, CellsDimension, InclinationTextureData.GetData());
@@ -240,7 +247,7 @@ void ASnowSimulationActor::Initialize()
 
 			SetTextureParameterValue(Landscape, TEXT("InclinationMap"), SnowMapTexture, GEngine);
 
-			int32 OverallResolution = Landscape->SubsectionSizeQuads * FMath::Sqrt(LandscapeComponents.Num());
+			OverallResolution = Landscape->SubsectionSizeQuads * FMath::Sqrt(LandscapeComponents.Num());
 			SetScalarParameterValue(Landscape, TEXT("CellsDimension"), CellsDimension);
 			SetScalarParameterValue(Landscape, TEXT("Resolution"), OverallResolution);
 		}
@@ -277,7 +284,7 @@ void ASnowSimulationActor::UpdateMaterialTexture()
 	}
 
 	// Debug snow texture output
-	if (WriteTextureMaps)
+	if (WriteDebugTextures)
 	{
 		auto SnowMapPath = DebugTexturePath + "\\SnowMap";
 		FFileHelper::CreateBitmap(*SnowMapPath, CellsDimension, CellsDimension, SnowMapTextureData.GetData());

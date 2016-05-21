@@ -3,7 +3,7 @@
 
 #include "SnowSimulation.h"
 #include "PremozeCPUSimulation.h"
-#include "SnowSimulationActor.h"
+#include "SnowSimulation/Simulation/SnowSimulationActor.h"
 #include "SnowSimulation/Util/MathUtil.h"
 #include "SnowSimulation/Simulation/Data/SimulationDataInterpolatorBase.h"
 
@@ -30,14 +30,17 @@ void UPremozeCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, USim
 	for (int32 Hours = 0; Hours < SimulationHours; Hours += TimeStepHours)
 	{
 		// Simulation
-		Time += FTimespan(TimeStepHours, 0, 0);
+		
+		
+
 		for (auto& Cell : Cells)
 		{
+			auto NextStep = Time + FTimespan(TimeStepHours, 0, 0);
 			const FVector& CellCentroid = Cell.Centroid;
-			FTemperature Temperature = Data->GetTemperatureData(Time, FVector2D(CellCentroid.X, CellCentroid.Y), SimulationActor, TimeStepHours * ETimespan::TicksPerHour); // @TODO timesteps
+			FTemperature Temperature = Data->GetTemperatureData(Time, NextStep, FVector2D(CellCentroid.X, CellCentroid.Y), SimulationActor, TimeStepHours); // @TODO timesteps
 			
 			const float TAir = Interpolator->InterpolateTemperatureByAltitude(Temperature, CellCentroid).Average; // degree Celsius
-			const float Precipitation = Data->GetPrecipitationAt(Time, FVector2D(CellCentroid.X, CellCentroid.Y), TimeStepHours * ETimespan::TicksPerHour); // l/m^2 or mm // @TODO timesteps
+			const float Precipitation = Data->GetPrecipitationAt(Time, NextStep, FVector2D(CellCentroid.X, CellCentroid.Y), TimeStepHours); // l/m^2 or mm // @TODO timesteps
 			
 			// @TODO use AreaXY because very steep slopes with big areas would receive too much snow
 			const float AreaSquareMeters = Cell.AreaXY / (100 * 100); // m^2
@@ -46,8 +49,10 @@ void UPremozeCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, USim
 			{
 				Cell.DaysSinceLastSnowfall = 0;
 
+				// @TODO TEST BLEND SNOW LINE
 				// New snow/rainfall
-				const bool Rain = TAir > TSnow;
+				// const bool Rain = TAir > TSnow;
+				const bool Rain = TAir > 1;
 
 				if (Rain) 
 				{
@@ -55,11 +60,10 @@ void UPremozeCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, USim
 				}
 				else 
 				{
-					// @TODO modify how much snow a surface receives by aspect? A surface with a 90° slope should not receive much snow. (FIND PAPER)
-					//		-  http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.461.563&rep=rep1&type=pdf
-					// @TODO if we assume no wind we could calculate the area by projecting the plane onto the XY plane
+					// @TODO TEST BLEND SNOW LINE
+					float Factor = (TAir - 1) / -5;
 
-					Cell.SnowWaterEquivalent += (Precipitation * AreaSquareMeters); // l/m^2 * m^2 = l
+					Cell.SnowWaterEquivalent += (Precipitation * AreaSquareMeters * Factor); // l/m^2 * m^2 = l
 					Cell.SnowAlbedo = 0.8; // New snow sets the albedo to 0.8
 				}
 			}
@@ -175,6 +179,8 @@ void UPremozeCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, USim
 			auto AreaSquareMeters = Cell.Area / (100 * 100);
 			MaxSnow = FMath::Max(Cell.SnowWaterEquivalent / AreaSquareMeters, MaxSnow);
 		}
+
+		Time += FTimespan(TimeStepHours, 0, 0);
 	}
 }
 
@@ -190,7 +196,7 @@ void UPremozeCPUSimulation::Initialize(TArray<FSimulationCell>& Cells, USimulati
 void UPremozeCPUSimulation::RenderDebug(TArray<FSimulationCell>& Cells, UWorld* World, int CellDebugInfoDisplayDistance, EDebugVisualizationType DebugVisualizationType)
 {
 	// Draw SWE normal
-	if (DebugVisualizationType == EDebugVisualizationType::VE_SWE)
+	if (DebugVisualizationType == EDebugVisualizationType::SWE)
 	{
 		for (auto& Cell : Cells)
 		{
@@ -242,11 +248,14 @@ void UPremozeCPUSimulation::RenderDebug(TArray<FSimulationCell>& Cells, UWorld* 
 			{
 				switch (DebugVisualizationType)
 				{
-				case EDebugVisualizationType::VE_SWE:
+				case EDebugVisualizationType::SWE:
 					DrawDebugString(World, Cell.Centroid, FString::FromInt(static_cast<int>(Cell.SnowWaterEquivalent)), nullptr, FColor::Purple, 0, true);
 					break;
-				case EDebugVisualizationType::VE_Position:
+				case EDebugVisualizationType::Position:
 					DrawDebugString(World, Cell.Centroid, "(" + FString::FromInt(static_cast<int>(Cell.Centroid.X / 100)) + "/" + FString::FromInt(static_cast<int>(Cell.Centroid.Y / 100)) + ")", nullptr, FColor::Purple, 0, true);
+					break;
+				case EDebugVisualizationType::Altitude:
+					DrawDebugString(World, Cell.Centroid, FString::FromInt(static_cast<int>(Cell.Altitude / 100)), nullptr, FColor::Purple, 0, true);
 					break;
 				default:
 					break;

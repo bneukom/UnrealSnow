@@ -104,18 +104,6 @@
     <Filter Include="Source\SnowSimulation\Simulation">
       <UniqueIdentifier>{8CDDD800-975E-4951-B379-ACB90B2BFB6F}</UniqueIdentifier>
     </Filter>
-    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\PremozeCPUSimulation.cpp">
-      <Filter>Source\SnowSimulation\Simulation</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\PremozeCPUSimulation.h">
-      <Filter>Source\SnowSimulation\Simulation</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\PremozeGPUSimulation.cpp">
-      <Filter>Source\SnowSimulation\Simulation</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\PremozeGPUSimulation.h">
-      <Filter>Source\SnowSimulation\Simulation</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\SnowSimulation\Simulation\SimulationBase.h">
       <Filter>Source\SnowSimulation\Simulation</Filter>
     </ClInclude>
@@ -128,30 +116,6 @@
     <Filter Include="Source\SnowSimulation\Simulation\Data">
       <UniqueIdentifier>{B7D368D7-57AE-4099-9AD6-21095A0EA4DC}</UniqueIdentifier>
     </Filter>
-    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Data\DefaultSimulationDataInterpolator.cpp">
-      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\DefaultSimulationDataInterpolator.h">
-      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Data\MonthlyMeanWeatherDataProvider.cpp">
-      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\MonthlyMeanWeatherDataProvider.h">
-      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\SimulationDataInterpolatorBase.h">
-      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\SimulationWeatherDataProviderBase.h">
-      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Data\WorldClimWeatherDataProvider.cpp">
-      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\WorldClimWeatherDataProvider.h">
-      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
-    </ClInclude>
     <Filter Include="Source\SnowSimulation\Spectator">
       <UniqueIdentifier>{599AC920-59EA-49AC-AC66-35A69BEA0285}</UniqueIdentifier>
     </Filter>
@@ -176,21 +140,129 @@
     <ClInclude Include="..\..\Source\SnowSimulation\Util\RuntimeMaterialChange.h">
       <Filter>Source\SnowSimulation\Util</Filter>
     </ClInclude>
+    <None Include="..\..\Plugins\SimplexNoise\Source\SimplexNoise\SimplexNoise.Build.cs">
+      <Filter>Plugins\SimplexNoise\Source\SimplexNoise</Filter>
+    </None>
+    <None Include="..\..\Plugins\SimplexNoise\SimplexNoise.uplugin">
+      <Filter>Plugins\SimplexNoise</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Data\WorldClimDataAssets.cpp">
-      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
+    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Data\WorldClimDataAsset.cpp" />
+    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Data\WorldClim\WorldClimDataAssets.cpp">
+      <Filter>Source\SnowSimulation\Simulation\Data\WorldClim</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Data\RichardsonWeatherDataProvider.cpp">
-      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
+    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Data\WorldClim\WorldClimWeatherDataProvider.cpp">
+      <Filter>Source\SnowSimulation\Simulation\Data\WorldClim</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Data\MonthlyMeanWeatherDataProvider.cpp">
+      <Filter>Source\SnowSimulation\Simulation\Data\Mean</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Premoze\PremozeCPUSimulation.cpp">
+      <Filter>Source\SnowSimulation\Simulation\Premoze</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Premoze\PremozeGPUSimulation.cpp">
+      <Filter>Source\SnowSimulation\Simulation\Premoze</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Data\DefaultSimulationDataInterpolator.cpp">
+      <Filter>Source\SnowSimulation\Simulation\Interpolation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Data\SimpleStochasticWeatherDataProvider.cpp">
+      <Filter>Source\SnowSimulation\Simulation\Data\Stochastic\Simple</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Plugins\SimplexNoise\Source\SimplexNoise\Private\SimplexNoiseBPLibrary.cpp">
+      <Filter>Plugins\SimplexNoise\Source\SimplexNoise\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Plugins\SimplexNoise\Source\SimplexNoise\Private\SimplexNoiseModule.cpp">
+      <Filter>Plugins\SimplexNoise\Source\SimplexNoise\Private</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\WorldClimDataAssets.h">
+    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\WorldClimDataAsset.h" />
+    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\WorldClim\WorldClimDataAssets.h">
+      <Filter>Source\SnowSimulation\Simulation\Data\WorldClim</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\WorldClim\WorldClimWeatherDataProvider.h">
+      <Filter>Source\SnowSimulation\Simulation\Data\WorldClim</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\MonthlyMeanWeatherDataProvider.h">
+      <Filter>Source\SnowSimulation\Simulation\Data\Mean</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\SimulationDataInterpolatorBase.h">
+      <Filter>Source\SnowSimulation\Simulation\Interpolation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Premoze\PremozeCPUSimulation.h">
+      <Filter>Source\SnowSimulation\Simulation\Premoze</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Premoze\PremozeGPUSimulation.h">
+      <Filter>Source\SnowSimulation\Simulation\Premoze</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\SimulationWeatherDataProviderBase.h">
       <Filter>Source\SnowSimulation\Simulation\Data</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\RichardsonWeatherDataProvider.h">
-      <Filter>Source\SnowSimulation\Simulation\Data</Filter>
+    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\DefaultSimulationDataInterpolator.h">
+      <Filter>Source\SnowSimulation\Simulation\Interpolation</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\SimpleStochasticWeatherDataProvider.h">
+      <Filter>Source\SnowSimulation\Simulation\Data\Stochastic\Simple</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Plugins\SimplexNoise\Source\SimplexNoise\Public\ISimplexNoise.h">
+      <Filter>Plugins\SimplexNoise\Source\SimplexNoise\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Plugins\SimplexNoise\Source\SimplexNoise\Public\SimplexNoiseBPLibrary.h">
+      <Filter>Plugins\SimplexNoise\Source\SimplexNoise\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Plugins\SimplexNoise\Source\SimplexNoise\Private\SimplexNoisePrivatePCH.h">
+      <Filter>Plugins\SimplexNoise\Source\SimplexNoise\Private</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source\SnowSimulation\Simulation\Data\WorldClim">
+      <UniqueIdentifier>{6714acf0-4984-44c6-9c26-70aa96b9e99e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\SnowSimulation\Simulation\Data\Mean">
+      <UniqueIdentifier>{99f9a745-06ea-401e-a3c0-cc47d2619043}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\SnowSimulation\Simulation\Interpolation">
+      <UniqueIdentifier>{65b1cdc5-78d4-400f-b7e7-c85fc4905254}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\SnowSimulation\Simulation\Premoze">
+      <UniqueIdentifier>{c159bce5-e5f7-4cb7-8b4b-8e9f8036e1f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\SnowSimulation\Simulation\Data\Stochastic">
+      <UniqueIdentifier>{c5d8eddb-5e68-4e2f-97eb-8cc607de6532}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\SnowSimulation\Simulation\Data\Stochastic\Simple">
+      <UniqueIdentifier>{d2fc6b34-3c72-420b-b281-1cf7d0373bdb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\SnowSimulation\Simulation\Data\Stochastic\Correlated">
+      <UniqueIdentifier>{399f1415-37a2-48f8-b9b6-9c052bca4eac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\SnowSimulation\Simulation\Data\Downscaling">
+      <UniqueIdentifier>{057a0bb9-3e55-4b05-ba86-765fc9fe955b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugins\SimplexNoise">
+      <UniqueIdentifier>{d2dd44c7-9bd2-43c8-945f-2d756b7d2e86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugins\SimplexNoise\Resources">
+      <UniqueIdentifier>{a9bcf5a6-044a-45b9-b370-21339a6af62a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugins\SimplexNoise\Source">
+      <UniqueIdentifier>{824fdc77-df49-419a-be6c-70b513bd6e2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugins\SimplexNoise\Source\SimplexNoise">
+      <UniqueIdentifier>{0831c80f-f92d-4808-8623-c56a9c0cc433}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugins\SimplexNoise\Source\SimplexNoise\Public">
+      <UniqueIdentifier>{229579d0-ef60-4b36-9d72-d620b5dd9cf9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugins\SimplexNoise\Source\SimplexNoise\Private">
+      <UniqueIdentifier>{cda639e9-3742-4036-812f-5cd6c3f1e409}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\Plugins\SimplexNoise\Resources\Icon128.png">
+      <Filter>Plugins\SimplexNoise\Resources</Filter>
+    </Image>
   </ItemGroup>
 </Project>
