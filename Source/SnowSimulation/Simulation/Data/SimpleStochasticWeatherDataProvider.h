@@ -86,11 +86,11 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input", DisplayName = "P_WD")
 	/** Probability of a wet hour given the previous hour was dry. */
-	float P_WD = 0.05f;
+	float P_WD = 0.1f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input", DisplayName = "P_WW")
 	/** Probability of a wet hour given the previous hour was wet. */
-	float P_WW = 0.85;
+	float P_WW = 0.6;
 
 
 	USimpleStochasticWeatherDataProvider();

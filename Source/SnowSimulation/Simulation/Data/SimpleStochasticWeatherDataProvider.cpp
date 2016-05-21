@@ -70,7 +70,7 @@ void USimpleStochasticWeatherDataProvider::Initialize()
 	{
 		for (int32 X = 0; X < Resolution; ++X)
 		{
-			float Noise = USimplexNoiseBPLibrary::SimplexNoiseScaled2D(X * TemperatureNoiseScale, Y * TemperatureNoiseScale, 4.0f);
+			float Noise = USimplexNoiseBPLibrary::SimplexNoiseScaled2D(X * TemperatureNoiseScale, Y * TemperatureNoiseScale, 2.0f);
 			TemperatureNoise[X][Y] = Noise;
 		}
 	}
