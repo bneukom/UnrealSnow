@@ -57,8 +57,14 @@ struct SNOWSIMULATION_API FSimulationCell
 	/** The days since the last snow has fallen on this cell. */
 	float DaysSinceLastSnowfall = 0;
 
-	float AltitudeWithSnow() const {
-		return Altitude + SnowWaterEquivalent / 10;
+	/** Returns the altitude of the cells midpoint including the snow accumulated on the surface in cm. */
+	float GetAltitudeWithSnow() const {
+		return Altitude + GetSnowHeight() * 10;
+	}
+
+	/** Returns the snow amount in mm (or liters/m^2). */
+	float GetSnowHeight() const {
+		return SnowWaterEquivalent / (Area / (100 * 100));
 	}
 
 	FSimulationCell() : Index(0), P1(FVector::ZeroVector), P2(FVector::ZeroVector), P3(FVector::ZeroVector), P4(FVector::ZeroVector),
@@ -77,6 +83,7 @@ struct SNOWSIMULATION_API FSimulationCell
 	{
 		Neighbours.Init(nullptr, 8);
 	}
+
 
 
 };

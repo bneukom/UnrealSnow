@@ -18,9 +18,12 @@ UENUM(BlueprintType)
 enum class EDebugVisualizationType : uint8
 {
 	Nothing 		UMETA(DisplayName = "Nothing"),
-	SWE 			UMETA(DisplayName = "Snow Water Equivalent"),
+	SnowHeight		UMETA(DisplayName = "Snow Height (mm)"),
+	SWE 			UMETA(DisplayName = "Snow Water Equivalent (l)"),
 	Position 		UMETA(DisplayName = "Position"),
-	Altitude 		UMETA(DisplayName = "Altitude"),
+	Altitude 		UMETA(DisplayName = "Altitude (cm)"),
+	Index 			UMETA(DisplayName = "Cell Index"),
+	Area 			UMETA(DisplayName = "Area (m^2)"),
 };
 
 
@@ -78,7 +81,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	/** What should be visualized.  */
-	EDebugVisualizationType DebugVisualizationType = EDebugVisualizationType::SWE;
+	EDebugVisualizationType DebugVisualizationType = EDebugVisualizationType::Nothing;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	/** Render the simulation grid over the landscape. */

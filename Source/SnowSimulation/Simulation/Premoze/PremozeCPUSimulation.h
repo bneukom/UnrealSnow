@@ -106,17 +106,25 @@ private:
 	}
 
 public:
-	/** Slope threshold for the snow deposition of the cells in radians.*/
+	/** Slope threshold for the snow deposition of the cells in degrees.*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
-	float SlopeThreshold = PI / 18;
+	float SlopeThreshold = 45;
 
-	/** Threshold air temperature above which all precipitation is assumed to be rain. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation",  DisplayName = "TSnow")
-	float TSnow = 0;
+	/** Threshold A air temperature above which some precipitation is assumed to be rain. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation",  DisplayName = "TSnow A")
+	float TSnowA = 0;
 
-	/** Threshold air temperature above which snow starts melting. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation", DisplayName = "TMelt")
-	float TMelt = 0;
+	/** Threshold B air temperature above which all precipitation is assumed to be rain. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation", DisplayName = "TSnow B")
+	float TSnowB = 1;
+
+	/** Threshold A air temperature above which some snow starts melting. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation", DisplayName = "TMelt A")
+	float TMeltA = 0;
+
+	/** Threshold B air temperature above which all snow starts melting. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation", DisplayName = "TMelt B")
+	float TMeltB = 1;
 
 	/** Time constant. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation", DisplayName = "k_e")

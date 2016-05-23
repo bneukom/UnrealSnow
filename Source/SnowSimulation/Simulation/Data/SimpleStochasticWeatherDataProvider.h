@@ -25,18 +25,19 @@ public:
 		Noise(std::vector<std::vector<float>>(Dimension, std::vector<float>(Dimension)))
 	{}
 
-	FNoisePrecipitation(FNoisePrecipitation&& Other)
-	{
+	// FNoisePrecipitation(FNoisePrecipitation&& Other) = default;
+	/*{
 		Precipitation = Other.Precipitation;
 		Noise = std::move(Other.Noise);
-	}
+	}*/
 
+	/*
 	FNoisePrecipitation(const FNoisePrecipitation& Other)
 	{
 		Precipitation = Other.Precipitation;
 		Noise = Other.Noise;
 	}
-
+	*/
 	/** Returns the precipitation at the given cell. */
 	float GetPrecipitationAt(int X, int Y)
 	{
@@ -76,7 +77,7 @@ private:
 	std::vector<std::vector<float>> TemperatureNoise;
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input", DisplayName = "P_I_W")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	/** Noise dimension cell size in cm. Smaller dimensions result in higher noise resolution but worse performance. */
 	float NoiseCellDimension = 50000.0f;
 

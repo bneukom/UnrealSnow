@@ -45,30 +45,29 @@ void UPremozeCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, USim
 			// @TODO use AreaXY because very steep slopes with big areas would receive too much snow
 			const float AreaSquareMeters = Cell.AreaXY / (100 * 100); // m^2
 
+			// Apply precipitation
 			if (Precipitation > 0)
 			{
 				Cell.DaysSinceLastSnowfall = 0;
 
-				// @TODO TEST BLEND SNOW LINE
 				// New snow/rainfall
-				// const bool Rain = TAir > TSnow;
-				const bool Rain = TAir > 1;
+				const bool Rain = TAir > TSnowB;
 
-				if (Rain) 
+				if (TAir > TSnowB)
 				{
 					Cell.SnowAlbedo = 0.4; // New rain drops the albedo to 0.4
 				}
 				else 
 				{
-					// @TODO TEST BLEND SNOW LINE
-					float Factor = (TAir - 1) / -5;
+					// Variable lapse rate as described in "A variable lapse rate snowline model for the Remarkables, Central Otago, New Zealand"
+					float SnowRate = FMath::Clamp(1 - (TAir - TSnowA) / (TSnowB - TSnowA), 0.0f, 1.0f);
 
-					Cell.SnowWaterEquivalent += (Precipitation * AreaSquareMeters * Factor); // l/m^2 * m^2 = l
+					Cell.SnowWaterEquivalent += (Precipitation * AreaSquareMeters * SnowRate); // l/m^2 * m^2 = l
 					Cell.SnowAlbedo = 0.8; // New snow sets the albedo to 0.8
 				}
 			}
 
-			// Cell contains snow
+			// Apply melt
 			if (Cell.SnowWaterEquivalent > 0)
 			{
 				if (Cell.DaysSinceLastSnowfall >= 0) {
@@ -77,7 +76,7 @@ void UPremozeCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, USim
 
 				// @TODO is this correct?
 				// Temperature higher than melt threshold and cell contains snow
-				if (TAir > TMelt)
+				if (TAir > TMeltA)
 				{
 					const float DayNormalization = 24.0f / TimeStepHours; // day 
 
@@ -91,7 +90,7 @@ void UPremozeCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, USim
 					const float VegetationDensity = 0;
 					const float k_v = FMath::Exp(-4 * VegetationDensity); // 1
 					const float c_m = k_m * k_v * R_i *  (1 - Cell.SnowAlbedo) * DayNormalization * AreaSquareMeters; // l/m^2/C°/day * day * m^2 = l/m^2 * 1/day * day * m^2 = l/C°
-					const float M = c_m * (TAir - TMelt); // l/C° * C° = l
+					const float M = c_m *  FMath::Clamp((TAir - TMeltA) / (TMeltB - TMeltA), 0.0f, 1.0f); // l/C° * C° = l
 
 					// Apply melt
 					Cell.SnowWaterEquivalent -= M; 
@@ -102,16 +101,15 @@ void UPremozeCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, USim
 			Cell.DaysSinceLastSnowfall += 24.0f / TimeStepHours;
 		}
 
+		// Redistribute snow as described in "Computer Modelling Of Fallen Snow"
 		TArray<FSimulationCell*> CurrentTestCells = StabilityTestCells;
-		
-
 		for (int StabilitTest = 0; StabilitTest < StabilityIterations; ++StabilitTest)
 		{
 			TArray<FSimulationCell*> UnstableCells;
 
 			// Sort the cells by total altitude
 			CurrentTestCells.Sort([](const FSimulationCell& A, const FSimulationCell& B) {
-				return A.AltitudeWithSnow() > B.AltitudeWithSnow();
+				return A.GetAltitudeWithSnow() > B.GetAltitudeWithSnow();
 			});
 
 			// Snow stability test similar to the method described in "Computer Modelling Of Fallen Snow"
@@ -127,28 +125,27 @@ void UPremozeCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, USim
 						const float InstableSnow = Cell->SnowWaterEquivalent * 1 / (StabilityIterations - StabilitTest);
 
 						// @TODO for gullies the assumption that the neighbor snow altitude has to be lower is not correct.
-						if (Neighbour != nullptr && Neighbour->AltitudeWithSnow() < Cell->AltitudeWithSnow())
+						if (Neighbour != nullptr && Neighbour->GetAltitudeWithSnow() < Cell->GetAltitudeWithSnow())
 						{
 							auto CellAreaSquareMeters = Cell->Area / (100 * 100);
 							auto CellSWE = Cell->SnowWaterEquivalent / CellAreaSquareMeters; // l/m^2 or mm
-							auto CellSnowHeightOffset = Cell->Normal.GetSafeNormal() * CellSWE * 10;
+							auto CellSnowHeightOffset = Cell->Normal.GetSafeNormal() * CellSWE / 10;
 							const FVector& P0 = Cell->Centroid + CellSnowHeightOffset;
 
 							auto NeighbourAreaSquareMeters = Neighbour->Area / (100 * 100);
 							auto NeighbourSWE = Neighbour->SnowWaterEquivalent / NeighbourAreaSquareMeters; // l/m^2 or mm
-							auto NeighbourSnowHeightOffset = Neighbour->Normal.GetSafeNormal() * NeighbourSWE * 10;
+							auto NeighbourSnowHeightOffset = Neighbour->Normal.GetSafeNormal() * NeighbourSWE / 10;
 							const FVector& P1 = Neighbour->Centroid + NeighbourSnowHeightOffset;
 
 							const FVector ToNeighbour = P1 - P0;
 							const FVector NeighbourProjXY(ToNeighbour.X, ToNeighbour.Y, 0);
 							const float Slope = FMath::Abs(FMath::Acos(FVector::DotProduct(ToNeighbour, NeighbourProjXY) / (ToNeighbour.Size() * NeighbourProjXY.Size())));
 
-							const float SupportProbability = FMath::Min(Slope < FMath::DegreesToRadians(50) ? 1 : 1 - (Slope / FMath::DegreesToRadians(60)), 1.0f);
+							const float SupportProbability = FMath::Min(Slope < FMath::DegreesToRadians(SlopeThreshold) ? 1 : 1 - (Slope / FMath::DegreesToRadians(90)), 1.0f);
 							const bool Support = FMath::FRandRange(0.0f, 1.0f) <= SupportProbability;
 
 							if (!Support) {
-								// const float Avalanche = (Cell->SnowWaterEquivalent * (Slope / (PI / 2)) *  0.5f);
-								const float Avalanche = Cell->SnowWaterEquivalent < 5 ? Cell->SnowWaterEquivalent : (Cell->SnowWaterEquivalent * (Slope / (PI / 2)) * 0.5f);
+								const float Avalanche = (Cell->SnowWaterEquivalent * (Slope / (PI / 2)) *  0.25f);
 								
 								Cell->SnowWaterEquivalent -= Avalanche;
 								Cell->Neighbours[NeighbourIndex]->SnowWaterEquivalent += Avalanche;
@@ -196,7 +193,7 @@ void UPremozeCPUSimulation::Initialize(TArray<FSimulationCell>& Cells, USimulati
 void UPremozeCPUSimulation::RenderDebug(TArray<FSimulationCell>& Cells, UWorld* World, int CellDebugInfoDisplayDistance, EDebugVisualizationType DebugVisualizationType)
 {
 	// Draw SWE normal
-	if (DebugVisualizationType == EDebugVisualizationType::SWE)
+	if (DebugVisualizationType == EDebugVisualizationType::SnowHeight)
 	{
 		for (auto& Cell : Cells)
 		{
@@ -213,7 +210,7 @@ void UPremozeCPUSimulation::RenderDebug(TArray<FSimulationCell>& Cells, UWorld* 
 				auto AreaSquareMeters = Cell.Area / (100 * 100);
 				auto SWE = Cell.SnowWaterEquivalent / AreaSquareMeters; // l/m^2 or mm
 				//DrawDebugLine(World, Cell.Centroid + zOffset, Cell.Centroid + zOffset + (Normal * SWE * 10), FColor(255, 0, 0), false, -1, 0, 0.0f);
-				DrawDebugLine(World, Cell.Centroid + zOffset, Cell.Centroid + FVector(0, 0, SWE * 10), FColor(255, 0, 0), false, -1, 0, 0.0f);
+				DrawDebugLine(World, Cell.Centroid + zOffset, Cell.Centroid + FVector(0, 0, SWE / 10) + zOffset, FColor(255, 0, 0), false, -1, 0, 0.0f);
 			}
 		}
 	}
@@ -222,6 +219,7 @@ void UPremozeCPUSimulation::RenderDebug(TArray<FSimulationCell>& Cells, UWorld* 
 	auto Pawn = PlayerController->GetPawn();
 
 	// Render snow water equivalent
+	int Index = 0;
 	for (auto& Cell : Cells)
 	{
 		auto Offset = Cell.Normal;
@@ -251,17 +249,25 @@ void UPremozeCPUSimulation::RenderDebug(TArray<FSimulationCell>& Cells, UWorld* 
 				case EDebugVisualizationType::SWE:
 					DrawDebugString(World, Cell.Centroid, FString::FromInt(static_cast<int>(Cell.SnowWaterEquivalent)), nullptr, FColor::Purple, 0, true);
 					break;
+				case EDebugVisualizationType::SnowHeight:
+					DrawDebugString(World, Cell.Centroid, FString::FromInt(static_cast<int>(Cell.GetSnowHeight())) + " mm", nullptr, FColor::Purple, 0, true);
+					break;
 				case EDebugVisualizationType::Position:
 					DrawDebugString(World, Cell.Centroid, "(" + FString::FromInt(static_cast<int>(Cell.Centroid.X / 100)) + "/" + FString::FromInt(static_cast<int>(Cell.Centroid.Y / 100)) + ")", nullptr, FColor::Purple, 0, true);
 					break;
 				case EDebugVisualizationType::Altitude:
-					DrawDebugString(World, Cell.Centroid, FString::FromInt(static_cast<int>(Cell.Altitude / 100)), nullptr, FColor::Purple, 0, true);
+					DrawDebugString(World, Cell.Centroid, FString::FromInt(static_cast<int>(Cell.Altitude / 100)) + "m", nullptr, FColor::Purple, 0, true);
+					break;
+				case EDebugVisualizationType::Index:
+					DrawDebugString(World, Cell.Centroid, FString::FromInt(Index), nullptr, FColor::Purple, 0, true);
 					break;
 				default:
 					break;
 				}
 			}
 		}
+
+		Index++;
 	}
 }
 
