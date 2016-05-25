@@ -7,7 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "GenericPlatformFile.h"
 #include "Data/SimulationWeatherDataProviderBase.h"
-#include "Data/SimulationDataInterpolatorBase.h"
+#include "Interpolation/SimulationDataInterpolatorBase.h"
 #include "SimulationBase.h"
 #include "SnowSimulationActor.generated.h"
 

@@ -5,7 +5,7 @@
 #include "Array.h"
 #include "DateTime.h"
 #include "Data/SimulationWeatherDataProviderBase.h"
-#include "Data/SimulationDataInterpolatorBase.h"
+#include "Interpolation/SimulationDataInterpolatorBase.h"
 #include "SimulationBase.generated.h"
 
 
@@ -50,6 +50,9 @@ struct SNOWSIMULATION_API FSimulationCell
 	// @TODO Create template (subclasses?) with this data, other simulations might use other data.
 	/** Snow water equivalent (SWE) as the mass of water stored in liters. */
 	float SnowWaterEquivalent = 0;
+
+	/** Snow water equivalent (SWE) after interpolation according to Blöschl. */
+	float InterpolatedSnowWaterEquivalent = 0;
 
 	/** The albedo of the snow [0-1.0]. */
 	float SnowAlbedo = 0;

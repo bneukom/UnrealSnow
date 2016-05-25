@@ -1,6 +1,6 @@
 #include "SnowSimulation.h"
 #include "Simulation/SnowSimulationActor.h"
-#include "SimulationWeatherDataProviderBase.h"
+#include "Simulation/Data/SimulationWeatherDataProviderBase.h"
 #include "SimpleStochasticWeatherDataProvider.h"
 #include "SimplexNoiseBPLibrary.h"
 

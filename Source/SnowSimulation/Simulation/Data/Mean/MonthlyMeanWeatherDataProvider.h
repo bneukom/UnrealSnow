@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Simulation/SnowSimulationActor.h"
-#include "SimulationWeatherDataProviderBase.h"
+#include "Simulation/Data/SimulationWeatherDataProviderBase.h"
 #include "Array.h"
 #include "MonthlyMeanWeatherDataProvider.generated.h"
 

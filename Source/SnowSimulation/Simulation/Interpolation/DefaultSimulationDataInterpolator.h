@@ -19,4 +19,5 @@ public:
 	float TemperatureDecay = -0.6;
 
 	virtual FTemperature InterpolateTemperatureByAltitude(FTemperature& BaseTemperatur, const FVector& Position) override final;
+
 };

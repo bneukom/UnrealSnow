@@ -3,22 +3,19 @@
 #pragma once
 
 #include "SnowSimulation/Simulation/SimulationBase.h"
-#include "PremozeCPUSimulation.generated.h"
+#include "DegreeDayCPUSimulation.generated.h"
 
 /**
 * Snow simulation similar to the one proposed by Simon Premoze in "Geospecific rendering of alpine terrain". 
 * Snow deposition is implemented similar to Fearings "Computer Modelling Of Fallen Snow".
 */
 UCLASS(Blueprintable, BlueprintType)
-class SNOWSIMULATION_API UPremozeCPUSimulation : public USimulationBase
+class SNOWSIMULATION_API UDegreeDayCPUSimulation : public USimulationBase
 {
 	GENERATED_BODY()
 private:
 	/** The maximum snow amount (mm) of the current time step. */
 	float MaxSnow;
-
-	/** The cells used for the stability tests. */
-	TArray<FSimulationCell*> StabilityTestCells;
 
 	// @TODO Degrees or radians?
 	/**
@@ -133,10 +130,6 @@ public:
 	/** Proportional constant. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation", DisplayName = "k_m")
 	float k_m = 1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
-	/** Iterations of the Fearing snow stability Tests. [5-20]*/
-	int StabilityIterations = 10;
 
 	virtual FString GetSimulationName() override final;
 

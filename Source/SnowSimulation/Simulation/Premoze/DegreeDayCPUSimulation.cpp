@@ -2,12 +2,12 @@
 
 
 #include "SnowSimulation.h"
-#include "PremozeCPUSimulation.h"
+#include "DegreeDayCPUSimulation.h"
 #include "SnowSimulation/Simulation/SnowSimulationActor.h"
 #include "SnowSimulation/Util/MathUtil.h"
-#include "SnowSimulation/Simulation/Data/SimulationDataInterpolatorBase.h"
+#include "SnowSimulation/Simulation/Interpolation/SimulationDataInterpolatorBase.h"
 
-FString UPremozeCPUSimulation::GetSimulationName()
+FString UDegreeDayCPUSimulation::GetSimulationName()
 {
 	return FString(TEXT("Premoze CPU"));
 }
@@ -16,7 +16,7 @@ FString UPremozeCPUSimulation::GetSimulationName()
 // @TODO Test Solar Radiations values from the paper
 
 // Flops per iteration: (2 * 20 + 6 * 2) + (20 * 20 + 38 * 2)
-void UPremozeCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, USimulationWeatherDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime, int32 TimeStepHours)
+void UDegreeDayCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, USimulationWeatherDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime, int32 TimeStepHours)
 {
 	auto& Cells = SimulationActor->GetCells();
 
@@ -30,9 +30,6 @@ void UPremozeCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, USim
 	for (int32 Hours = 0; Hours < SimulationHours; Hours += TimeStepHours)
 	{
 		// Simulation
-		
-		
-
 		for (auto& Cell : Cells)
 		{
 			auto NextStep = Time + FTimespan(TimeStepHours, 0, 0);
@@ -74,7 +71,6 @@ void UPremozeCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, USim
 					Cell.SnowAlbedo = 0.4 * (1 + FMath::Exp(-k_e * Cell.DaysSinceLastSnowfall)); // @TODO is time T the degree-days or the time since the last snowfall?;
 				}
 
-				// @TODO is this correct?
 				// Temperature higher than melt threshold and cell contains snow
 				if (TAir > TMeltA)
 				{
@@ -101,75 +97,6 @@ void UPremozeCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, USim
 			Cell.DaysSinceLastSnowfall += 24.0f / TimeStepHours;
 		}
 
-		// Redistribute snow as described in "Computer Modelling Of Fallen Snow"
-		TArray<FSimulationCell*> CurrentTestCells = StabilityTestCells;
-		for (int StabilitTest = 0; StabilitTest < StabilityIterations; ++StabilitTest)
-		{
-			TArray<FSimulationCell*> UnstableCells;
-
-			// Sort the cells by total altitude
-			CurrentTestCells.Sort([](const FSimulationCell& A, const FSimulationCell& B) {
-				return A.GetAltitudeWithSnow() > B.GetAltitudeWithSnow();
-			});
-
-			// Snow stability test similar to the method described in "Computer Modelling Of Fallen Snow"
-			for (auto Cell : CurrentTestCells)
-			{
-				if (Cell->SnowWaterEquivalent > 0)
-				{
-					bool SnowAvalanched = false;
-
-					for (int NeighbourIndex = 0; NeighbourIndex < 8; ++NeighbourIndex)
-					{
-						auto Neighbour = Cell->Neighbours[NeighbourIndex];
-						const float InstableSnow = Cell->SnowWaterEquivalent * 1 / (StabilityIterations - StabilitTest);
-
-						// @TODO for gullies the assumption that the neighbor snow altitude has to be lower is not correct.
-						if (Neighbour != nullptr && Neighbour->GetAltitudeWithSnow() < Cell->GetAltitudeWithSnow())
-						{
-							auto CellAreaSquareMeters = Cell->Area / (100 * 100);
-							auto CellSWE = Cell->SnowWaterEquivalent / CellAreaSquareMeters; // l/m^2 or mm
-							auto CellSnowHeightOffset = Cell->Normal.GetSafeNormal() * CellSWE / 10;
-							const FVector& P0 = Cell->Centroid + CellSnowHeightOffset;
-
-							auto NeighbourAreaSquareMeters = Neighbour->Area / (100 * 100);
-							auto NeighbourSWE = Neighbour->SnowWaterEquivalent / NeighbourAreaSquareMeters; // l/m^2 or mm
-							auto NeighbourSnowHeightOffset = Neighbour->Normal.GetSafeNormal() * NeighbourSWE / 10;
-							const FVector& P1 = Neighbour->Centroid + NeighbourSnowHeightOffset;
-
-							const FVector ToNeighbour = P1 - P0;
-							const FVector NeighbourProjXY(ToNeighbour.X, ToNeighbour.Y, 0);
-							const float Slope = FMath::Abs(FMath::Acos(FVector::DotProduct(ToNeighbour, NeighbourProjXY) / (ToNeighbour.Size() * NeighbourProjXY.Size())));
-
-							const float SupportProbability = FMath::Min(Slope < FMath::DegreesToRadians(SlopeThreshold) ? 1 : 1 - (Slope / FMath::DegreesToRadians(90)), 1.0f);
-							const bool Support = FMath::FRandRange(0.0f, 1.0f) <= SupportProbability;
-
-							if (!Support) {
-								const float Avalanche = (Cell->SnowWaterEquivalent * (Slope / (PI / 2)) *  0.25f);
-								
-								Cell->SnowWaterEquivalent -= Avalanche;
-								Cell->Neighbours[NeighbourIndex]->SnowWaterEquivalent += Avalanche;
-
-								UnstableCells.Add(Cell->Neighbours[NeighbourIndex]);
-
-								SnowAvalanched = true;
-
-							}
-						}
-					}
-
-					if (SnowAvalanched)
-					{
-						UnstableCells.Add(Cell);
-					}
-				}
-
-			
-			}
-
-			CurrentTestCells = UnstableCells;
-		}
-
 		// Store max snow
 		for (auto& Cell : Cells)
 		{
@@ -181,16 +108,13 @@ void UPremozeCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, USim
 	}
 }
 
-void UPremozeCPUSimulation::Initialize(TArray<FSimulationCell>& Cells, USimulationWeatherDataProviderBase* Data)
+void UDegreeDayCPUSimulation::Initialize(TArray<FSimulationCell>& Cells, USimulationWeatherDataProviderBase* Data)
 {
-	for (auto& Cell : Cells)
-	{
-		StabilityTestCells.Add(&Cell);
-	}
+	// @TODO discrete second derivative
 }
 
 #if SIMULATION_DEBUG
-void UPremozeCPUSimulation::RenderDebug(TArray<FSimulationCell>& Cells, UWorld* World, int CellDebugInfoDisplayDistance, EDebugVisualizationType DebugVisualizationType)
+void UDegreeDayCPUSimulation::RenderDebug(TArray<FSimulationCell>& Cells, UWorld* World, int CellDebugInfoDisplayDistance, EDebugVisualizationType DebugVisualizationType)
 {
 	// Draw SWE normal
 	if (DebugVisualizationType == EDebugVisualizationType::SnowHeight)
@@ -204,7 +128,6 @@ void UPremozeCPUSimulation::RenderDebug(TArray<FSimulationCell>& Cells, UWorld* 
 
 				// @TODO get exact position using the height map
 				FVector zOffset(0, 0, 50);
-
 
 				// Height of the snow for this cell
 				auto AreaSquareMeters = Cell.Area / (100 * 100);
@@ -271,7 +194,7 @@ void UPremozeCPUSimulation::RenderDebug(TArray<FSimulationCell>& Cells, UWorld* 
 	}
 }
 
-float UPremozeCPUSimulation::GetMaxSnow()
+float UDegreeDayCPUSimulation::GetMaxSnow()
 {
 	return MaxSnow;
 }
