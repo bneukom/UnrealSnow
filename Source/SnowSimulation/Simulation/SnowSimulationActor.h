@@ -139,8 +139,6 @@ private:
 	/** The landscape of the world. */
 	ALandscape* Landscape;
 
-
-
 	/** Current simulation step time passed. */
 	float CurrentStepTime;
 
@@ -166,7 +164,6 @@ private:
 	int32 NumCells;
 
 	USimulationWeatherDataProviderBase* WeatherDataComponent;
-
 
 
 	/**

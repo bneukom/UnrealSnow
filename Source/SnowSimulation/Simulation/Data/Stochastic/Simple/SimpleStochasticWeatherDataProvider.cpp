@@ -110,7 +110,7 @@ void USimpleStochasticWeatherDataProvider::Initialize()
 			PrecipitationData.Add(FNoisePrecipitation());
 		}
 
-
+		// @TODO which paper is this from? (Original paper?)
 		// Temperature
 		float SeasonalOffset = -FMath::Cos(CurrentTime.GetDayOfYear() * 2 * PI / 365.0f) * 9 + FMath::FRandRange(-0.5f, 0.5f);
 		const float BaseTemperature = 10;

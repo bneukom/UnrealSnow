@@ -68,7 +68,8 @@ void UDegreeDayCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, US
 			if (Cell.SnowWaterEquivalent > 0)
 			{
 				if (Cell.DaysSinceLastSnowfall >= 0) {
-					Cell.SnowAlbedo = 0.4 * (1 + FMath::Exp(-k_e * Cell.DaysSinceLastSnowfall)); // @TODO is time T the degree-days or the time since the last snowfall?;
+					// @TODO is time T the degree-days or the time since the last snowfall?
+					Cell.SnowAlbedo = 0.4 * (1 + FMath::Exp(-k_e * Cell.DaysSinceLastSnowfall)); 
 				}
 
 				// Temperature higher than melt threshold and cell contains snow
@@ -77,7 +78,7 @@ void UDegreeDayCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, US
 					const float DayNormalization = 24.0f / TimeStepHours; // day 
 
 					// @TODO radiation index at nighttime? How about newer simulations?
-					// @TODO Blöschl (???) used different radiation values at night time
+					// @TODO Blöschl (???) used different radiation values during night
 
 					// Radiation Index
 					const float R_i = SolarRadiationIndex(Cell.Inclination, Cell.Aspect, Cell.Latitude, Time.GetDayOfYear()); // 1
@@ -110,7 +111,8 @@ void UDegreeDayCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, US
 
 void UDegreeDayCPUSimulation::Initialize(TArray<FSimulationCell>& Cells, USimulationWeatherDataProviderBase* Data)
 {
-	// @TODO discrete second derivative
+	// @TODO calculate discrete second derivative (curvature) for Blöschl snow approximation
+	// @TODO Use Fearings stability method for small scale snow?
 }
 
 #if SIMULATION_DEBUG
