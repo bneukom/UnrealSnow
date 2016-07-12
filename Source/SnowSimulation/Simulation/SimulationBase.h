@@ -9,6 +9,55 @@
 #include "SimulationBase.generated.h"
 
 
+
+// Forward declarations
+class ASnowSimulationActor;
+enum class EDebugVisualizationType : uint8;
+struct FSimulationCell;
+
+/**
+* Base class for the snow distribution simulation.
+*/
+UCLASS(abstract)
+class SNOWSIMULATION_API USimulationBase : public UObject
+{
+	GENERATED_BODY()
+
+public:
+
+	/** Timestep of the simulation in hours. */
+	UPROPERTY()
+		int32 TimeStepHours = 24;
+
+	/**
+	* Returns the name of the simulation.
+	*/
+	virtual FString GetSimulationName() PURE_VIRTUAL(USimulationBase::GetSimulationName, return TEXT(""););
+
+	/**
+	* Initializes the simulation.
+	*/
+	virtual void Initialize(ASnowSimulationActor* SimulationActor, USimulationWeatherDataProviderBase* Data) PURE_VIRTUAL(USimulationBase::Initialize, ;);
+
+	/**
+	* Runs the simulation on the given cells until the given end time is reached.
+	* @param SimulationActor	the actor
+	* @param Data				input data used for the simulation
+	* @param Interpolator		used to interpolate input data
+	* @param StartTime			Start of the simulation
+	* @param EndTime			End of the simulation
+	* @param TimeStepHours		Time step of the simulation in hours
+	*/
+	virtual void Simulate(ASnowSimulationActor* SimulationActor, USimulationWeatherDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime, int32 TimeStepHours) PURE_VIRTUAL(USimulationBase::Run, ;);
+
+	/** Renders debug information of the simulation every tick. */
+	virtual void RenderDebug(TArray<FSimulationCell>& Cells, UWorld* World, int CellDebugInfoDisplayDistance, EDebugVisualizationType VisualizationType) PURE_VIRTUAL(USimulationBase::RenderDebug, ;);
+
+	/** Returns the maximum snow amount of any cell in mm. */
+	virtual float GetMaxSnow() PURE_VIRTUAL(USimulationBase::GetMaxSnow, return 0.0f;);
+
+};
+
 struct SNOWSIMULATION_API FSimulationCell
 {
 	const FVector P1;
@@ -47,7 +96,6 @@ struct SNOWSIMULATION_API FSimulationCell
 	/** The latitude of the center of this cell. */
 	const float Latitude;
 
-	// @TODO Create template (subclasses?) with this data, other simulations might use other data.
 	/** Snow water equivalent (SWE) as the mass of water stored in liters. */
 	float SnowWaterEquivalent = 0;
 
@@ -59,6 +107,17 @@ struct SNOWSIMULATION_API FSimulationCell
 
 	/** The days since the last snow has fallen on this cell. */
 	float DaysSinceLastSnowfall = 0;
+
+	/** The curvature (second derivative) of the terrain at the given cell. */
+	float Curvature = 0.0f;
+
+	/** Returns true if all neighbours have been set (non null). */
+	bool AllNeighboursSet() const {
+		for (auto& Neighbour : Neighbours) {
+			if (Neighbour == nullptr) return false;
+		}
+		return true;
+	}
 
 	/** Returns the altitude of the cells midpoint including the snow accumulated on the surface in cm. */
 	float GetAltitudeWithSnow() const {
@@ -91,48 +150,4 @@ struct SNOWSIMULATION_API FSimulationCell
 
 };
 
-class ASnowSimulationActor;
-enum class  EDebugVisualizationType : uint8;
-
-/**
- * Base class for the snow distribution simulation.
- */
-UCLASS(abstract)
-class SNOWSIMULATION_API USimulationBase : public UObject
-{
-	GENERATED_BODY()
-
-public:
-	
-	/** Timestep of the simulation in hours. */
-	UPROPERTY()
-	int32 TimeStepHours = 24;
-
-	/**
-	* Returns the name of the simulation.
-	*/
-	virtual FString GetSimulationName() PURE_VIRTUAL(USimulationBase::GetSimulationName, return TEXT(""););
-
-	/** 
-	* Initializes the simulation.
-	*/
-	virtual void Initialize(TArray<FSimulationCell>& Cells, USimulationWeatherDataProviderBase* Data) PURE_VIRTUAL(USimulationBase::Initialize, ;);
-
-	/** 
-	* Runs the simulation on the given cells until the given end time is reached.
-	* @param SimulationActor	the actor
-	* @param Data				input data used for the simulation
-	* @param Interpolator		used to interpolate input data
-	* @param StartTime			Start of the simulation
-	* @param EndTime			End of the simulation
-	* @param TimeStepHours		Time step of the simulation in hours
-	*/
-	virtual void Simulate(ASnowSimulationActor* SimulationActor, USimulationWeatherDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime, int32 TimeStepHours) PURE_VIRTUAL(USimulationBase::Run, ;);
-
-	/** Renders debug information of the simulation every tick. */
-	virtual void RenderDebug(TArray<FSimulationCell>& Cells, UWorld* World, int CellDebugInfoDisplayDistance, EDebugVisualizationType VisualizationType) PURE_VIRTUAL(USimulationBase::RenderDebug, ;);
-
-	/** Returns the maximum snow amount of any cell in mm. */
-	virtual float GetMaxSnow() PURE_VIRTUAL(USimulationBase::GetMaxSnow, return 0.0f;);
-};
 

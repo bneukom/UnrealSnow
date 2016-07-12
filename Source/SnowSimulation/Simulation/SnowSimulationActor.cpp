@@ -17,10 +17,7 @@
 #include "Materials/MaterialInterface.h"
 #include "Materials/Material.h"
 
-
-
 DEFINE_LOG_CATEGORY(SimulationLog);
-
 
 ASnowSimulationActor::ASnowSimulationActor()
 {
@@ -206,7 +203,7 @@ void ASnowSimulationActor::Initialize()
 				if ((CellIndex) % CellsDimension != 0)
 					Current.Neighbours[5] = GetCellChecked(CellIndex + CellsDimension - 1); 	// SW
 				if ((CellIndex) % CellsDimension != 0)
-					Current.Neighbours[6] = GetCellChecked(CellIndex - 1);						// N
+					Current.Neighbours[6] = GetCellChecked(CellIndex - 1);						// W
 				if ((CellIndex) % CellsDimension != 0)
 					Current.Neighbours[7] = GetCellChecked(CellIndex - CellsDimension - 1);		// NW
 			}

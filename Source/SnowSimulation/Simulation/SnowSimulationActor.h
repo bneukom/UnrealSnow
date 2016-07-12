@@ -24,6 +24,7 @@ enum class EDebugVisualizationType : uint8
 	Altitude 		UMETA(DisplayName = "Altitude (cm)"),
 	Index 			UMETA(DisplayName = "Cell Index"),
 	Area 			UMETA(DisplayName = "Area (m^2)"),
+	Curvature		UMETA(DisplayName = "Curvature"),
 };
 
 
@@ -110,7 +111,6 @@ public:
 	/** Overall landscape resolution. */
 	float OverallResolution;
 
-
 	/** Default constructor. */
 	ASnowSimulationActor();
 
@@ -163,8 +163,20 @@ private:
 	/** Total number of simulation cells. */
 	int32 NumCells;
 
+	/** Weather data provider for the simulation. */
 	USimulationWeatherDataProviderBase* WeatherDataComponent;
 
+	/** 
+	* Returns the cell at the given x and y position or a nullptr if the indices are out of bounds. 
+	* 
+	* @param X
+	* @param Y
+	* @return the cell at the given x and y position or a nullptr if the indices are out of bounds. 
+	*/
+	FSimulationCell* GetCellChecked(int X, int Y)
+	{
+		return GetCellChecked(X + Y * CellsDimension);
+	}
 
 	/**
 	* Returns the cell at the given index or nullptr if the index is out of bounds.
@@ -175,19 +187,6 @@ private:
 	FSimulationCell* GetCellChecked(int Index) 
 	{
 		return (Index >= 0 && Index < Cells.Num()) ? &Cells[Index] : nullptr;
-	}
-
-	/**
-	* Computes the array index from the two dimensional grid indices X and Y.
-	*
-	* @param X the X cell index
-	* @param Y the Y cell index
-	* @return the array index from the two dimensional grid indices X and Y.
-	*/
-	int ToArrayIndex(int X, int Y) 
-	{
-		//@TODO implement
-		abort();
 	}
 
 	/** 
