@@ -84,13 +84,13 @@ struct SNOWSIMULATION_API FSimulationCell
 	/** Midpoint of the cell. */
 	const FVector Centroid;
 
-	/** The altitude of the cell's mid point. */
+	/** The altitude (in cm) of the cell's mid point. */
 	const float Altitude;
 
 	/** The compass direction this cell faces. */
 	const float Aspect;
 
-	/** The slope of this cell. */
+	/** The slope (in radians) of this cell. */
 	const float Inclination;
 
 	/** The latitude of the center of this cell. */

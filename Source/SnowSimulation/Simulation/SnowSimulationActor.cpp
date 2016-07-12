@@ -37,7 +37,7 @@ void ASnowSimulationActor::BeginPlay()
 	WeatherDataComponent->Initialize();
 
 	// Initialize simulation
-	Simulation->Initialize(Cells, WeatherDataComponent);
+	Simulation->Initialize(this, WeatherDataComponent);
 	UE_LOG(SimulationLog, Display, TEXT("Simulation type used: %s"), *Simulation->GetSimulationName());
 	CurrentSimulationTime = StartTime;
 
@@ -273,7 +273,7 @@ void ASnowSimulationActor::UpdateMaterialTexture()
 
 			// Snow map texture
 			float AreaSquareMeters = Cell.Area / (100 * 100);
-			float SnowMM = Cell.SnowWaterEquivalent / AreaSquareMeters;
+			float SnowMM = Cell.InterpolatedSnowWaterEquivalent / AreaSquareMeters;
 			float Gray = SnowMM / Simulation->GetMaxSnow() * 255;
 			uint8 GrayInt = static_cast<uint8>(Gray);
 			SnowMapTextureData.Add(FColor(GrayInt, GrayInt, GrayInt));

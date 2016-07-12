@@ -12,6 +12,8 @@ FString UDegreeDayCPUSimulation::GetSimulationName()
 	return FString(TEXT("Degree Day CPU"));
 }
 
+// @TODO calculate discrete second derivative (curvature) for Blöschl snow approximation
+// @TODO Use Fearings stability method for small scale snow?
 // @TODO what is the time step of Premozes simulation?
 // @TODO Test Solar Radiations values from the paper
 
@@ -98,11 +100,20 @@ void UDegreeDayCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, US
 			Cell.DaysSinceLastSnowfall += 24.0f / TimeStepHours;
 		}
 
-		// Store max snow
+		// Interpolation according to Blöschls "Distributed Snowmelt Simulations inan Alpine Catchment"
 		for (auto& Cell : Cells)
 		{
+			float Slope = FMath::RadiansToDegrees(Cell.Inclination);
+
+
+			float f = Slope < 15 ? 0 : Slope / 80;
+			float a3 = 50;
+			float we = FMath::Max(0.0f, Cell.SnowWaterEquivalent * (1 - f) * (1 + a3 * Cell.Curvature));
+
+			Cell.InterpolatedSnowWaterEquivalent = we;
+
 			auto AreaSquareMeters = Cell.Area / (100 * 100);
-			MaxSnow = FMath::Max(Cell.SnowWaterEquivalent / AreaSquareMeters, MaxSnow);
+			MaxSnow = FMath::Max(Cell.InterpolatedSnowWaterEquivalent / AreaSquareMeters, MaxSnow);
 		}
 
 		Time += FTimespan(TimeStepHours, 0, 0);
@@ -111,32 +122,28 @@ void UDegreeDayCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, US
 
 void UDegreeDayCPUSimulation::Initialize(ASnowSimulationActor* SimulationActor, USimulationWeatherDataProviderBase* Data)
 {
-	// @TODO calculate discrete second derivative (curvature) for Blöschl snow approximation
-	// @TODO Use Fearings stability method for small scale snow?
-
-
 	auto Scale = SimulationActor->LandscapeScale;
 
-	// Distance between neighbouring cells in meters (calculate as in https://forums.unrealengine.com/showthread.php?57338-Calculating-Exact-Map-Size)
-	const float L = 2.4;
-	
+	// Distance between neighboring cells in cm (calculate as in https://forums.unrealengine.com/showthread.php?57338-Calculating-Exact-Map-Size)
+	const float L = SimulationActor->LandscapeScale.X / 100 * SimulationActor->CellSize;
+
 	// Calculate curvature as described in "Quantitative Analysis of Land Surface Topography" by Zevenbergen and Thorne.
-	for (auto& Cell : SimulationActor->Cells)
+	for (auto& Cell : SimulationActor->GetCells())
 	{
 		if (Cell.AllNeighboursSet()) {
-			float Z1 = Cell.Neighbours[1]->Altitude; // NW
-			float Z2 = Cell.Neighbours[0]->Altitude; // N
-			float Z3 = Cell.Neighbours[7]->Altitude; // NE
-			float Z4 = Cell.Neighbours[2]->Altitude; // W
-			float Z5 = Cell.Altitude;
-			float Z6 = Cell.Neighbours[6]->Altitude; // E
-			float Z7 = Cell.Neighbours[3]->Altitude; // SW	
-			float Z8 = Cell.Neighbours[4]->Altitude; // S
-			float Z9 = Cell.Neighbours[5]->Altitude; // SE
+			float Z1 = Cell.Neighbours[1]->Altitude / 100; // NW
+			float Z2 = Cell.Neighbours[0]->Altitude / 100; // N
+			float Z3 = Cell.Neighbours[7]->Altitude / 100; // NE
+			float Z4 = Cell.Neighbours[2]->Altitude / 100; // W
+			float Z5 = Cell.Altitude / 100;
+			float Z6 = Cell.Neighbours[6]->Altitude / 100; // E
+			float Z7 = Cell.Neighbours[3]->Altitude / 100; // SW	
+			float Z8 = Cell.Neighbours[4]->Altitude / 100; // S
+			float Z9 = Cell.Neighbours[5]->Altitude / 100; // SE
 
-			float D = ((Z4 + Z6) / 2 - Z5) / (L * L);
+			float D = ((Z4 + Z6) / 2 - Z5) / (L * L); 
 			float E = ((Z2 + Z8) / 2 - Z5) / (L * L);
-			Cell.Curvature = -2 * (D + E) * 100;
+			Cell.Curvature = 2 * (D + E);
 		}
 	}
 	
@@ -216,7 +223,7 @@ void UDegreeDayCPUSimulation::RenderDebug(TArray<FSimulationCell>& Cells, UWorld
 					DrawDebugString(World, Cell.Centroid, FString::FromInt(Index), nullptr, FColor::Purple, 0, true);
 					break;
 				case EDebugVisualizationType::Curvature:
-					DrawDebugString(World, Cell.Centroid, FString::FromInt(static_cast<int>(Cell.Curvature)), nullptr, FColor::Purple, 0, true);
+					DrawDebugString(World, Cell.Centroid, FString::SanitizeFloat(Cell.Curvature), nullptr, FColor::Purple, 0, true);
 					break;
 				default:
 					break;

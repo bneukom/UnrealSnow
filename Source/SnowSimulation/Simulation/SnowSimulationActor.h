@@ -35,7 +35,7 @@ class SNOWSIMULATION_API ASnowSimulationActor : public AActor
 	
 public:	
 	//@TODO make cell creation algorithm independent of section size
-	/** Size of one cell of the simulation, should be divisible by the quad section size. */
+	/** Size of one cell (in vertices) of the simulation, should be divisible by the quad section size. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	int CellSize = 9;
 	
