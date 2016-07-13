@@ -6,9 +6,9 @@ public class SnowSimulation : ModuleRules
 {
 	public SnowSimulation(TargetInfo Target)
 	{
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "RenderCore", "Landscape", "RHI" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "RenderCore", "Landscape", "RHI" , "WorldClimData", "SnowSimulation", "SimplexNoise", "DegreeDayGPUSimulation" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "WorldClimData", "SnowSimulation", "SimplexNoise" });
+		PrivateDependencyModuleNames.AddRange(new string[] {  });
         // DynamicallyLoadedModuleNames.AddRange(new string[] { "UObjectPlugin" });
 
         // Uncomment if you are using Slate UI

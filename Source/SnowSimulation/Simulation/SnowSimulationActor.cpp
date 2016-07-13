@@ -261,6 +261,8 @@ void ASnowSimulationActor::UpdateMaterialTexture()
 
 	// Create new textures
 	SnowMapTexture = UTexture2D::CreateTransient(CellsDimension, CellsDimension, EPixelFormat::PF_B8G8R8A8);
+
+
 	SnowMapTexture->UpdateResource();
 	SnowMapTextureData.Empty(NumCells);
 

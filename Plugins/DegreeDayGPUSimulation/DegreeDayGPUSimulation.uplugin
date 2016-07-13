@@ -1,0 +1,21 @@
+{
+    "PluginFileVersion" : 3,
+	
+	"FriendlyName" : "Degree Day GPU Snow Simulation Compute Shader",
+	"Version" : 1,
+	"VersionName" : "1.0",
+	"CreatedBy" : "Benjamin",
+	"CreatedByURL" : "temaran@gmail.com",
+	"EngineVersion" : "4.7.0",
+	"Description" : "",
+	"Category" : "",
+	
+    "Modules" :
+	[
+		{
+			"Name" : "DegreeDayGPUSimulation",
+			"Type" : "Runtime",
+			"LoadingPhase" : "PostConfigInit"
+		}
+	]
+}

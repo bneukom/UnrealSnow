@@ -9,7 +9,6 @@
 #include "SimulationBase.generated.h"
 
 
-
 // Forward declarations
 class ASnowSimulationActor;
 enum class EDebugVisualizationType : uint8;
