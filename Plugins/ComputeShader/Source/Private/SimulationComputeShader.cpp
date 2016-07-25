@@ -103,15 +103,16 @@ void FSimulationComputeShader::ExecuteComputeShaderInternal()
 
 	IsComputeShaderExecuting = false;
 
-	// Download results from GPU
+	// Copy results from GPU
 	TArray<FComputeShaderSimulationCell> SimulationCells;
 	SimulationCells.Reserve(NumCells);
 	SimulationCells.AddUninitialized(NumCells);
 	uint32* Buffer = (uint32*) RHICmdList.LockStructuredBuffer(SimulationCellsBuffer->Buffer, 0, SimulationCellsBuffer->NumBytes, RLM_ReadOnly);
-	FMemory::Memcpy(Buffer, SimulationCells.GetData(), SimulationCellsBuffer->NumBytes);
+	FMemory::Memcpy(SimulationCells.GetData(), Buffer, SimulationCellsBuffer->NumBytes);
 	RHICmdList.UnlockStructuredBuffer(SimulationCellsBuffer->Buffer);
 
 	// @TODO TESTING OUTPUT TEXTURE
+	/*
 	TArray<FColor> Bitmap;
 	
 	//To access our resource we do a custom read using lockrect
@@ -140,25 +141,6 @@ void FSimulationComputeShader::ExecuteComputeShaderInternal()
 	}
 
 	RHICmdList.UnlockTexture2D(Texture, 0, false);
-
-	// if the format and texture type is supported
-	if (Bitmap.Num())
-	{
-		// Create screenshot folder if not already present.
-		IFileManager::Get().MakeDirectory(*FPaths::ScreenShotDir(), true);
-
-		const FString ScreenFileName(FPaths::ScreenShotDir() / TEXT("VisualizeTexture"));
-
-		uint32 ExtendXWithMSAA = Bitmap.Num() / Texture->GetSizeY();
-
-		// Save the contents of the array to a bitmap file. (24bit only so alpha channel is dropped)
-		FFileHelper::CreateBitmap(*ScreenFileName, ExtendXWithMSAA, Texture->GetSizeY(), Bitmap.GetData());
-
-		UE_LOG(LogConsoleResponse, Display, TEXT("Content was saved to \"%s\""), *FPaths::ScreenShotDir());
-	}
-	else
-	{
-		UE_LOG(LogConsoleResponse, Error, TEXT("Failed to save BMP, format or texture type is not supported"));
-	}
+	*/
 }
 

@@ -22,7 +22,7 @@ void MainComputeShader(uint3 ThreadId : SV_DispatchThreadID)
 	uint b = ((uint)(255)) << 16;
 	uint a = ((uint)(255)) << 24;
 
-	// SimulationCells[ThreadId.x + ThreadId.y * CSConstants.ThreadGroupCountX].SWE += 1.0;
+	SimulationCells[ThreadId.x + ThreadId.y * CSConstants.ThreadGroupCountX].SWE += 1.0;
 
 	OutputSurface[ThreadId.xy] = r | g | b | a;
 }
