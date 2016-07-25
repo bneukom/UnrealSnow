@@ -22,7 +22,7 @@ void FComputeShaderDeclaration::ModifyCompilationEnvironment(EShaderPlatform Pla
 	OutEnvironment.CompilerFlags.Add(CFLAG_StandardOptimization);
 }
 
-void FComputeShaderDeclaration::SetParameters(FRHICommandList& RHICmdList, FUnorderedAccessViewRHIRef OutputSurfaceUAV, FUnorderedAccessViewRHIRef SimulationCellsUAV)
+void FComputeShaderDeclaration::SetParameters(FRHICommandList& RHICmdList, FUnorderedAccessViewRHIRef OutputSurfaceUAV, FUnorderedAccessViewRHIRef SimulationCellsUAV, FUnorderedAccessViewRHIRef TemperatureDataUAV)
 {
 	FComputeShaderRHIParamRef ComputeShaderRHI = GetComputeShader();
 
@@ -31,7 +31,7 @@ void FComputeShaderDeclaration::SetParameters(FRHICommandList& RHICmdList, FUnor
 	if (SimulationCells.IsBound())
 		RHICmdList.SetUAVParameter(ComputeShaderRHI, SimulationCells.GetBaseIndex(), SimulationCellsUAV);
 	if (TemperatureData.IsBound())
-		RHICmdList.SetUAVParameter(ComputeShaderRHI, SimulationCells.GetBaseIndex(), SimulationCellsUAV);
+		RHICmdList.SetUAVParameter(ComputeShaderRHI, TemperatureData.GetBaseIndex(), TemperatureDataUAV);
 }
 
 void FComputeShaderDeclaration::SetUniformBuffers(FRHICommandList& RHICmdList, FComputeShaderConstantParameters& ConstantParameters, FComputeShaderVariableParameters& VariableParameters)

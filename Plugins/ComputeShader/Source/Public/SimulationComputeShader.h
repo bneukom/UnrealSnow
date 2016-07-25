@@ -26,7 +26,7 @@
 
 #include "Private/ComputeShaderDeclaration.h"
 
-// Simulation Cell
+/** Simulation Cell */
 struct FComputeShaderSimulationCell
 {
 	float Aspect;
@@ -34,28 +34,65 @@ struct FComputeShaderSimulationCell
 	float Altitude;
 	float Area;
 	float SWE;
+
+	FComputeShaderSimulationCell(float Aspect, float Inclination, float Altitude, float Area, float SWE) : 
+		Aspect(Aspect), Inclination(Inclination), Altitude(Altitude), Area(Area), SWE(SWE)
+	{
+
+	}
+
 };
 
-/***************************************************************************/
-/* This class demonstrates how to use the compute shader we have declared. */
-/* Most importantly which RHI functions are needed to call and how to get  */
-/* some interesting output.                                                */
-/***************************************************************************/
+/** Encapsulates a GPU read/write structured buffer with its UAV and SRV. */
+struct FRWStructuredBuffer
+{
+	FStructuredBufferRHIRef Buffer;
+	FUnorderedAccessViewRHIRef UAV;
+	FShaderResourceViewRHIRef SRV;
+	uint32 NumBytes;
+
+	FRWStructuredBuffer() : NumBytes(0) {}
+
+	void Initialize(uint32 BytesPerElement, uint32 NumElements, FResourceArrayInterface* Data = nullptr, uint32 AdditionalUsage = 0, bool bUseUavCounter = false, bool bAppendBuffer = false)
+	{
+		check(GMaxRHIFeatureLevel == ERHIFeatureLevel::SM5);
+		NumBytes = BytesPerElement * NumElements;
+		FRHIResourceCreateInfo CreateInfo;
+		CreateInfo.ResourceArray = Data;
+		Buffer = RHICreateStructuredBuffer(BytesPerElement, NumBytes, BUF_UnorderedAccess | BUF_ShaderResource | AdditionalUsage, CreateInfo);
+		UAV = RHICreateUnorderedAccessView(Buffer, bUseUavCounter, bAppendBuffer);
+		SRV = RHICreateShaderResourceView(Buffer);
+	}
+
+	void Release()
+	{
+		NumBytes = 0;
+		Buffer.SafeRelease();
+		UAV.SafeRelease();
+		SRV.SafeRelease();
+	}
+};
+
+/**
+* This class demonstrates how to use the compute shader we have declared.
+* Most importantly which RHI functions are needed to call and how to get 
+* some interesting output.                                                
+*/
 class COMPUTESHADER_API FSimulationComputeShader
 {
 public:
 	FSimulationComputeShader(float SimulationSpeed, int32 SizeX, int32 SizeY, ERHIFeatureLevel::Type ShaderFeatureLevel);
 	~FSimulationComputeShader();
 
-	/************************************************************************/
-	/* Run this to execute the compute shader once!                         */
-	/* @param TotalElapsedTimeSeconds - We use this for simulation state    */
-	/************************************************************************/
+	/**
+	* Run this to execute the compute shader once!
+	* @param TotalElapsedTimeSeconds - We use this for simulation state 
+	*/
 	void ExecuteComputeShader(float TotalElapsedTimeSeconds);
 
-	/************************************************************************/
-	/* Only execute this from the render thread!!!                          */
-	/************************************************************************/
+	/**
+	* Only execute this from the render thread.
+	*/
 	void ExecuteComputeShaderInternal();
 
 	FTexture2DRHIRef GetTexture() { return Texture; }
@@ -63,6 +100,8 @@ public:
 private:
 	bool IsComputeShaderExecuting;
 	bool IsUnloading;
+
+	int32 NumCells;
 
 	FComputeShaderConstantParameters ConstantParameters;
 	FComputeShaderVariableParameters VariableParameters;
@@ -74,9 +113,9 @@ private:
 	/** We need a UAV if we want to be able to write to the resource*/
 	FUnorderedAccessViewRHIRef TextureUAV;
 
-	// Cells for the simulation.
-	FRWBufferStructured* SimulationCellsBuffer;
+	/** Cells for the simulation. */
+	FRWStructuredBuffer* SimulationCellsBuffer;
 
-	// Temperature data for the simulation.
-	FRWBufferStructured* TemperatureData;
+	/** Temperature data for the simulation. */
+	FRWStructuredBuffer* TemperatureDataBuffer;
 };

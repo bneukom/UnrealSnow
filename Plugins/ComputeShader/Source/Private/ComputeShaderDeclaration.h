@@ -7,11 +7,13 @@
 // This buffer should contain variables that never, or rarely change
 BEGIN_UNIFORM_BUFFER_STRUCT(FComputeShaderConstantParameters, )
 DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, SimulationSpeed)
+DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, ThreadGroupCountX)
+DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, ThreadGroupCountY)
 END_UNIFORM_BUFFER_STRUCT(FComputeShaderConstantParameters)
 
 // This buffer is for variables that change very often (each frame for example)
 BEGIN_UNIFORM_BUFFER_STRUCT(FComputeShaderVariableParameters, )
-DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, TotalTimeElapsedSeconds)
+DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, TimeStep)
 END_UNIFORM_BUFFER_STRUCT(FComputeShaderVariableParameters)
 
 typedef TUniformBufferRef<FComputeShaderConstantParameters> FComputeShaderConstantParametersRef;
@@ -47,7 +49,7 @@ public:
 	}
 
 	// Binds our runtime surface to the shader using an UAV.
-	void SetParameters(FRHICommandList& RHICmdList, FUnorderedAccessViewRHIRef OutputSurfaceUAV, FUnorderedAccessViewRHIRef SimulationCellsUAV);
+	void SetParameters(FRHICommandList& RHICmdList, FUnorderedAccessViewRHIRef OutputSurfaceUAV, FUnorderedAccessViewRHIRef SimulationCellsUAV, FUnorderedAccessViewRHIRef TemperatureDataUAV);
 	// This function is required to bind our constant / uniform buffers to the shader.
 	void SetUniformBuffers(FRHICommandList& RHICmdList, FComputeShaderConstantParameters& ConstantParameters, FComputeShaderVariableParameters& VariableParameters);
 	// This is used to clean up the buffer binds after each invocation to let them be changed and used elsewhere if needed.

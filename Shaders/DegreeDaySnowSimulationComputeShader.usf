@@ -1,26 +1,5 @@
 #include "Common.usf"
 
-// Base shader origin:
-// https://www.shadertoy.com/view/MdXSzS
-// The Big Bang - just a small explosion somewhere in a massive Galaxy of Universes.
-// Outside of this there's a massive galaxy of 'Galaxy of Universes'... etc etc. :D
-//
-// HLSL translation and parameterization by Temaran
-
-/**
-Uniform Buffers
-
-//This buffer should contain variables that never, or rarely change
-BEGIN_UNIFORM_BUFFER_STRUCT(FComputeShaderConstantParameters, )
-DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, SimulationSpeed)
-END_UNIFORM_BUFFER_STRUCT(FComputeShaderConstantParameters)
-
-//This buffer is for variables that change very often (each frame for example)
-BEGIN_UNIFORM_BUFFER_STRUCT(FComputeShaderVariableParameters, )
-DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, TotalTimeElapsedSeconds)
-END_UNIFORM_BUFFER_STRUCT(FComputeShaderVariableParameters)
-*/
-
 struct SimulationCell
 {
 	float Aspect;
@@ -38,10 +17,12 @@ RWStructuredBuffer<float> TemperatureData;
 [numthreads(4, 4, 1)]
 void MainComputeShader(uint3 ThreadId : SV_DispatchThreadID)
 {
-	uint r = SimulationCells[ThreadId.x * ThreadId.y].SWE * 255.0;
+	uint r = SimulationCells[ThreadId.x + ThreadId.y * CSConstants.ThreadGroupCountX].SWE * 255.0;
 	uint g = ((uint)(255)) << 8;
 	uint b = ((uint)(255)) << 16;
 	uint a = ((uint)(255)) << 24;
+
+	// SimulationCells[ThreadId.x + ThreadId.y * CSConstants.ThreadGroupCountX].SWE += 1.0;
 
 	OutputSurface[ThreadId.xy] = r | g | b | a;
 }
