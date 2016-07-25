@@ -92,6 +92,7 @@ void USimpleStochasticWeatherDataProvider::Initialize()
 			const float PrecipitationNoiseScale = 0.01;
 
 			// @TODO Less noise for better performance then linear interpolate
+
 			// Generate Noise
 			for (int32 Y = 0; Y < Resolution; ++Y)
 			{

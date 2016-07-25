@@ -26,43 +26,43 @@
 
 #include "Private/ComputeShaderDeclaration.h"
 
+// Simulation Cell
+struct FComputeShaderSimulationCell
+{
+	float Aspect;
+	float Inclination;
+	float Altitude;
+	float Area;
+	float SWE;
+};
+
 /***************************************************************************/
 /* This class demonstrates how to use the compute shader we have declared. */
 /* Most importantly which RHI functions are needed to call and how to get  */
 /* some interesting output.                                                */
 /***************************************************************************/
-class FSimulationComputeShader
+class COMPUTESHADER_API FSimulationComputeShader
 {
 public:
 	FSimulationComputeShader(float SimulationSpeed, int32 SizeX, int32 SizeY, ERHIFeatureLevel::Type ShaderFeatureLevel);
 	~FSimulationComputeShader();
 
-	/**
-	* Run this to execute the compute shader once.
-	*
-	* @param TotalElapsedTimeSeconds We use this for simulation state  
-	*/
+	/************************************************************************/
+	/* Run this to execute the compute shader once!                         */
+	/* @param TotalElapsedTimeSeconds - We use this for simulation state    */
+	/************************************************************************/
 	void ExecuteComputeShader(float TotalElapsedTimeSeconds);
 
-	/**
-	/* Only execute this from the render thread!
-	*/
+	/************************************************************************/
+	/* Only execute this from the render thread!!!                          */
+	/************************************************************************/
 	void ExecuteComputeShaderInternal();
-
-	/**
-	/* Save a screenshot of the target to the project saved folder.
-	*/
-	void Save()
-	{
-		SaveOnNextFrame = true;
-	}
 
 	FTexture2DRHIRef GetTexture() { return Texture; }
 
 private:
 	bool IsComputeShaderExecuting;
 	bool IsUnloading;
-	bool SaveOnNextFrame;
 
 	FComputeShaderConstantParameters ConstantParameters;
 	FComputeShaderVariableParameters VariableParameters;
@@ -74,5 +74,9 @@ private:
 	/** We need a UAV if we want to be able to write to the resource*/
 	FUnorderedAccessViewRHIRef TextureUAV;
 
-	void SaveScreenshot(FRHICommandListImmediate& RHICmdList);
+	// Cells for the simulation.
+	FRWBufferStructured* SimulationCellsBuffer;
+
+	// Temperature data for the simulation.
+	FRWBufferStructured* TemperatureData;
 };

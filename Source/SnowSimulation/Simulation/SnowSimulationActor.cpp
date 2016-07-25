@@ -37,7 +37,7 @@ void ASnowSimulationActor::BeginPlay()
 	WeatherDataComponent->Initialize();
 
 	// Initialize simulation
-	Simulation->Initialize(this, WeatherDataComponent);
+	Simulation->Initialize(this, GetWorld());
 	UE_LOG(SimulationLog, Display, TEXT("Simulation type used: %s"), *Simulation->GetSimulationName());
 	CurrentSimulationTime = StartTime;
 
@@ -120,6 +120,7 @@ void ASnowSimulationActor::Initialize()
 			CellsDimension = LandscapeSizeQuads / CellSize - 1; // -1 because we create cells and use 4 vertices
 			NumCells = CellsDimension * CellsDimension;
 
+			// @TODO move into simulation
 			// Create Cells
 			UE_LOG(SimulationLog, Display, TEXT("Num components: %d"), LandscapeComponents.Num());
 			UE_LOG(SimulationLog, Display, TEXT("Num subsections: %d"), Landscape->NumSubsections);
@@ -261,7 +262,6 @@ void ASnowSimulationActor::UpdateMaterialTexture()
 
 	// Create new textures
 	SnowMapTexture = UTexture2D::CreateTransient(CellsDimension, CellsDimension, EPixelFormat::PF_B8G8R8A8);
-
 
 	SnowMapTexture->UpdateResource();
 	SnowMapTextureData.Empty(NumCells);

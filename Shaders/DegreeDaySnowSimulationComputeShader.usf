@@ -21,12 +21,24 @@ DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, TotalTimeElapsedSeconds)
 END_UNIFORM_BUFFER_STRUCT(FComputeShaderVariableParameters)
 */
 
+struct SimulationCell
+{
+	float Aspect;
+	float Inclination;
+	float Altitude;
+	float Area;
+	float SWE;
+};
+
 RWTexture2D<uint> OutputSurface;
 
-[numthreads(32, 32, 1)]
+RWStructuredBuffer<SimulationCell> SimulationCells;
+RWStructuredBuffer<float> TemperatureData;
+
+[numthreads(4, 4, 1)]
 void MainComputeShader(uint3 ThreadId : SV_DispatchThreadID)
 {
-	uint r = 255.0;
+	uint r = SimulationCells[ThreadId.x * ThreadId.y].SWE * 255.0;
 	uint g = ((uint)(255)) << 8;
 	uint b = ((uint)(255)) << 16;
 	uint a = ((uint)(255)) << 24;
@@ -40,12 +52,12 @@ void MainComputeShader(uint3 ThreadId : SV_DispatchThreadID)
 * @param I		The inclination of the slope in radians.
 * @param A		The aspect (compass direction) that the slope faces in radians.
 * @param L0		The latitude of the slope in radians.
-*/
+
 float SolarRadiationIndex(float I, float A, float L0, float J)
 {
 	float L1 = asin(cos(I) * sin(L0) + sin(I) * cos(L0) * cos(A));
 	float D1 = cos(I) * cos(L0) - sin(I) * sin(L0) * cos(A);
-	float L2 = FMath::Atan((sin(I) * sin(A)) / (cos(I) * cos(L0) - sin(I) * sin(L0) * cos(A)));
+	float L2 = atan((sin(I) * sin(A)) / (cos(I) * cos(L0) - sin(I) * sin(L0) * cos(A)));
 
 	float D = 0.007 - 0.4067 * cos((J + 10) * 0.0172);
 	float E = 1.0 - 0.0167 * cos((J - 3) * 0.0172);
@@ -115,3 +127,4 @@ float Func3(float V, float W, float X, float Y, float R1, float D) // radiation
 	return R1 * (sin(D) * sin(W) * (X - Y) * (12 / PI) + 
 		cos(D) * cos(W) * (sin(X + V) - sin(Y + V)) * (12 / PI));
 }
+*/

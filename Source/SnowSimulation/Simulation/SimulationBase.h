@@ -26,7 +26,7 @@ public:
 
 	/** Timestep of the simulation in hours. */
 	UPROPERTY()
-		int32 TimeStepHours = 24;
+	int32 TimeStepHours = 24;
 
 	/**
 	* Returns the name of the simulation.
@@ -36,7 +36,7 @@ public:
 	/**
 	* Initializes the simulation.
 	*/
-	virtual void Initialize(ASnowSimulationActor* SimulationActor, USimulationWeatherDataProviderBase* Data) PURE_VIRTUAL(USimulationBase::Initialize, ;);
+	virtual void Initialize(ASnowSimulationActor* SimulationActor, UWorld* World) PURE_VIRTUAL(USimulationBase::Initialize, return;);
 
 	/**
 	* Runs the simulation on the given cells until the given end time is reached.
@@ -54,6 +54,9 @@ public:
 
 	/** Returns the maximum snow amount of any cell in mm. */
 	virtual float GetMaxSnow() PURE_VIRTUAL(USimulationBase::GetMaxSnow, return 0.0f;);
+
+	/** Returns the texture which contains the snow amount coded as gray scale values. */
+	virtual UTexture2D* GetSnowMapTexture() PURE_VIRTUAL(USimulationBase::GetSnowMapTexture, return nullptr;);
 
 };
 
@@ -144,9 +147,6 @@ struct SNOWSIMULATION_API FSimulationCell
 	{
 		Neighbours.Init(nullptr, 8);
 	}
-
-
-
 };
 
 

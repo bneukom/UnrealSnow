@@ -43,7 +43,6 @@ public:
 	/** The step with which the simulation runs. */
 	float TimeStepHours = 1;
 
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Simulation")
 	/** The current date of the simulation. */
 	FDateTime CurrentSimulationTime;
@@ -157,6 +156,7 @@ private:
 	/** Minimum and maximum snow water equivalent (SWE) of the landscape. */
 	float MinSWE, MaxSWE;
 
+	// @TODO implementation detail of simulation!
 	/** The cells used by the simulation. */
 	TArray<FSimulationCell> Cells;
 

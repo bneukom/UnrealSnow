@@ -1,12 +1,12 @@
 namespace UnrealBuildTool.Rules
 {
-	public class DegreeDayGPUSimulation : ModuleRules
+	public class ComputeShader : ModuleRules
 	{
-		public DegreeDayGPUSimulation(TargetInfo Target)
+		public ComputeShader(TargetInfo Target)
         {
             PrivateIncludePaths.AddRange(
                 new string[] {
-					"DegreeDayGPUSimulation/Private"
+					"ComputeShader/Private"
 				}
                 );
 

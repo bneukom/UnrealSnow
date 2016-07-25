@@ -236,23 +236,19 @@
     <None Include="..\..\Plugins\ShaderCopyHelper\ShaderCopyHelper.uplugin">
       <Filter>Plugins\ShaderCopyHelper</Filter>
     </None>
-    <None Include="..\..\Plugins\DegreeDayGPUSimulation\DegreeDayGPUSimulation.uplugin">
-      <Filter>Plugins\DegreeDayGPUSimulation</Filter>
+    <None Include="..\..\..\UE4ShaderPluginDemo\Plugins\ComputeShader\ComputeShader.uplugin">
+      <Filter>Plugins\ComputeShader</Filter>
     </None>
-    <None Include="..\..\Plugins\DegreeDayGPUSimulation\Source\DegreeDayGPUSimulation.Build.cs">
-      <Filter>Plugins\DegreeDayGPUSimulation\Source</Filter>
+    <None Include="..\..\..\UE4ShaderPluginDemo\Plugins\ComputeShader\Source\ComputeShader.Build.cs">
+      <Filter>Plugins\ComputeShader\Source</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Data\WorldClimDataAsset.cpp" />
     <ClCompile Include="..\..\Plugins\ShaderCopyHelper\Source\Private\ShaderCopyHelperModule.cpp">
       <Filter>Plugins\ShaderCopyHelper\Source\Private</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Plugins\ShaderCopyHelper\Source\Private\ShaderFileVisitor.cpp">
       <Filter>Plugins\ShaderCopyHelper\Source\Private</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Plugins\DegreeDayGPUSimulation\Source\Private\ComputeShaderDeclaration.cpp">
-      <Filter>Plugins\DegreeDayGPUSimulation\Source\Private</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\SnowSimulation\Simulation\DegreeDay\DegreeDaySimulation.cpp">
       <Filter>Source\SnowSimulation\Simulation\DegreeDay</Filter>
@@ -263,12 +259,14 @@
     <ClCompile Include="..\..\Source\SnowSimulation\Simulation\DegreeDay\CPU\DegreeDayCPUSimulation.cpp">
       <Filter>Source\SnowSimulation\Simulation\DegreeDay\CPU</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Plugins\DegreeDayGPUSimulation\Source\Private\SimulationComputeShader.cpp">
-      <Filter>Plugins\DegreeDayGPUSimulation\Source\Private</Filter>
+    <ClCompile Include="..\..\Plugins\ComputeShader\Source\Private\ComputeShaderDeclaration.cpp">
+      <Filter>Plugins\ComputeShader\Source\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Plugins\ComputeShader\Source\Private\SimulationComputeShader.cpp">
+      <Filter>Plugins\ComputeShader\Source\Private</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\WorldClimDataAsset.h" />
     <ClInclude Include="..\..\Plugins\ShaderCopyHelper\Source\Private\ShaderCopyHelperModule.h">
       <Filter>Plugins\ShaderCopyHelper\Source\Private</Filter>
     </ClInclude>
@@ -277,12 +275,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Plugins\ShaderCopyHelper\Source\Private\ShaderFileVisitor.h">
       <Filter>Plugins\ShaderCopyHelper\Source\Private</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Plugins\DegreeDayGPUSimulation\Source\Private\ComputeShaderDeclaration.h">
-      <Filter>Plugins\DegreeDayGPUSimulation\Source\Private</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Plugins\DegreeDayGPUSimulation\Source\Private\ComputeShaderPrivatePCH.h">
-      <Filter>Plugins\DegreeDayGPUSimulation\Source\Private</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\SnowSimulation\Simulation\DegreeDay\DegreeDaySimulation.h">
       <Filter>Source\SnowSimulation\Simulation\DegreeDay</Filter>
@@ -293,8 +285,14 @@
     <ClInclude Include="..\..\Source\SnowSimulation\Simulation\DegreeDay\CPU\DegreeDayCPUSimulation.h">
       <Filter>Source\SnowSimulation\Simulation\DegreeDay\CPU</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Plugins\DegreeDayGPUSimulation\Source\Public\SimulationComputeShader.h">
-      <Filter>Plugins\DegreeDayGPUSimulation\Source\Public</Filter>
+    <ClInclude Include="..\..\Plugins\ComputeShader\Source\Private\ComputeShaderDeclaration.h">
+      <Filter>Plugins\ComputeShader\Source\Private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Plugins\ComputeShader\Source\Private\ComputeShaderPrivatePCH.h">
+      <Filter>Plugins\ComputeShader\Source\Private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Plugins\ComputeShader\Source\Public\SimulationComputeShader.h">
+      <Filter>Plugins\ComputeShader\Source\Public</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -316,18 +314,6 @@
     <Filter Include="Plugins\ShaderCopyHelper\Source\Private">
       <UniqueIdentifier>{c5005366-f869-4bf1-b22e-ddd0402912ad}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Plugins\DegreeDayGPUSimulation">
-      <UniqueIdentifier>{0bf8142e-f3db-4fcb-9fb6-6eac571c4aed}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Plugins\DegreeDayGPUSimulation\Source">
-      <UniqueIdentifier>{1c37fc45-5366-4885-b779-23e986517a34}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Plugins\DegreeDayGPUSimulation\Source\Private">
-      <UniqueIdentifier>{0dfceb3b-2229-4987-9de2-6306fd989951}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Plugins\DegreeDayGPUSimulation\Source\Public">
-      <UniqueIdentifier>{dad8f199-1d84-4e2b-aafd-a4a362c31c75}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\SnowSimulation\Simulation\DegreeDay">
       <UniqueIdentifier>{BFBEDE35-7FC8-4593-86E3-A57CAE316625}</UniqueIdentifier>
     </Filter>
@@ -336,6 +322,18 @@
     </Filter>
     <Filter Include="Source\SnowSimulation\Simulation\DegreeDay\CPU">
       <UniqueIdentifier>{c10c4129-f4b6-4032-b5ad-1b7378ff8b3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugins\ComputeShader">
+      <UniqueIdentifier>{0bf8142e-f3db-4fcb-9fb6-6eac571c4aed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugins\ComputeShader\Source">
+      <UniqueIdentifier>{1c37fc45-5366-4885-b779-23e986517a34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugins\ComputeShader\Source\Private">
+      <UniqueIdentifier>{0dfceb3b-2229-4987-9de2-6306fd989951}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugins\ComputeShader\Source\Public">
+      <UniqueIdentifier>{dad8f199-1d84-4e2b-aafd-a4a362c31c75}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

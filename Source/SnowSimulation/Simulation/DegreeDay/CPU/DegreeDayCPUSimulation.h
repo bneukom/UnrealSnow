@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "SnowSimulation/Simulation/SimulationBase.h"
+#include "Simulation/DegreeDay/DegreeDaySimulation.h"
 #include "DegreeDayCPUSimulation.generated.h"
 
 
@@ -11,7 +11,7 @@
 * Snow deposition is implemented similar to Fearings "Computer Modelling Of Fallen Snow".
 */
 UCLASS(Blueprintable, BlueprintType)
-class SNOWSIMULATION_API UDegreeDayCPUSimulation : public USimulationBase
+class SNOWSIMULATION_API UDegreeDayCPUSimulation : public UDegreeDaySimulation
 {
 	GENERATED_BODY()
 private:
@@ -104,42 +104,10 @@ private:
 	}
 
 public:
-	/** Slope threshold for the snow deposition of the cells in degrees.*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
-	float SlopeThreshold = 45;
-
-	/** Threshold A air temperature above which some precipitation is assumed to be rain. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation",  DisplayName = "TSnow A")
-	float TSnowA = 0;
-
-	/** Threshold B air temperature above which all precipitation is assumed to be rain. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation", DisplayName = "TSnow B")
-	float TSnowB = 2;
-
-	/** Threshold A air temperature above which some snow starts melting. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation", DisplayName = "TMelt A")
-	float TMeltA = 0;
-
-	/** Threshold B air temperature above which all snow starts melting. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation", DisplayName = "TMelt B")
-	float TMeltB = 2;
-
-	/** Time constant. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation", DisplayName = "k_e")
-	float k_e = 0.2;
-
-	/** Proportional constant. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation", DisplayName = "k_m")
-	float k_m = 1;
-
 	virtual FString GetSimulationName() override final;
 
 	virtual void Simulate(ASnowSimulationActor* SimulationActor, USimulationWeatherDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime, int32 TimeStepHours) override final;
 
-	virtual void Initialize(ASnowSimulationActor* SimulationActor, USimulationWeatherDataProviderBase* Data) override final;
-
-	virtual void RenderDebug(TArray<FSimulationCell>& Cells, UWorld* World, int CellDebugInfoDisplayDistance, EDebugVisualizationType DebugVisualizationType) override final;
-
-	virtual float GetMaxSnow() override final;
+	virtual void Initialize(ASnowSimulationActor* SimulationActor, UWorld* World) override final;
 };
 

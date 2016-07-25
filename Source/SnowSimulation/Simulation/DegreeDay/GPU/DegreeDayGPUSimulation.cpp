@@ -14,14 +14,18 @@ FString UDegreeDayGPUSimulation::GetSimulationName()
 
 void UDegreeDayGPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, USimulationWeatherDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime, int32 TimeStepHours)
 {
-
+	ComputeShader->ExecuteComputeShader(0.0f);
 }
 
-void UDegreeDayGPUSimulation::Initialize(ASnowSimulationActor* SimulationActor, USimulationWeatherDataProviderBase* Data)
+void UDegreeDayGPUSimulation::Initialize(ASnowSimulationActor* SimulationActor, UWorld* World)
 {
-
+	ComputeShader = new FSimulationComputeShader(1.0f, SimulationActor->CellsDimension, SimulationActor->CellsDimension, World->Scene->GetFeatureLevel());
 
 }
 
+UTexture2D* UDegreeDayGPUSimulation::GetSnowMapTexture()
+{
+	return nullptr;
+}
 
 

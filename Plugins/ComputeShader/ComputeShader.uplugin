@@ -1,19 +1,19 @@
 {
     "PluginFileVersion" : 3,
 	
-	"FriendlyName" : "Degree Day GPU Snow Simulation Compute Shader",
+	"FriendlyName" : "Compute Shader",
 	"Version" : 1,
 	"VersionName" : "1.0",
-	"CreatedBy" : "Benjamin",
+	"CreatedBy" : "Temaran",
 	"CreatedByURL" : "temaran@gmail.com",
 	"EngineVersion" : "4.7.0",
-	"Description" : "",
-	"Category" : "",
+	"Description" : "An example stand alone compute shader that can be run from a plugin",
+	"Category" : "Programming Rendering.Plugins",
 	
     "Modules" :
 	[
 		{
-			"Name" : "DegreeDayGPUSimulation",
+			"Name" : "ComputeShader",
 			"Type" : "Runtime",
 			"LoadingPhase" : "PostConfigInit"
 		}
