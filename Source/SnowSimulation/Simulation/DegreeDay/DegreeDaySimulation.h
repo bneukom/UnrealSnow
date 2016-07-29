@@ -48,8 +48,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation", DisplayName = "k_m")
 	float k_m = 1;
 
-	virtual void RenderDebug(TArray<FSimulationCell>& Cells, UWorld* World, int CellDebugInfoDisplayDistance, EDebugVisualizationType DebugVisualizationType) override;
-	
+
 	virtual float GetMaxSnow() override final;
 };
 

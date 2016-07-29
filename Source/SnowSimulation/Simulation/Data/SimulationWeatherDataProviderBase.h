@@ -2,53 +2,11 @@
 
 #pragma once
 
+#include "RHIResources.h"
+#include "WeatherData.h"
 #include "SimulationWeatherDataProviderBase.generated.h"
 
 class ASnowSimulationActor;
-
-/**
-* Precipitation data.
-*/
-USTRUCT(Blueprintable)
-struct FPrecipitation
-{
-	GENERATED_USTRUCT_BODY()
-	// Amount of precipitation in liter/(m^2) = mm.
-	float Amount;
-
-	FPrecipitation(float Amount) : Amount(Amount) {}
-
-	FPrecipitation() : Amount(0.0f) {}
-};
-
-/**
-* Temperature data.
-*/
-USTRUCT(Blueprintable)
-struct FTemperature
-{
-	GENERATED_USTRUCT_BODY()
-
-	/** Minimum Temperature in degree Celsius. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Temperature")
-	float AverageLow;
-
-	/** Maximum Temperature in degree Celsius. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Temperature")
-	float AverageHigh;
-
-	/** Mean Temperature in degree Celsius. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Temperature")
-	float Average;
-
-	/** Resolution of the temperature data in Ticks (100 nanoseconds resolution). */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Temperature")
-	float Resolution;
-
-	FTemperature(float AverageLow, float AverageHigh, float Average) : AverageLow(AverageLow), AverageHigh(AverageHigh), Average(Average) {}
-
-	FTemperature() : AverageLow(0), AverageHigh(0), Average(0) {}
-};
 
 // @TODO simplify API because most weather data sources only provide monthly or daily average values.
 // @TODO use stochastic downscaling for hourly weather data
@@ -66,18 +24,19 @@ public:
 	/** Initializes the data provider. */
 	virtual void Initialize() PURE_VIRTUAL(USimulationWeatherDataProviderBase::Initialize, ;);
 
-	/** 
-	* Returns the temperature data at base elevation at the given day of the year and position (2D).
-	*/
-	virtual FTemperature GetTemperatureData(const FDateTime& From, const FDateTime& To, const FVector2D& Position, ASnowSimulationActor* SnowSimulation, int64 Resolution) PURE_VIRTUAL(USimulationWeatherDataProviderBase::GetTemperatureData, return FTemperature(););
+	/** Returns the climate Data at the given cell. */
+	virtual FWeatherData GetInterpolatedClimateData(const FDateTime& TimeStamp, int IndexX, int IndexY) PURE_VIRTUAL(USimulationWeatherDataProviderBase::GetInterpolatedClimateData, return FWeatherData(););
 
-	/**
-	* Returns the precipitation in mm (liter/m^2) at base elevation at the given time and position (2D).
-	*/
-	virtual float GetPrecipitationAt(const FDateTime& From, const FDateTime& To, const FVector2D& Position, int64 Resolution) PURE_VIRTUAL(USimulationWeatherDataProviderBase::GetPrecipitationAt, return 0.0f;);
+	/** Returns the climate Data at the given position. */
+	FWeatherData GetInterpolatedClimateData(const FDateTime& TimeStamp, const FVector2D& Position);
 
-	/** Returns the resolution of the data provider. */
+	/** Returns the resolution of this weather data provider. */
 	virtual int32 GetResolution() PURE_VIRTUAL(USimulationWeatherDataProviderBase::GetResolution, return 0;);
+
+	/** Returns the climate Data at the given cell. */
+	virtual TResourceArray<FWeatherData>* GetRawClimateData(const FDateTime& TimeStamp) PURE_VIRTUAL(USimulationWeatherDataProviderBase::GetInterpolatedClimateData, return nullptr;);
+
+
 };
 
 

@@ -13,7 +13,7 @@ FComputeShaderDeclaration::FComputeShaderDeclaration(const ShaderMetaType::Compi
 	// This call is what lets the shader system know that the surface OutputSurface is going to be available in the shader. The second parameter is the name it will be known by in the shader
 	OutputSurface.Bind(Initializer.ParameterMap, TEXT("OutputSurface"));
 	SimulationCells.Bind(Initializer.ParameterMap, TEXT("SimulationCells"));
-	TemperatureData.Bind(Initializer.ParameterMap, TEXT("TemperatureData"));
+	WeatherData.Bind(Initializer.ParameterMap, TEXT("TemperatureData"));
 }
 
 void FComputeShaderDeclaration::ModifyCompilationEnvironment(EShaderPlatform Platform, FShaderCompilerEnvironment& OutEnvironment)
@@ -30,8 +30,8 @@ void FComputeShaderDeclaration::SetParameters(FRHICommandList& RHICmdList, FUnor
 		RHICmdList.SetUAVParameter(ComputeShaderRHI, OutputSurface.GetBaseIndex(), OutputSurfaceUAV);
 	if (SimulationCells.IsBound())
 		RHICmdList.SetUAVParameter(ComputeShaderRHI, SimulationCells.GetBaseIndex(), SimulationCellsUAV);
-	if (TemperatureData.IsBound())
-		RHICmdList.SetUAVParameter(ComputeShaderRHI, TemperatureData.GetBaseIndex(), TemperatureDataUAV);
+	if (WeatherData.IsBound())
+		RHICmdList.SetUAVParameter(ComputeShaderRHI, WeatherData.GetBaseIndex(), TemperatureDataUAV);
 }
 
 void FComputeShaderDeclaration::SetUniformBuffers(FRHICommandList& RHICmdList, FComputeShaderConstantParameters& ConstantParameters, FComputeShaderVariableParameters& VariableParameters)

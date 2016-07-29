@@ -6,14 +6,22 @@
 
 // This buffer should contain variables that never, or rarely change
 BEGIN_UNIFORM_BUFFER_STRUCT(FComputeShaderConstantParameters, )
-DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, SimulationSpeed)
+DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(int, WeatherDataResolution)
+DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(int, CellsDimension)
 DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, ThreadGroupCountX)
 DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, ThreadGroupCountY)
+DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, TSnowA)
+DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, TSnowB)
+DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, TMeltA)
+DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, TMeltB)
+DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, k_e)
+DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, k_m)
 END_UNIFORM_BUFFER_STRUCT(FComputeShaderConstantParameters)
 
 // This buffer is for variables that change very often (each frame for example)
 BEGIN_UNIFORM_BUFFER_STRUCT(FComputeShaderVariableParameters, )
-DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, TimeStep)
+DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(int, TimeStep)
+DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(int, DayOfYear)
 END_UNIFORM_BUFFER_STRUCT(FComputeShaderVariableParameters)
 
 typedef TUniformBufferRef<FComputeShaderConstantParameters> FComputeShaderConstantParametersRef;
@@ -43,7 +51,7 @@ public:
 
 		Ar << OutputSurface;
 		Ar << SimulationCells;
-		Ar << TemperatureData;
+		Ar << WeatherData;
 
 		return bShaderHasOutdatedParams;
 	}
@@ -63,5 +71,5 @@ private:
 	FShaderResourceParameter SimulationCells;
 
 	// Temperature input data for the simulation.
-	FShaderResourceParameter TemperatureData;
+	FShaderResourceParameter WeatherData;
 };

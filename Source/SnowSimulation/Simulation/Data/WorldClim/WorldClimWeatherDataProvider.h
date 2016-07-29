@@ -14,15 +14,19 @@ UCLASS(Blueprintable, BlueprintType)
 class SNOWSIMULATION_API UWorldClimWeatherDataProvider : public USimulationWeatherDataProviderBase
 {
 	GENERATED_BODY()
-public:
-	// @TODO implement
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
-	//UMonthlyDataDownscaling* DataDownscaling;
 
+private:
+	int32 Resolution;
+
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	TArray<UMonthlyWorldClimDataAsset*> MonthlyData;
 
-	virtual FTemperature GetTemperatureData(const FDateTime& Date, const FDateTime& To, const FVector2D& Position, ASnowSimulationActor* Simulation, int64 Resolution) override final;
+	virtual FWeatherData GetInterpolatedClimateData(const FDateTime& TimeStamp, int IndexX, int IndexY) override final;
 
-	virtual float GetPrecipitationAt(const FDateTime& Date, const FDateTime& To, const FVector2D& Position, int64 Resolution) override final;
+	virtual TResourceArray<FWeatherData>* GetRawClimateData(const FDateTime& TimeStamp) override final;
+
+	virtual int32 GetResolution() override final;
+
+	virtual void Initialize() override final;
 };

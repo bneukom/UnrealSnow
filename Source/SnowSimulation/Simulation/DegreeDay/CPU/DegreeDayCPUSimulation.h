@@ -6,6 +6,95 @@
 #include "DegreeDayCPUSimulation.generated.h"
 
 
+struct SNOWSIMULATION_API FSimulationCell
+{
+	const FVector P1;
+
+	const FVector P2;
+
+	const FVector P3;
+
+	const FVector P4;
+
+	const FVector Normal;
+
+	const int Index;
+
+	/** Eight neighborhood starting from north. */
+	TArray<FSimulationCell*> Neighbours;
+
+	/** Area in cm^2. */
+	const float Area;
+
+	/** Area of the cell projected onto the XY plane in cm^2. */
+	const float AreaXY;
+
+	/** Midpoint of the cell. */
+	const FVector Centroid;
+
+	/** The altitude (in cm) of the cell's mid point. */
+	const float Altitude;
+
+	/** The compass direction this cell faces. */
+	const float Aspect;
+
+	/** The slope (in radians) of this cell. */
+	const float Inclination;
+
+	/** The latitude of the center of this cell. */
+	const float Latitude;
+
+	/** Snow water equivalent (SWE) as the mass of water stored in liters. */
+	float SnowWaterEquivalent = 0;
+
+	/** Snow water equivalent (SWE) after interpolation according to Blöschl. */
+	float InterpolatedSnowWaterEquivalent = 0;
+
+	/** The albedo of the snow [0-1.0]. */
+	float SnowAlbedo = 0;
+
+	/** The days since the last snow has fallen on this cell. */
+	float DaysSinceLastSnowfall = 0;
+
+	/** The curvature (second derivative) of the terrain at the given cell. */
+	float Curvature = 0.0f;
+
+	/** Returns true if all neighbours have been set (non null). */
+	bool AllNeighboursSet() const {
+		for (auto& Neighbour : Neighbours) {
+			if (Neighbour == nullptr) return false;
+		}
+		return true;
+	}
+
+	/** Returns the altitude of the cells midpoint including the snow accumulated on the surface in cm. */
+	float GetAltitudeWithSnow() const {
+		return Altitude + GetSnowHeight() * 10;
+	}
+
+	/** Returns the snow amount in mm (or liters/m^2). */
+	float GetSnowHeight() const {
+		return SnowWaterEquivalent / (Area / (100 * 100));
+	}
+
+	FSimulationCell() : Index(0), P1(FVector::ZeroVector), P2(FVector::ZeroVector), P3(FVector::ZeroVector), P4(FVector::ZeroVector),
+		Normal(FVector::ZeroVector), Area(0), AreaXY(0), Centroid(FVector::ZeroVector), Altitude(0), Aspect(0), Inclination(0), Latitude(0) {}
+
+	FSimulationCell(
+		int Index, FVector& p1, FVector& p2, FVector& p3, FVector& p4, FVector& Normal,
+		float Area, float AreaXY, FVector Centroid, float Altitude, float Aspect, float Inclination, float Latitude) :
+		Index(Index), P1(p1), P2(p2), P3(p3), P4(p4), Normal(Normal),
+		Area(Area), AreaXY(AreaXY),
+		Centroid(Centroid),
+		Altitude(Altitude),
+		Aspect(Aspect),
+		Inclination(Inclination),
+		Latitude(Latitude)
+	{
+		Neighbours.Init(nullptr, 8);
+	}
+};
+
 /**
 * Snow simulation similar to the one proposed by Simon Premoze in "Geospecific rendering of alpine terrain". 
 * Snow deposition is implemented similar to Fearings "Computer Modelling Of Fallen Snow".
@@ -15,8 +104,17 @@ class SNOWSIMULATION_API UDegreeDayCPUSimulation : public UDegreeDaySimulation
 {
 	GENERATED_BODY()
 private:
-	/** The maximum snow amount (mm) of the current time step. */
-	float MaxSnow;
+	/** The cells this simulation uses. */
+	TArray<FSimulationCell> Cells;
+
+	/** The snow mask used by the landscape material. */
+	UTexture2D* SnowMapTexture;
+
+	/** Color buffer for the snow mask texture. */
+	TArray<FColor> SnowMapTextureData;
+
+	/** Current time of the simulation. */
+	FDateTime CurrentTime;
 
 	// @TODO Degrees or radians?
 	/**
@@ -103,11 +201,41 @@ private:
 			FMath::Cos(D) * FMath::Cos(W) * (FMath::Sin(X + V) - FMath::Sin(Y + V)) * (12 / PI));
 	}
 
+	/**
+	* Returns the cell at the given x and y position or a nullptr if the indices are out of bounds.
+	*
+	* @param X
+	* @param Y
+	* @return the cell at the given x and y position or a nullptr if the indices are out of bounds.
+	*/
+	FSimulationCell* GetCellChecked(int X, int Y)
+	{
+		return GetCellChecked(X + Y * CellsDimension);
+	}
+
+	/**
+	* Returns the cell at the given index or nullptr if the index is out of bounds.
+	*
+	* @param Index the index of the cell
+	* @return the cell at the given index or nullptr if the index is out of bounds
+	*/
+	FSimulationCell* GetCellChecked(int Index)
+	{
+		return (Index >= 0 && Index < Cells.Num()) ? &Cells[Index] : nullptr;
+	}
+
 public:
 	virtual FString GetSimulationName() override final;
 
-	virtual void Simulate(ASnowSimulationActor* SimulationActor, USimulationWeatherDataProviderBase* Data, USimulationDataInterpolatorBase* Interpolator, FDateTime StartTime, FDateTime EndTime, int32 TimeStepHours) override final;
+	virtual void Simulate(ASnowSimulationActor* SimulationActor, int32 TimeStep) override final;
 
 	virtual void Initialize(ASnowSimulationActor* SimulationActor, UWorld* World) override final;
+
+	virtual void RenderDebug(UWorld* World, int CellDebugInfoDisplayDistance, EDebugVisualizationType DebugVisualizationType) override;
+
+	virtual UTexture2D* GetSnowMapTexture() override final;
+
+	virtual TArray<FColor> GetSnowMapTextureData() override final;
+
 };
 

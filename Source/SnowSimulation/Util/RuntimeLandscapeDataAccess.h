@@ -395,8 +395,8 @@ public:
 };
 
 // Helper functions
-template<typename T>
-void FillCornerValues(uint8& CornerSet, T* CornerValues)
+template<typename Tem>
+void FillCornerValues(uint8& CornerSet, Tem* CornerValues)
 {
 	uint8 OriginalSet = CornerSet;
 

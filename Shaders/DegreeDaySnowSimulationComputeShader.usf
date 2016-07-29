@@ -5,26 +5,37 @@ struct SimulationCell
 	float Aspect;
 	float Inclination;
 	float Altitude;
+	float Latitude;
 	float Area;
-	float SWE;
+	float AreaXY;
+	float SnowWaterEquivalent;
+	float SnowAlbedo;
+	float DaysSinceLastSnowfall;
+	float Curvature;
+};
+
+struct WeatherData
+{
+	float Temperature;
+	float Precipitation;
 };
 
 RWTexture2D<uint> OutputSurface;
 
-RWStructuredBuffer<SimulationCell> SimulationCells;
-RWStructuredBuffer<float> TemperatureData;
+RWStructuredBuffer<SimulationCell> SimulationCellsBuffer;
+RWStructuredBuffer<WeatherData> WeatherDataBuffer;
 
-[numthreads(4, 4, 1)]
-void MainComputeShader(uint3 ThreadId : SV_DispatchThreadID)
+// sunrise/sunset
+float Func2(float L, float D) 
 {
-	uint r = SimulationCells[ThreadId.x + ThreadId.y * CSConstants.ThreadGroupCountX].SWE * 255.0;
-	uint g = ((uint)(255)) << 8;
-	uint b = ((uint)(255)) << 16;
-	uint a = ((uint)(255)) << 24;
+	return acos(clamp(-tan(L) * tan(D), -1.0f, 1.0f));
+}
 
-	SimulationCells[ThreadId.x + ThreadId.y * CSConstants.ThreadGroupCountX].SWE += 1.0;
-
-	OutputSurface[ThreadId.xy] = r | g | b | a;
+// radiation
+float Func3(float V, float W, float X, float Y, float R1, float D) 
+{
+	return R1 * (sin(D) * sin(W) * (X - Y) * (12 / PI) + 
+		cos(D) * cos(W) * (sin(X + V) - sin(Y + V)) * (12 / PI));
 }
 
 /**
@@ -33,7 +44,7 @@ void MainComputeShader(uint3 ThreadId : SV_DispatchThreadID)
 * @param I		The inclination of the slope in radians.
 * @param A		The aspect (compass direction) that the slope faces in radians.
 * @param L0		The latitude of the slope in radians.
-
+*/
 float SolarRadiationIndex(float I, float A, float L0, float J)
 {
 	float L1 = asin(cos(I) * sin(L0) + sin(I) * cos(L0) * cos(A));
@@ -97,15 +108,76 @@ float SolarRadiationIndex(float I, float A, float L0, float J)
 	return R4 / R3;
 }
 
-// @TODO check for invalid latitudes (90°)
-float Func2(float L, float D) // sunrise/sunset
+
+[numthreads(4, 4, 1)]
+void MainComputeShader(uint3 ThreadId : SV_DispatchThreadID)
 {
-	return acos(clamp(-tan(L) * tan(D), -1.0f, 1.0f));
+	uint cellIndex = ThreadId.x + ThreadId.y * CSConstants.ThreadGroupCountX;
+	uint weatherIndexX = (float)(ThreadId.x / (float)CSConstants.CellsDimension * CSConstants.WeatherDataResolution);
+	uint weatherIndexY = (float)(ThreadId.y / (float)CSConstants.CellsDimension * CSConstants.WeatherDataResolution);
+	uint weatherIndex = weatherIndexX + weatherIndexY * CSConstants.WeatherDataResolution;
+
+	SimulationCell cell = SimulationCellsBuffer[cellIndex];
+	WeatherData weatherData = WeatherDataBuffer[weatherIndex];
+		
+	float decay = -0.9f * cell.Altitude / (100 * 100);
+	float tAir = weatherData.Temperature + decay; // degree Celsius
+	float precipitation = weatherData.Precipitation;
+			
+	// @TODO use AreaXY because very steep slopes with big areas would receive too much snow
+	const float areaSquareMeters = cell.AreaXY / (100 * 100); // m^2
+
+	// Apply precipitation
+	if (precipitation > 0)
+	{
+		cell.DaysSinceLastSnowfall = 0;
+
+		// New snow/rainfall
+		bool rain = tAir > CSConstants.TSnowB;
+
+		if (tAir > CSConstants.TSnowB)
+		{
+			cell.SnowAlbedo = 0.4; // New rain drops the albedo to 0.4
+		}
+		else 
+		{
+			// Variable lapse rate as described in "A variable lapse rate snowline model for the Remarkables, Central Otago, New Zealand"
+			float snowRate = clamp(1 - (tAir - CSConstants.TSnowA) / (CSConstants.TSnowB - CSConstants.TSnowA), 0.0f, 1.0f);
+
+			cell.SnowWaterEquivalent += (precipitation * areaSquareMeters * snowRate); // l/m^2 * m^2 = l
+			cell.SnowAlbedo = 0.8; // New snow sets the albedo to 0.8
+		}
+	}
+
+	// Apply melt
+	if (cell.SnowWaterEquivalent > 0)
+	{
+		if (cell.DaysSinceLastSnowfall >= 0) {
+			// @TODO is time T the degree-days or the time since the last snowfall?
+			cell.SnowAlbedo = 0.4 * (1 + exp(-CSConstants.k_e * cell.DaysSinceLastSnowfall)); 
+		}
+
+		// Temperature higher than melt threshold and cell contains snow
+		if (tAir > CSConstants.TMeltA)
+		{
+			const float dayNormalization = 24.0 / 1.0; // day 
+
+			// Radiation Index
+			const float R_i = SolarRadiationIndex(cell.Inclination, cell.Aspect, cell.Latitude, CSVariables.DayOfYear); // 1
+
+			// Melt factor
+			const float vegetationDensity = 0;
+			const float k_v = exp(-4 * vegetationDensity); // 1
+			const float c_m = CSConstants.k_m * k_v * R_i *  (1 - cell.SnowAlbedo) * dayNormalization * areaSquareMeters; // l/m^2/C°/day * day * m^2 = l/m^2 * 1/day * day * m^2 = l/C°
+			const float M = c_m * clamp((tAir - CSConstants.TMeltA) / (CSConstants.TMeltB - CSConstants.TMeltA), 0.0f, 1.0f); // l/C° * C° = l
+
+			// Apply melt
+			cell.SnowWaterEquivalent -= M; 
+			cell.SnowWaterEquivalent = max(0.0f, cell.SnowWaterEquivalent);
+		}
+	}
+
+	cell.DaysSinceLastSnowfall += 24.0f / 1;
 }
 
-float Func3(float V, float W, float X, float Y, float R1, float D) // radiation
-{
-	return R1 * (sin(D) * sin(W) * (X - Y) * (12 / PI) + 
-		cos(D) * cos(W) * (sin(X + V) - sin(Y + V)) * (12 / PI));
-}
-*/
+

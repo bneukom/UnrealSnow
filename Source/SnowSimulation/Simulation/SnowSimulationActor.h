@@ -7,7 +7,6 @@
 #include "GameFramework/Actor.h"
 #include "GenericPlatformFile.h"
 #include "Data/SimulationWeatherDataProviderBase.h"
-#include "Interpolation/SimulationDataInterpolatorBase.h"
 #include "SimulationBase.h"
 #include "SnowSimulationActor.generated.h"
 
@@ -68,10 +67,6 @@ public:
 	float Latitude;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
-	/** Interpolator for the data for the simulation. */
-	USimulationDataInterpolatorBase* Interpolator;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	/** The simulation used. */
 	USimulationBase* Simulation;
 
@@ -110,6 +105,20 @@ public:
 	/** Overall landscape resolution. */
 	float OverallResolution;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Debug")
+	/** Overall landscape resolution. */
+	int32 LandscapeSizeQuads;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Debug")
+	/** Total number of simulation cells. */
+	int32 NumCells;
+
+	/** The landscape of the world. */
+	ALandscape* Landscape;
+
+	/** Weather data provider for the simulation. */
+	USimulationWeatherDataProviderBase* WeatherDataComponent;
+
 	/** Default constructor. */
 	ASnowSimulationActor();
 
@@ -119,85 +128,28 @@ public:
 	/** Called every frame */
 	virtual void Tick( float DeltaSeconds ) override;
 
-
 #if WITH_EDITOR
 	// Called after a property has changed
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 	
-	// @TODO CreateCells in SimulationBase.h?
 	/** Initializes the simulation. */
 	void Initialize();
 
 	/** Returns the current simulation time. */
 	FDateTime GetCurrentSimulationTime() const { return CurrentSimulationTime; }
 
-	/** Returns the simulation cells. */
-	TArray<FSimulationCell>& GetCells() { return Cells; }
 private:
-	/** The landscape of the world. */
-	ALandscape* Landscape;
-
 	/** Current simulation step time passed. */
 	float CurrentStepTime;
 
-	/** The snow mask used by the landscape material. */
-	UTexture2D* SnowMapTexture;
-
-	/** Color buffer for the snow mask texture. */
-	TArray<FColor> SnowMapTextureData;
-
-	/** The snow mask used by the landscape material. */
-	UTexture2D* InclinationTexture;
-
-	/** Color buffer for the snow mask texture. */
-	TArray<FColor> InclinationTextureData;
-
 	/** Minimum and maximum snow water equivalent (SWE) of the landscape. */
 	float MinSWE, MaxSWE;
-
-	// @TODO implementation detail of simulation!
-	/** The cells used by the simulation. */
-	TArray<FSimulationCell> Cells;
-
-	/** Total number of simulation cells. */
-	int32 NumCells;
-
-	/** Weather data provider for the simulation. */
-	USimulationWeatherDataProviderBase* WeatherDataComponent;
-
-	/** 
-	* Returns the cell at the given x and y position or a nullptr if the indices are out of bounds. 
-	* 
-	* @param X
-	* @param Y
-	* @return the cell at the given x and y position or a nullptr if the indices are out of bounds. 
-	*/
-	FSimulationCell* GetCellChecked(int X, int Y)
-	{
-		return GetCellChecked(X + Y * CellsDimension);
-	}
-
-	/**
-	* Returns the cell at the given index or nullptr if the index is out of bounds.
-	*
-	* @param Index the index of the cell
-	* @return the cell at the given index or nullptr if the index is out of bounds
-	*/
-	FSimulationCell* GetCellChecked(int Index) 
-	{
-		return (Index >= 0 && Index < Cells.Num()) ? &Cells[Index] : nullptr;
-	}
 
 	/** 
 	* Updates the material with data from the simulation.
 	*/
 	void UpdateMaterialTexture();
-
-	/** 
-	* Updates the texture with the given texture data.
-	*/
-	void UpdateTexture(UTexture2D* Texture, TArray<FColor>& TextureData);
 
 	/** 
 	* Renders appropriate debug information.
