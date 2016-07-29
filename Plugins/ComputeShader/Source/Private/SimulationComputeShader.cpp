@@ -29,7 +29,7 @@ void FSimulationComputeShader::Initialize(TResourceArray<FComputeShaderSimulatio
 	//https://msdn.microsoft.com/en-us/library/ff728749(v=vs.85).aspx
 	FRHIResourceCreateInfo CreateInfo;
 
-	Texture = RHICreateTexture2D(CellsDimension, CellsDimension, PF_R32_UINT, 1, 1, TexCreate_ShaderResource | TexCreate_UAV, CreateInfo);
+	Texture = RHICreateTexture2D(CellsDimension, CellsDimension, PF_B8G8R8A8, 1, 1, TexCreate_ShaderResource | TexCreate_UAV, CreateInfo);
 	TextureUAV = RHICreateUnorderedAccessView(Texture);
 
 	// Create input data buffers
@@ -129,6 +129,12 @@ void FSimulationComputeShader::ExecuteComputeShaderInternal(TResourceArray<FWeat
 		FMemory::Memcpy(SimulationCells.GetData(), Buffer, SimulationCellsBuffer->NumBytes);
 		RHICmdList.UnlockStructuredBuffer(SimulationCellsBuffer->Buffer);
 	}
+	/*
+	uint32 Stride = 0;
+	void* TextureData = RHICmdList.LockTexture2D(Texture, 0, EResourceLockMode::RLM_ReadOnly, Stride, true);
 
+	Texture->GetTexture2D();
+	auto t = UTexture2D::CreateTransient(NumCells, NumCells, PF_B8G8R8A8);
+	*/
 }
 

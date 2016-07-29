@@ -108,18 +108,45 @@ FWeatherData UStochasticWeatherDataProvider::GetInterpolatedClimateData(const FD
 	int32 IndexX = static_cast<int32>(SimulationIndexX / (float)Simulation->CellsDimension * Resolution);
 	int32 IndexY = static_cast<int32>(SimulationIndexY / (float)Simulation->CellsDimension * Resolution);
 
-	auto Data = *ClimateData[TimeStepTimespan.GetTotalHours()];
+	int TimeStep = TimeStepTimespan.GetTotalHours();
+	auto Data = *ClimateData[TimeStepTimespan.GetTotalHours() - 1];
 
-	int WeatherCellSize = Simulation->CellsDimension / Resolution;
-		
-	float GridIndexX = SimulationIndexX % WeatherCellSize;
-	float GridIndexY = SimulationIndexY % WeatherCellSize;
+	if (IndexX < Resolution - 1 && IndexY < Resolution - 1) {
+		int WeatherCellSize = Simulation->CellsDimension / Resolution;
 
-	// Bilinear interpolation
-	// @TODO assume measurements are top left corner
+		float GridIndexX = SimulationIndexX % (WeatherCellSize + 1);
+		float GridIndexY = SimulationIndexY % (WeatherCellSize + 1);
 
-	auto Original = Data[IndexX + Resolution * IndexY];
-	return FWeatherData(InterpolatedPrecipitation, Original.Temperature);
+		int XCellA = IndexX;
+		int XCellB = IndexX + 1;
+		int YCellA = IndexY;
+		int YCellB = IndexY + 1;
+
+		float AA = Data[XCellA + Resolution * YCellA].Precipitation;
+		float AB = Data[XCellA + Resolution * YCellB].Precipitation;
+		float BA = Data[XCellB + Resolution * YCellA].Precipitation;
+		float BB = Data[XCellB + Resolution * YCellB].Precipitation;
+
+		float Y1 = (1 - GridIndexY / WeatherCellSize);
+		float Y2 = GridIndexY / WeatherCellSize;
+
+		// Bilinear interpolation
+		// @TODO assume measurements are top left corner
+		float Lerp1 = Y1 * AA + Y2 * AB;
+		float Lerp2 = Y1 * BA + Y2 * BB;
+
+		float X1 = (1 - GridIndexX / WeatherCellSize);
+		float X2 = GridIndexX / WeatherCellSize;
+
+		float Precipitation = X1 * Lerp1 + X2 * Lerp2;
+
+		auto Original = Data[IndexX + Resolution * IndexY];
+		return FWeatherData(Precipitation, Original.Temperature);
+	}
+	else 
+	{
+		return Data[IndexX + Resolution * IndexY];
+	}
 }
 
 TResourceArray<FWeatherData>* UStochasticWeatherDataProvider::GetRawClimateData(const FDateTime& TimeStamp)

@@ -178,6 +178,16 @@ void MainComputeShader(uint3 ThreadId : SV_DispatchThreadID)
 	}
 
 	cell.DaysSinceLastSnowfall += 24.0f / 1;
+
+	/*
+	float slope = degrees(cell.Inclination);
+
+	float f = slope < 15 ? 0 : slope / 80;
+	float a3 = 50;
+	float we = max(0.0f, cell.SnowWaterEquivalent * (1 - f) * (1 + a3 * cell.Curvature));
+
+	OutputSurface[ThreadId.xy] = we;
+	*/
 }
 
 
