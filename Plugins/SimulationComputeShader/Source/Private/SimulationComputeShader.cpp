@@ -21,15 +21,11 @@ FSimulationComputeShader::~FSimulationComputeShader()
 void FSimulationComputeShader::Initialize(TResourceArray<FComputeShaderSimulationCell>& Cells, float k_e, float k_m, float TMeltA, float TMeltB, float TSnowA, float TSnowB, int32 CellsDimension, int32 WeatherDataResolution)
 {
 	NumCells = Cells.Num();
+	MaxSnowArray.Add(0);
 
-	//There are only a few different texture formats we can use if we want to use the output texture as input in a pixel shader later
-	//I would have loved to go with the R8G8B8A8_UNORM approach, but unfortunately, it seems UE4 does not support this in an obvious way, which is why I chose the UINT format using packing instead
-	//There is some excellent information on this topic in the following links:
-	//http://www.gamedev.net/topic/605356-r8g8b8a8-texture-format-in-compute-shader/
-	//https://msdn.microsoft.com/en-us/library/ff728749(v=vs.85).aspx
 	FRHIResourceCreateInfo CreateInfo;
 
-	Texture = RHICreateTexture2D(CellsDimension, CellsDimension, PF_B8G8R8A8, 1, 1, TexCreate_ShaderResource | TexCreate_UAV, CreateInfo);
+	Texture = RHICreateTexture2D(CellsDimension, CellsDimension, PF_R32_UINT, 1, 1, TexCreate_ShaderResource | TexCreate_UAV, CreateInfo);
 	TextureUAV = RHICreateUnorderedAccessView(Texture);
 
 	// Create input data buffers
@@ -38,6 +34,9 @@ void FSimulationComputeShader::Initialize(TResourceArray<FComputeShaderSimulatio
 
 	ClimateDataBuffer = new FRWStructuredBuffer();
 	ClimateDataBuffer->Initialize(sizeof(FWeatherData), CellsDimension * CellsDimension, nullptr, 0, true, false);
+
+	MaxSnowBuffer = new FRWStructuredBuffer();
+	MaxSnowBuffer->Initialize(sizeof(uint32), 1, &MaxSnowArray, 0, true, false);
 
 	// Fill constant parameters
 	ConstantParameters.CellsDimension = CellsDimension;
@@ -93,6 +92,11 @@ void FSimulationComputeShader::ExecuteComputeShaderInternal(TResourceArray<FWeat
 			SimulationCellsBuffer->Release();
 			delete SimulationCellsBuffer;
 		}
+		if (NULL != MaxSnowBuffer)
+		{
+			MaxSnowBuffer->Release();
+			delete MaxSnowBuffer;
+		}
 
 		return;
 	}
@@ -100,9 +104,8 @@ void FSimulationComputeShader::ExecuteComputeShaderInternal(TResourceArray<FWeat
 	FRHICommandListImmediate& RHICmdList = GRHICommandList.GetImmediateCommandList();
 
 	// Update climate data buffer
-	uint32* Buffer = (uint32*)RHICmdList.LockStructuredBuffer(ClimateDataBuffer->Buffer, 0, ClimateDataBuffer->NumBytes, RLM_ReadOnly);
-	auto Data = ClimateData->GetData();
-	FMemory::Memcpy(Buffer, ClimateData, ClimateDataBuffer->NumBytes);
+	uint32* Buffer = (uint32*)RHICmdList.LockStructuredBuffer(ClimateDataBuffer->Buffer, 0, ClimateDataBuffer->NumBytes, RLM_WriteOnly);
+	FMemory::Memcpy(Buffer, ClimateData->GetResourceData(), ClimateDataBuffer->NumBytes);
 	RHICmdList.UnlockStructuredBuffer(ClimateDataBuffer->Buffer);
 
 	// Compute shader calculation
@@ -111,8 +114,7 @@ void FSimulationComputeShader::ExecuteComputeShaderInternal(TResourceArray<FWeat
 	RHICmdList.SetComputeShader(ComputeShader->GetComputeShader());
 
 	// Set inputs/outputs and dispatch compute shader
-	ComputeShader->SetParameters(RHICmdList, TextureUAV, SimulationCellsBuffer->UAV, ClimateDataBuffer->UAV);
-
+	ComputeShader->SetParameters(RHICmdList, TextureUAV, SimulationCellsBuffer->UAV, ClimateDataBuffer->UAV, MaxSnowBuffer->UAV);
 	ComputeShader->SetUniformBuffers(RHICmdList, ConstantParameters, VariableParameters);
 	DispatchComputeShader(RHICmdList, *ComputeShader, Texture->GetSizeX() / NUM_THREADS_PER_GROUP_DIMENSION, Texture->GetSizeY() / NUM_THREADS_PER_GROUP_DIMENSION, 1);
 	ComputeShader->UnbindBuffers(RHICmdList);
@@ -129,12 +131,7 @@ void FSimulationComputeShader::ExecuteComputeShaderInternal(TResourceArray<FWeat
 		FMemory::Memcpy(SimulationCells.GetData(), Buffer, SimulationCellsBuffer->NumBytes);
 		RHICmdList.UnlockStructuredBuffer(SimulationCellsBuffer->Buffer);
 	}
-	/*
-	uint32 Stride = 0;
-	void* TextureData = RHICmdList.LockTexture2D(Texture, 0, EResourceLockMode::RLM_ReadOnly, Stride, true);
 
-	Texture->GetTexture2D();
-	auto t = UTexture2D::CreateTransient(NumCells, NumCells, PF_B8G8R8A8);
-	*/
+	// @TODO read max snow
 }
 

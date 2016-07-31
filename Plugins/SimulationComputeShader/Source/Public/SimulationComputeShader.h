@@ -6,14 +6,12 @@
 #include "RWStructuredBuffer.h"
 
 
-
-
 /**
 * This class demonstrates how to use the compute shader we have declared.
 * Most importantly which RHI functions are needed to call and how to get 
 * some interesting output.                                                
 */
-class COMPUTESHADER_API FSimulationComputeShader
+class SIMULATIONCOMPUTESHADER_API FSimulationComputeShader
 {
 public:
 	FSimulationComputeShader(ERHIFeatureLevel::Type ShaderFeatureLevel);
@@ -40,7 +38,7 @@ public:
 private:
 	bool IsComputeShaderExecuting;
 	bool IsUnloading;
-	bool Debug;
+	bool Debug = false;
 
 	int32 NumCells;
 
@@ -59,4 +57,8 @@ private:
 
 	/** Temperature data for the simulation. */
 	FRWStructuredBuffer* ClimateDataBuffer;
+
+	/** Maximum snow. */
+	FRWStructuredBuffer* MaxSnowBuffer;
+	TResourceArray<uint32> MaxSnowArray;
 };

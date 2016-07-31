@@ -31,12 +31,13 @@ void UStochasticWeatherDataProvider::Initialize()
 
 	// Generate precipitation
 	auto TimeSpan = Simulation->EndTime - Simulation->StartTime;
+	auto TimeSpanHours = TimeSpan.GetTotalHours();
 	FDateTime CurrentTime = Simulation->StartTime;
 
 	ClimateData = std::vector<TResourceArray<FWeatherData>*>();
 	auto Measurement = std::vector<std::vector<float>>(Resolution, std::vector<float>(Resolution));
 
-	for (int32 Hour = 0; Hour < TimeSpan.GetTotalHours(); ++Hour)
+	for (int32 Hour = 0; Hour < TimeSpanHours; ++Hour)
 	{
 		// Generate weather data
 		auto ClimateDataHour = new TResourceArray<FWeatherData>();
@@ -58,7 +59,7 @@ void UStochasticWeatherDataProvider::Initialize()
 					{
 						for (int32 X = 0; X < Resolution; ++X)
 						{
-							float Noise = USimplexNoiseBPLibrary::SimplexNoiseScaled2D(X * PrecipitationNoiseScale, Y * PrecipitationNoiseScale, 0.5f) + 0.5f;
+							float Noise = USimplexNoiseBPLibrary::SimplexNoiseScaled2D(X * PrecipitationNoiseScale, Y * PrecipitationNoiseScale, 0.9f) + 0.1f;
 							Measurement[X][Y] = Noise;
 						}
 					}

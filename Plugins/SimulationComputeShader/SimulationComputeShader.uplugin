@@ -13,7 +13,7 @@
     "Modules" :
 	[
 		{
-			"Name" : "ComputeShader",
+			"Name" : "SimulationComputeShader",
 			"Type" : "Runtime",
 			"LoadingPhase" : "PostConfigInit"
 		}

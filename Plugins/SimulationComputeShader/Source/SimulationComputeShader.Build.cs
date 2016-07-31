@@ -1,12 +1,12 @@
 namespace UnrealBuildTool.Rules
 {
-	public class ComputeShader : ModuleRules
+	public class SimulationComputeShader : ModuleRules
 	{
-		public ComputeShader(TargetInfo Target)
+		public SimulationComputeShader(TargetInfo Target)
         {
             PrivateIncludePaths.AddRange(
                 new string[] {
-					"ComputeShader/Private"
+					"SimulationComputeShader/Private"
 				}
                 );
 

@@ -12,6 +12,8 @@ struct SimulationCell
 	float SnowAlbedo;
 	float DaysSinceLastSnowfall;
 	float Curvature;
+
+
 };
 
 struct WeatherData
@@ -21,9 +23,9 @@ struct WeatherData
 };
 
 RWTexture2D<uint> OutputSurface;
-
 RWStructuredBuffer<SimulationCell> SimulationCellsBuffer;
 RWStructuredBuffer<WeatherData> WeatherDataBuffer;
+RWStructuredBuffer<uint> MaxSnowBuffer;
 
 // sunrise/sunset
 float Func2(float L, float D) 
@@ -113,48 +115,51 @@ float SolarRadiationIndex(float I, float A, float L0, float J)
 void MainComputeShader(uint3 ThreadId : SV_DispatchThreadID)
 {
 	uint cellIndex = ThreadId.x + ThreadId.y * CSConstants.ThreadGroupCountX;
-	uint weatherIndexX = (float)(ThreadId.x / (float)CSConstants.CellsDimension * CSConstants.WeatherDataResolution);
-	uint weatherIndexY = (float)(ThreadId.y / (float)CSConstants.CellsDimension * CSConstants.WeatherDataResolution);
+	uint cellIndexX = cellIndex % CSConstants.CellsDimension;
+	uint cellIndexY = cellIndex / CSConstants.CellsDimension;
+
+	uint weatherIndexX = (float)(cellIndexX / (float)CSConstants.CellsDimension * CSConstants.WeatherDataResolution);
+	uint weatherIndexY = (float)(cellIndexY / (float)CSConstants.CellsDimension * CSConstants.WeatherDataResolution);
 	uint weatherIndex = weatherIndexX + weatherIndexY * CSConstants.WeatherDataResolution;
 
 	SimulationCell cell = SimulationCellsBuffer[cellIndex];
 	WeatherData weatherData = WeatherDataBuffer[weatherIndex];
 		
-	float decay = -0.9f * cell.Altitude / (100 * 100);
+	float decay = -0.9f * SimulationCellsBuffer[cellIndex].Altitude / (100 * 100);
 	float tAir = weatherData.Temperature + decay; // degree Celsius
 	float precipitation = weatherData.Precipitation;
 			
 	// @TODO use AreaXY because very steep slopes with big areas would receive too much snow
-	const float areaSquareMeters = cell.AreaXY / (100 * 100); // m^2
+	const float areaSquareMeters = SimulationCellsBuffer[cellIndex].AreaXY / (100 * 100); // m^2
 
 	// Apply precipitation
 	if (precipitation > 0)
 	{
-		cell.DaysSinceLastSnowfall = 0;
+		SimulationCellsBuffer[cellIndex].DaysSinceLastSnowfall = 0;
 
 		// New snow/rainfall
 		bool rain = tAir > CSConstants.TSnowB;
 
 		if (tAir > CSConstants.TSnowB)
 		{
-			cell.SnowAlbedo = 0.4; // New rain drops the albedo to 0.4
+			SimulationCellsBuffer[cellIndex].SnowAlbedo = 0.4; // New rain drops the albedo to 0.4
 		}
 		else 
 		{
 			// Variable lapse rate as described in "A variable lapse rate snowline model for the Remarkables, Central Otago, New Zealand"
 			float snowRate = clamp(1 - (tAir - CSConstants.TSnowA) / (CSConstants.TSnowB - CSConstants.TSnowA), 0.0f, 1.0f);
 
-			cell.SnowWaterEquivalent += (precipitation * areaSquareMeters * snowRate); // l/m^2 * m^2 = l
-			cell.SnowAlbedo = 0.8; // New snow sets the albedo to 0.8
+			SimulationCellsBuffer[cellIndex].SnowWaterEquivalent += (precipitation * areaSquareMeters * snowRate); // l/m^2 * m^2 = l
+			SimulationCellsBuffer[cellIndex].SnowAlbedo = 0.8; // New snow sets the albedo to 0.8
 		}
 	}
 
 	// Apply melt
-	if (cell.SnowWaterEquivalent > 0)
+	if (SimulationCellsBuffer[cellIndex].SnowWaterEquivalent > 0)
 	{
-		if (cell.DaysSinceLastSnowfall >= 0) {
+		if (SimulationCellsBuffer[cellIndex].DaysSinceLastSnowfall >= 0) {
 			// @TODO is time T the degree-days or the time since the last snowfall?
-			cell.SnowAlbedo = 0.4 * (1 + exp(-CSConstants.k_e * cell.DaysSinceLastSnowfall)); 
+			SimulationCellsBuffer[cellIndex].SnowAlbedo = 0.4 * (1 + exp(-CSConstants.k_e * SimulationCellsBuffer[cellIndex].DaysSinceLastSnowfall)); 
 		}
 
 		// Temperature higher than melt threshold and cell contains snow
@@ -163,31 +168,38 @@ void MainComputeShader(uint3 ThreadId : SV_DispatchThreadID)
 			const float dayNormalization = 24.0 / 1.0; // day 
 
 			// Radiation Index
-			const float R_i = SolarRadiationIndex(cell.Inclination, cell.Aspect, cell.Latitude, CSVariables.DayOfYear); // 1
+			const float R_i = SolarRadiationIndex(SimulationCellsBuffer[cellIndex].Inclination, SimulationCellsBuffer[cellIndex].Aspect, SimulationCellsBuffer[cellIndex].Latitude, CSVariables.DayOfYear); // 1
 
 			// Melt factor
 			const float vegetationDensity = 0;
 			const float k_v = exp(-4 * vegetationDensity); // 1
-			const float c_m = CSConstants.k_m * k_v * R_i *  (1 - cell.SnowAlbedo) * dayNormalization * areaSquareMeters; // l/m^2/C°/day * day * m^2 = l/m^2 * 1/day * day * m^2 = l/C°
+			const float c_m = CSConstants.k_m * k_v * R_i *  (1 - SimulationCellsBuffer[cellIndex].SnowAlbedo) * dayNormalization * areaSquareMeters; // l/m^2/C°/day * day * m^2 = l/m^2 * 1/day * day * m^2 = l/C°
 			const float M = c_m * clamp((tAir - CSConstants.TMeltA) / (CSConstants.TMeltB - CSConstants.TMeltA), 0.0f, 1.0f); // l/C° * C° = l
 
 			// Apply melt
-			cell.SnowWaterEquivalent -= M; 
-			cell.SnowWaterEquivalent = max(0.0f, cell.SnowWaterEquivalent);
+			SimulationCellsBuffer[cellIndex].SnowWaterEquivalent -= M; 
+			SimulationCellsBuffer[cellIndex].SnowWaterEquivalent = max(0.0f, SimulationCellsBuffer[cellIndex].SnowWaterEquivalent);
 		}
 	}
 
-	cell.DaysSinceLastSnowfall += 24.0f / 1;
+	SimulationCellsBuffer[cellIndex].DaysSinceLastSnowfall += 1.0f / 24.0f;
 
-	/*
-	float slope = degrees(cell.Inclination);
+	float slope = degrees(SimulationCellsBuffer[cellIndex].Inclination);
 
 	float f = slope < 15 ? 0 : slope / 80;
 	float a3 = 50;
-	float we = max(0.0f, cell.SnowWaterEquivalent * (1 - f) * (1 + a3 * cell.Curvature));
+	float we = max(0.0f, SimulationCellsBuffer[cellIndex].SnowWaterEquivalent * (1 - f) * (1 + a3 * SimulationCellsBuffer[cellIndex].Curvature));
 
-	OutputSurface[ThreadId.xy] = we;
-	*/
+	// Find global max
+	InterlockedMax(MaxSnowBuffer[0], asuint(we * 100000));
+
+	// Write to texture
+	uint r =  (uint) we * 255.0;
+	uint g = ((uint)(we * 255.0)) << 8;
+	uint b = ((uint)(we * 255.0)) << 16;
+	uint a = ((uint)(255.0))	  << 24;
+	OutputSurface[ThreadId.xy] = r | g | b | a;
+
 }
 
 

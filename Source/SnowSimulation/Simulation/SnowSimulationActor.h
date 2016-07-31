@@ -48,11 +48,11 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	/** Simulation start time. */
-	FDateTime StartTime = FDateTime(2015, 1, 1);
+	FDateTime StartTime = FDateTime(2015, 10, 1);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	/** Simulation end time. */
-	FDateTime EndTime = FDateTime(2015, 3, 1);
+	FDateTime EndTime = FDateTime(2016, 9, 1);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	/** Unit vector which points north. */

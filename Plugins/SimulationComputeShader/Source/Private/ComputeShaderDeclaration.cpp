@@ -12,8 +12,9 @@ FComputeShaderDeclaration::FComputeShaderDeclaration(const ShaderMetaType::Compi
 {
 	// This call is what lets the shader system know that the surface OutputSurface is going to be available in the shader. The second parameter is the name it will be known by in the shader
 	OutputSurface.Bind(Initializer.ParameterMap, TEXT("OutputSurface"));
-	SimulationCells.Bind(Initializer.ParameterMap, TEXT("SimulationCells"));
-	WeatherData.Bind(Initializer.ParameterMap, TEXT("TemperatureData"));
+	SimulationCells.Bind(Initializer.ParameterMap, TEXT("SimulationCellsBuffer"));
+	WeatherData.Bind(Initializer.ParameterMap, TEXT("WeatherDataBuffer"));
+	MaxSnow.Bind(Initializer.ParameterMap, TEXT("MaxSnowBuffer"));
 }
 
 void FComputeShaderDeclaration::ModifyCompilationEnvironment(EShaderPlatform Platform, FShaderCompilerEnvironment& OutEnvironment)
@@ -22,7 +23,7 @@ void FComputeShaderDeclaration::ModifyCompilationEnvironment(EShaderPlatform Pla
 	OutEnvironment.CompilerFlags.Add(CFLAG_StandardOptimization);
 }
 
-void FComputeShaderDeclaration::SetParameters(FRHICommandList& RHICmdList, FUnorderedAccessViewRHIRef OutputSurfaceUAV, FUnorderedAccessViewRHIRef SimulationCellsUAV, FUnorderedAccessViewRHIRef TemperatureDataUAV)
+void FComputeShaderDeclaration::SetParameters(FRHICommandList& RHICmdList, FUnorderedAccessViewRHIRef OutputSurfaceUAV, FUnorderedAccessViewRHIRef SimulationCellsUAV, FUnorderedAccessViewRHIRef TemperatureDataUAV, FUnorderedAccessViewRHIRef MaxSnowUAV)
 {
 	FComputeShaderRHIParamRef ComputeShaderRHI = GetComputeShader();
 
@@ -32,6 +33,8 @@ void FComputeShaderDeclaration::SetParameters(FRHICommandList& RHICmdList, FUnor
 		RHICmdList.SetUAVParameter(ComputeShaderRHI, SimulationCells.GetBaseIndex(), SimulationCellsUAV);
 	if (WeatherData.IsBound())
 		RHICmdList.SetUAVParameter(ComputeShaderRHI, WeatherData.GetBaseIndex(), TemperatureDataUAV);
+	if (MaxSnow.IsBound())
+		RHICmdList.SetUAVParameter(ComputeShaderRHI, MaxSnow.GetBaseIndex(), MaxSnowUAV);
 }
 
 void FComputeShaderDeclaration::SetUniformBuffers(FRHICommandList& RHICmdList, FComputeShaderConstantParameters& ConstantParameters, FComputeShaderVariableParameters& VariableParameters)
@@ -39,8 +42,8 @@ void FComputeShaderDeclaration::SetUniformBuffers(FRHICommandList& RHICmdList, F
 	FComputeShaderConstantParametersRef ConstantParametersBuffer;
 	FComputeShaderVariableParametersRef VariableParametersBuffer;
 
-	ConstantParametersBuffer = FComputeShaderConstantParametersRef::CreateUniformBufferImmediate(ConstantParameters, UniformBuffer_SingleDraw);
-	VariableParametersBuffer = FComputeShaderVariableParametersRef::CreateUniformBufferImmediate(VariableParameters, UniformBuffer_SingleDraw);
+	ConstantParametersBuffer = FComputeShaderConstantParametersRef::CreateUniformBufferImmediate(ConstantParameters, UniformBuffer_MultiFrame);
+	VariableParametersBuffer = FComputeShaderVariableParametersRef::CreateUniformBufferImmediate(VariableParameters, UniformBuffer_MultiFrame);
 
 	SetUniformBufferParameter(RHICmdList, GetComputeShader(), GetUniformBufferParameter<FComputeShaderConstantParameters>(), ConstantParametersBuffer);
 	SetUniformBufferParameter(RHICmdList, GetComputeShader(), GetUniformBufferParameter<FComputeShaderVariableParameters>(), VariableParametersBuffer);
