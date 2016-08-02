@@ -1,15 +1,15 @@
 #pragma once
 
 /** Weather data (precipitation and temperature). */
-struct FWeatherData {
+struct FClimateData {
 	float Temperature;
 	float Precipitation;
 
-	FWeatherData(float Precipitation, float Temperature) : Precipitation(Precipitation), Temperature(Temperature)
+	FClimateData(float Precipitation, float Temperature) : Precipitation(Precipitation), Temperature(Temperature)
 	{
 	}
 
-	FWeatherData() : Precipitation(0.0f), Temperature(0.0f)
+	FClimateData() : Precipitation(0.0f), Temperature(0.0f)
 	{
 	}
 };

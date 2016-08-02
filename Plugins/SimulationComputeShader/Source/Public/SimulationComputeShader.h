@@ -18,7 +18,7 @@ public:
 	~FSimulationComputeShader();
 
 	/** Initializes the simulation with the correct input data. */
-	void Initialize(TResourceArray<FComputeShaderSimulationCell>& Cells, float k_e, float k_m, float TMeltA, float TMeltB, float TSnowA, float TSnowB, int32 CellsDimension, int32 WeatherDataResolution);
+	void Initialize(TResourceArray<FComputeShaderSimulationCell>& Cells, TResourceArray<FClimateData>& WeatherData, float k_e, float k_m, float TMeltA, float TMeltB, float TSnowA, float TSnowB, int32 TotalSimulationHours, int32 CellsDimension, int32 WeatherDataResolution);
 
 	// @TODO create on heap and pass pointer?
 
@@ -26,12 +26,12 @@ public:
 	* Run this to execute the compute shader once!
 	* @param TotalElapsedTimeSeconds - We use this for simulation state 
 	*/
-	void ExecuteComputeShader(int TimeStep, TResourceArray<FWeatherData>* ClimateData);
+	void ExecuteComputeShader(int CurrentTimeStep);
 
 	/**
 	* Only execute this from the render thread.
 	*/
-	void ExecuteComputeShaderInternal(TResourceArray<FWeatherData>* ClimateData);
+	void ExecuteComputeShaderInternal();
 
 	FTexture2DRHIRef GetTexture() { return Texture; }
 

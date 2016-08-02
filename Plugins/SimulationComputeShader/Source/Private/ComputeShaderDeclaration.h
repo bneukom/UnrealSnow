@@ -6,7 +6,8 @@
 
 // This buffer should contain variables that never, or rarely change
 BEGIN_UNIFORM_BUFFER_STRUCT(FComputeShaderConstantParameters, )
-DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(int, WeatherDataResolution)
+DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(int, TotalSimulationHours)
+DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(int, ClimateDataDimension)
 DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(int, CellsDimension)
 DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, ThreadGroupCountX)
 DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, ThreadGroupCountY)
@@ -20,7 +21,7 @@ END_UNIFORM_BUFFER_STRUCT(FComputeShaderConstantParameters)
 
 // This buffer is for variables that change very often (each frame for example)
 BEGIN_UNIFORM_BUFFER_STRUCT(FComputeShaderVariableParameters, )
-DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(int, TimeStep)
+DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(int, CurrentSimulationStep)
 DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(int, DayOfYear)
 END_UNIFORM_BUFFER_STRUCT(FComputeShaderVariableParameters)
 

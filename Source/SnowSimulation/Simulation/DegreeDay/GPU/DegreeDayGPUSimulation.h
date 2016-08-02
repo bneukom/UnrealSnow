@@ -21,11 +21,6 @@ class SNOWSIMULATION_API UDegreeDayGPUSimulation : public UDegreeDaySimulation
 private:
 	FSimulationComputeShader* SimulationComputeShader;
 
-	TResourceArray<FWeatherData> ClimateData;
-
-	/** Current time of the simulation. */
-	FDateTime CurrentTime;
-
 	/**
 	* Returns the cell at the given index or nullptr if the index is out of bounds.
 	*
@@ -41,7 +36,7 @@ public:
 
 	virtual FString GetSimulationName() override final;
 
-	virtual void Simulate(ASnowSimulationActor* SimulationActor, int32 TimeStep) override final;
+	virtual void Simulate(ASnowSimulationActor* SimulationActor, int32 CurrentSimulationStep) override final;
 
 	virtual void Initialize(ASnowSimulationActor* SimulationActor, UWorld* World) override final;
 

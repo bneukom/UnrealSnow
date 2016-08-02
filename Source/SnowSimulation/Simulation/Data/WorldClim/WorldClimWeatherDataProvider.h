@@ -22,9 +22,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	TArray<UMonthlyWorldClimDataAsset*> MonthlyData;
 
-	virtual FWeatherData GetInterpolatedClimateData(const FDateTime& TimeStamp, int IndexX, int IndexY) override final;
+	virtual FClimateData GetInterpolatedClimateData(const FDateTime& TimeStamp, int IndexX, int IndexY) override final;
 
-	virtual TResourceArray<FWeatherData>* GetRawClimateData(const FDateTime& TimeStamp) override final;
+	virtual TResourceArray<FClimateData>* CreateRawClimateDataResourceArray() override final;
 
 	virtual int32 GetResolution() override final;
 

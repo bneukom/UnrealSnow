@@ -38,10 +38,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	int CellSize = 9;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
-	/** The step with which the simulation runs. */
-	float TimeStepHours = 1;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Simulation")
 	/** The current date of the simulation. */
 	FDateTime CurrentSimulationTime;
@@ -117,7 +113,7 @@ public:
 	ALandscape* Landscape;
 
 	/** Weather data provider for the simulation. */
-	USimulationWeatherDataProviderBase* WeatherDataComponent;
+	USimulationWeatherDataProviderBase* ClimateDataComponent;
 
 	/** Default constructor. */
 	ASnowSimulationActor();
@@ -140,8 +136,11 @@ public:
 	FDateTime GetCurrentSimulationTime() const { return CurrentSimulationTime; }
 
 private:
-	/** Current simulation step time passed. */
-	float CurrentStepTime;
+	/** Current simulation time the simulation has slept. */
+	float CurrentSleepTime;
+
+	/** The current step of the simulation. */
+	int CurrentSimulationStep;
 
 	/** Minimum and maximum snow water equivalent (SWE) of the landscape. */
 	float MinSWE, MaxSWE;

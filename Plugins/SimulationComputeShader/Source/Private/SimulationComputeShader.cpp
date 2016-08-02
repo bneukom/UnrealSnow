@@ -18,7 +18,10 @@ FSimulationComputeShader::~FSimulationComputeShader()
 	IsUnloading = true;
 }
 
-void FSimulationComputeShader::Initialize(TResourceArray<FComputeShaderSimulationCell>& Cells, float k_e, float k_m, float TMeltA, float TMeltB, float TSnowA, float TSnowB, int32 CellsDimension, int32 WeatherDataResolution)
+void FSimulationComputeShader::Initialize(
+	TResourceArray<FComputeShaderSimulationCell>& Cells, TResourceArray<FClimateData>& ClimateData, 
+	float k_e, float k_m, float TMeltA, float TMeltB, float TSnowA, float TSnowB, 
+	int32 TotalSimulationHours, int32 CellsDimension, int32 ClimateDataDimension)
 {
 	NumCells = Cells.Num();
 	MaxSnowArray.Add(0);
@@ -33,14 +36,14 @@ void FSimulationComputeShader::Initialize(TResourceArray<FComputeShaderSimulatio
 	SimulationCellsBuffer->Initialize(sizeof(FComputeShaderSimulationCell), CellsDimension * CellsDimension, &Cells, 0, true, false);
 
 	ClimateDataBuffer = new FRWStructuredBuffer();
-	ClimateDataBuffer->Initialize(sizeof(FWeatherData), CellsDimension * CellsDimension, nullptr, 0, true, false);
+	ClimateDataBuffer->Initialize(sizeof(FClimateData), TotalSimulationHours * ClimateDataDimension * ClimateDataDimension, &ClimateData, 0, true, false);
 
 	MaxSnowBuffer = new FRWStructuredBuffer();
 	MaxSnowBuffer->Initialize(sizeof(uint32), 1, &MaxSnowArray, 0, true, false);
 
 	// Fill constant parameters
 	ConstantParameters.CellsDimension = CellsDimension;
-	ConstantParameters.WeatherDataResolution = WeatherDataResolution;
+	ConstantParameters.ClimateDataDimension = ClimateDataDimension;
 	ConstantParameters.ThreadGroupCountX = Texture->GetSizeX() / NUM_THREADS_PER_GROUP_DIMENSION;
 	ConstantParameters.ThreadGroupCountY = Texture->GetSizeY() / NUM_THREADS_PER_GROUP_DIMENSION;
 	ConstantParameters.k_e = k_e;
@@ -53,7 +56,7 @@ void FSimulationComputeShader::Initialize(TResourceArray<FComputeShaderSimulatio
 	VariableParameters = FComputeShaderVariableParameters();
 }
 
-void FSimulationComputeShader::ExecuteComputeShader(int TimeStep, TResourceArray<FWeatherData>* ClimateData)
+void FSimulationComputeShader::ExecuteComputeShader(int CurrentSimulationStep)
 {
 	// Skip this execution round if we are already executing
 	if (IsUnloading || IsComputeShaderExecuting) return;
@@ -61,21 +64,20 @@ void FSimulationComputeShader::ExecuteComputeShader(int TimeStep, TResourceArray
 	IsComputeShaderExecuting = true;
 
 	// Now set our runtime parameters
-	VariableParameters.TimeStep = TimeStep;
+	VariableParameters.CurrentSimulationStep = CurrentSimulationStep;
 
 	// This macro sends the function we declare inside to be run on the render thread. What we do is essentially just send this class and tell the render thread to run the internal render function as soon as it can.
 	// I am still not 100% Certain on the thread safety of this, if you are getting crashes, depending on how advanced code you have in the start of the ExecutePixelShader function, you might have to use a lock :)
-	ENQUEUE_UNIQUE_RENDER_COMMAND_TWOPARAMETER(
+	ENQUEUE_UNIQUE_RENDER_COMMAND_ONEPARAMETER(
 		FComputeShaderRunner,
 		FSimulationComputeShader*, ComputeShader, this, 
-		TResourceArray<FWeatherData>*, Data, ClimateData,
 		{
-			ComputeShader->ExecuteComputeShaderInternal(Data);
+			ComputeShader->ExecuteComputeShaderInternal();
 		}
 	);
 }
 
-void FSimulationComputeShader::ExecuteComputeShaderInternal(TResourceArray<FWeatherData>* ClimateData)
+void FSimulationComputeShader::ExecuteComputeShaderInternal()
 {
 	check(IsInRenderingThread());
 
@@ -102,11 +104,6 @@ void FSimulationComputeShader::ExecuteComputeShaderInternal(TResourceArray<FWeat
 	}
 	// Get global RHI command list
 	FRHICommandListImmediate& RHICmdList = GRHICommandList.GetImmediateCommandList();
-
-	// Update climate data buffer
-	uint32* Buffer = (uint32*)RHICmdList.LockStructuredBuffer(ClimateDataBuffer->Buffer, 0, ClimateDataBuffer->NumBytes, RLM_WriteOnly);
-	FMemory::Memcpy(Buffer, ClimateData->GetResourceData(), ClimateDataBuffer->NumBytes);
-	RHICmdList.UnlockStructuredBuffer(ClimateDataBuffer->Buffer);
 
 	// Compute shader calculation
 	TShaderMapRef<FComputeShaderDeclaration> ComputeShader(GetGlobalShaderMap(FeatureLevel));

@@ -31,19 +31,15 @@ void UStochasticWeatherDataProvider::Initialize()
 
 	// Generate precipitation
 	auto TimeSpan = Simulation->EndTime - Simulation->StartTime;
-	auto TimeSpanHours = TimeSpan.GetTotalHours();
+	auto TimeSpanHours =  static_cast<int32>(TimeSpan.GetTotalHours());
 	FDateTime CurrentTime = Simulation->StartTime;
 
-	ClimateData = std::vector<TResourceArray<FWeatherData>*>();
+	ClimateData = std::vector<std::vector<FClimateData>>(TimeSpanHours, std::vector<FClimateData>(Resolution * Resolution));
+
 	auto Measurement = std::vector<std::vector<float>>(Resolution, std::vector<float>(Resolution));
 
 	for (int32 Hour = 0; Hour < TimeSpanHours; ++Hour)
 	{
-		// Generate weather data
-		auto ClimateDataHour = new TResourceArray<FWeatherData>();
-		ClimateDataHour->Empty(Resolution * Resolution);
-		ClimateDataHour->SetAllowCPUAccess(true);
-
 		for (int32 Y = 0; Y < Resolution; ++Y)
 		{
 			for (int32 X = 0; X < Resolution; ++X)
@@ -73,11 +69,9 @@ void UStochasticWeatherDataProvider::Initialize()
 				const float BaseTemperature = 10;
 				const float T = BaseTemperature + SeasonalOffset + TemperatureNoise[X][Y];
 
-				ClimateDataHour->Add(FWeatherData(Precipitation, T));
+				ClimateData[Hour][X + Y * Resolution] = FClimateData(Precipitation, T);
 			}
 		}
-
-		ClimateData.push_back(ClimateDataHour);
 
 		// Next state
 		WeatherState NextState;
@@ -101,7 +95,7 @@ void UStochasticWeatherDataProvider::Initialize()
 	}
 }
 
-FWeatherData UStochasticWeatherDataProvider::GetInterpolatedClimateData(const FDateTime& TimeStamp, int SimulationIndexX, int SimulationIndexY)
+FClimateData UStochasticWeatherDataProvider::GetInterpolatedClimateData(const FDateTime& TimeStamp, int SimulationIndexX, int SimulationIndexY)
 {
 	const ASnowSimulationActor* Simulation = Cast<ASnowSimulationActor>(GetOwner());
 	auto TimeStepTimespan = TimeStamp - Simulation->StartTime;
@@ -110,7 +104,7 @@ FWeatherData UStochasticWeatherDataProvider::GetInterpolatedClimateData(const FD
 	int32 IndexY = static_cast<int32>(SimulationIndexY / (float)Simulation->CellsDimension * Resolution);
 
 	int TimeStep = TimeStepTimespan.GetTotalHours();
-	auto Data = *ClimateData[TimeStepTimespan.GetTotalHours() - 1];
+	auto& Data = ClimateData[TimeStep];
 
 	if (IndexX < Resolution - 1 && IndexY < Resolution - 1) {
 		int WeatherCellSize = Simulation->CellsDimension / Resolution;
@@ -142,7 +136,7 @@ FWeatherData UStochasticWeatherDataProvider::GetInterpolatedClimateData(const FD
 		float Precipitation = X1 * Lerp1 + X2 * Lerp2;
 
 		auto Original = Data[IndexX + Resolution * IndexY];
-		return FWeatherData(Precipitation, Original.Temperature);
+		return FClimateData(Precipitation, Original.Temperature);
 	}
 	else 
 	{
@@ -150,12 +144,24 @@ FWeatherData UStochasticWeatherDataProvider::GetInterpolatedClimateData(const FD
 	}
 }
 
-TResourceArray<FWeatherData>* UStochasticWeatherDataProvider::GetRawClimateData(const FDateTime& TimeStamp)
+TResourceArray<FClimateData>* UStochasticWeatherDataProvider::CreateRawClimateDataResourceArray()
 {
 	const ASnowSimulationActor* Simulation = Cast<ASnowSimulationActor>(GetOwner());
-	auto TimeStepTimespan = TimeStamp - Simulation->StartTime;
+	auto TimeSpan = Simulation->EndTime - Simulation->StartTime;
+	int32 TotalHours = static_cast<int>(TimeSpan.GetTotalHours());
 
-	return ClimateData[TimeStepTimespan.GetTotalHours()];
+	TResourceArray<FClimateData>* ClimateResourceArray = new TResourceArray<FClimateData>();
+	ClimateResourceArray->Reserve(TotalHours * Resolution * Resolution);
+
+	for (int32 Hour = 0; Hour < TotalHours; ++Hour)
+	{
+		for (int32 ClimateIndex = 0; ClimateIndex < Resolution * Resolution; ++ClimateIndex)
+		{
+			ClimateResourceArray->Add(ClimateData[Hour][ClimateIndex]);
+		}
+	}
+
+	return ClimateResourceArray;
 }
 
 int32 UStochasticWeatherDataProvider::GetResolution()

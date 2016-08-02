@@ -7,26 +7,20 @@
 #include "SnowSimulation/Simulation/SnowSimulationActor.h"
 #include "SnowSimulation/Util/MathUtil.h"
 
-
 FString UDegreeDayGPUSimulation::GetSimulationName()
 {
 	return FString(TEXT("Degree Day GPU"));
 }
 
-void UDegreeDayGPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, int32 TimeStep)
+void UDegreeDayGPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, int32 CurrentSimulationStep)
 {
-	CurrentTime += FTimespan(TimeStep, 0, 0);
-
-	auto ClimateData = SimulationActor->WeatherDataComponent->GetRawClimateData(CurrentTime);
-
-	SimulationComputeShader->ExecuteComputeShader(TimeStep, ClimateData);
+	SimulationComputeShader->ExecuteComputeShader(CurrentSimulationStep);
 }
 
 void UDegreeDayGPUSimulation::Initialize(ASnowSimulationActor* SimulationActor, UWorld* World)
 {
 	// Create shader
 	SimulationComputeShader = new FSimulationComputeShader(World->Scene->GetFeatureLevel());
-	CurrentTime = SimulationActor->StartTime;
 
 	// Create cells
 	float LandscapeSizeQuads = SimulationActor->LandscapeSizeQuads;
@@ -132,8 +126,15 @@ void UDegreeDayGPUSimulation::Initialize(ASnowSimulationActor* SimulationActor, 
 		float E = ((Z2 + Z8) / 2 - Z5) / (L * L);
 		Cell.Curvature = 2 * (D + E);
 	}
+	
+	// Initialize shader
+	auto ClimateData = SimulationActor->ClimateDataComponent->CreateRawClimateDataResourceArray();
+	auto SimulationTimeSpan = SimulationActor->EndTime - SimulationActor->StartTime;
+	int32 TotalHours = static_cast<int32>(SimulationTimeSpan.GetTotalHours());
 
-	SimulationComputeShader->Initialize(Cells, k_e, k_m, TMeltA, TMeltB, TSnowA, TSnowB, CellsDimension, SimulationActor->WeatherDataComponent->GetResolution());
+	SimulationComputeShader->Initialize(Cells, *ClimateData, k_e, k_m, TMeltA, TMeltB, TSnowA, TSnowB, TotalHours, CellsDimension, SimulationActor->ClimateDataComponent->GetResolution());
+	
+	delete ClimateData;
 }
 
 UTexture2D* UDegreeDayGPUSimulation::GetSnowMapTexture()

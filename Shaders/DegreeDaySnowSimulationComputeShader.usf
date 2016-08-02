@@ -114,13 +114,14 @@ float SolarRadiationIndex(float I, float A, float L0, float J)
 [numthreads(4, 4, 1)]
 void MainComputeShader(uint3 ThreadId : SV_DispatchThreadID)
 {
-	uint cellIndex = ThreadId.x + ThreadId.y * CSConstants.ThreadGroupCountX;
-	uint cellIndexX = cellIndex % CSConstants.CellsDimension;
-	uint cellIndexY = cellIndex / CSConstants.CellsDimension;
+	uint cellIndex = ThreadId.x + ThreadId.y * SimulationConstants.ThreadGroupCountX;
+	uint cellIndexX = cellIndex % SimulationConstants.CellsDimension;
+	uint cellIndexY = cellIndex / SimulationConstants.CellsDimension;
 
-	uint weatherIndexX = (float)(cellIndexX / (float)CSConstants.CellsDimension * CSConstants.WeatherDataResolution);
-	uint weatherIndexY = (float)(cellIndexY / (float)CSConstants.CellsDimension * CSConstants.WeatherDataResolution);
-	uint weatherIndex = weatherIndexX + weatherIndexY * CSConstants.WeatherDataResolution;
+	uint timeStepOffset = SimulationVariables.CurrentSimulationStep * SimulationConstants.ClimateDataDimension * * SimulationConstants.ClimateDataDimension;
+	uint weatherIndexX = (float)(cellIndexX / (float)SimulationConstants.CellsDimension * SimulationConstants.ClimateDataDimension);
+	uint weatherIndexY = (float)(cellIndexY / (float)SimulationConstants.CellsDimension * SimulationConstants.ClimateDataDimension);
+	uint weatherIndex = timeStepOffset + weatherIndexX + weatherIndexY * SimulationConstants.ClimateDataDimension;
 
 	SimulationCell cell = SimulationCellsBuffer[cellIndex];
 	WeatherData weatherData = WeatherDataBuffer[weatherIndex];

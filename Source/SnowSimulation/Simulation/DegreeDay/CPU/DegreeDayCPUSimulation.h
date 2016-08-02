@@ -113,9 +113,6 @@ private:
 	/** Color buffer for the snow mask texture. */
 	TArray<FColor> SnowMapTextureData;
 
-	/** Current time of the simulation. */
-	FDateTime CurrentTime;
-
 	// @TODO Degrees or radians?
 	/**
 	* Calculates the solar radiation as described in Swifts "Algorithm for Solar Radiation on Mountain Slopes".
@@ -227,7 +224,7 @@ private:
 public:
 	virtual FString GetSimulationName() override final;
 
-	virtual void Simulate(ASnowSimulationActor* SimulationActor, int32 TimeStep) override final;
+	virtual void Simulate(ASnowSimulationActor* SimulationActor, int32 CurrentSimulationStep) override final;
 
 	virtual void Initialize(ASnowSimulationActor* SimulationActor, UWorld* World) override final;
 

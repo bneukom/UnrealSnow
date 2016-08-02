@@ -19,10 +19,8 @@ FString UDegreeDayCPUSimulation::GetSimulationName()
 }
 
 // Flops per iteration: (2 * 20 + 6 * 2) + (20 * 20 + 38 * 2)
-void UDegreeDayCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, int32 TimeStep)
+void UDegreeDayCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, int32 CurrentSimulationStep)
 {
-	CurrentTime += FTimespan(TimeStep, 0, 0);
-
 	MaxSnow = 0;
 
 	// Simulation
@@ -30,7 +28,7 @@ void UDegreeDayCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, in
 	{
 		const FVector& CellCentroid = Cell.Centroid;
 
-		auto ClimateData = SimulationActor->WeatherDataComponent->GetInterpolatedClimateData(CurrentTime, FVector2D(CellCentroid.X, CellCentroid.Y));
+		auto ClimateData = SimulationActor->ClimateDataComponent->GetInterpolatedClimateData(SimulationActor->CurrentSimulationTime, FVector2D(CellCentroid.X, CellCentroid.Y));
 			
 		float Altitude = CellCentroid.Z; // Altitude in cm
 		float Decay = -0.9f * Altitude / (100 * 100);
@@ -75,13 +73,13 @@ void UDegreeDayCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, in
 			// Temperature higher than melt threshold and cell contains snow
 			if (TAir > TMeltA)
 			{
-				const float DayNormalization = TimeStep / 24.0f; // day 
+				const float DayNormalization = 1.0f / 24.0f; // day 
 
 				// @TODO radiation index at nighttime? How about newer simulations?
 				// @TODO Blöschl (???) used different radiation values during night
 
 				// Radiation Index
-				const float R_i = SolarRadiationIndex(Cell.Inclination, Cell.Aspect, Cell.Latitude, CurrentTime.GetDayOfYear()); // 1
+				const float R_i = SolarRadiationIndex(Cell.Inclination, Cell.Aspect, Cell.Latitude, SimulationActor->CurrentSimulationTime.GetDayOfYear()); // 1
 
 				// Melt factor
 				const float VegetationDensity = 0;
@@ -95,7 +93,7 @@ void UDegreeDayCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, in
 			}
 		}
 
-		Cell.DaysSinceLastSnowfall += TimeStep / 24.0f;
+		Cell.DaysSinceLastSnowfall += 1.0f / 24.0f;
 	}
 
 	// Interpolation according to Blöschls "Distributed Snowmelt Simulations in an Alpine Catchment"
@@ -117,7 +115,6 @@ void UDegreeDayCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, in
 void UDegreeDayCPUSimulation::Initialize(ASnowSimulationActor* SimulationActor, UWorld* World)
 {
 	CellsDimension = SimulationActor->CellsDimension;
-	CurrentTime = SimulationActor->StartTime;
 
 	float LandscapeSizeQuads = SimulationActor->LandscapeSizeQuads;
 	int CellSize = SimulationActor->CellSize;

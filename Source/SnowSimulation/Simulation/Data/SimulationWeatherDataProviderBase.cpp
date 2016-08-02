@@ -3,7 +3,7 @@
 #include "SimulationWeatherDataProviderBase.h"
 #include "SnowSimulation/Simulation/SnowSimulationActor.h"
 
-FWeatherData USimulationWeatherDataProviderBase::GetInterpolatedClimateData(const FDateTime& TimeStamp, const FVector2D& Position)
+FClimateData USimulationWeatherDataProviderBase::GetInterpolatedClimateData(const FDateTime& TimeStamp, const FVector2D& Position)
 {
 	const ASnowSimulationActor* Owner = Cast<ASnowSimulationActor>(GetOwner());
 

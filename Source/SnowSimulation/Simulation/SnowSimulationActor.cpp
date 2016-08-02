@@ -33,8 +33,8 @@ void ASnowSimulationActor::BeginPlay()
 	Initialize();
 
 	// Initialize components
-	WeatherDataComponent = Cast<USimulationWeatherDataProviderBase>(GetComponentByClass(USimulationWeatherDataProviderBase::StaticClass()));
-	WeatherDataComponent->Initialize();
+	ClimateDataComponent = Cast<USimulationWeatherDataProviderBase>(GetComponentByClass(USimulationWeatherDataProviderBase::StaticClass()));
+	ClimateDataComponent->Initialize();
 
 	// Initialize simulation
 	Simulation->Initialize(this, GetWorld());
@@ -42,28 +42,29 @@ void ASnowSimulationActor::BeginPlay()
 	CurrentSimulationTime = StartTime;
 
 	// Run simulation
-	CurrentStepTime = SleepTime;
+	CurrentSleepTime = SleepTime;
 }
 
 void ASnowSimulationActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	CurrentStepTime += DeltaTime;
+	CurrentSleepTime += DeltaTime;
 
-	if (CurrentStepTime >= SleepTime)
+	if (CurrentSleepTime >= SleepTime)
 	{
-		CurrentStepTime = 0;
+		CurrentSleepTime = 0;
 
 		// Simulate next step
-		Simulation->Simulate(this, TimeStepHours);
+		Simulation->Simulate(this, CurrentSimulationStep);
 
 		// Update the snow material to reflect changes from the simulation
 		UpdateMaterialTexture();
-
 		SetScalarParameterValue(Landscape, TEXT("MaxSnow"), Simulation->GetMaxSnow());
 			
-		CurrentSimulationTime += FTimespan(TimeStepHours, 0, 0);
+		// Update timestep
+		CurrentSimulationTime += FTimespan(1, 0, 0);
+		CurrentSimulationStep++;
 	}
 
 	// Render debug information

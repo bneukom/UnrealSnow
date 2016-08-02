@@ -27,8 +27,7 @@ private:
 	/** State of the simulation. */
 	WeatherState State;
 	
-	std::vector<TResourceArray<FWeatherData>*> ClimateData;
-
+	std::vector<std::vector<FClimateData>> ClimateData;
 public:
 	// @TODO fix probabilities
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input", DisplayName = "P_I_W")
@@ -49,9 +48,9 @@ public:
 
 	UStochasticWeatherDataProvider();
 
-	virtual FWeatherData GetInterpolatedClimateData(const FDateTime& TimeStamp, int IndexX, int IndexY) override final;
+	virtual FClimateData GetInterpolatedClimateData(const FDateTime& TimeStamp, int IndexX, int IndexY) override final;
 
-	virtual TResourceArray<FWeatherData>* GetRawClimateData(const FDateTime& TimeStamp) override final;
+	virtual TResourceArray<FClimateData>* CreateRawClimateDataResourceArray() override final;
 
 	virtual int32 GetResolution() override final;
 

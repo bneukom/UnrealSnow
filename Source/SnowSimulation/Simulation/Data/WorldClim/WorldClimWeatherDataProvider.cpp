@@ -3,7 +3,7 @@
 #include "SnowSimulation/Simulation/Data/SimulationWeatherDataProviderBase.h"
 #include "WorldClimWeatherDataProvider.h"
 
-FWeatherData UWorldClimWeatherDataProvider::GetInterpolatedClimateData(const FDateTime& TimeStamp, int IndexX, int IndexY)
+FClimateData UWorldClimWeatherDataProvider::GetInterpolatedClimateData(const FDateTime& TimeStamp, int IndexX, int IndexY)
 {
 	// Earth radius approximation
 	const float R = 6378137;
@@ -20,10 +20,10 @@ FWeatherData UWorldClimWeatherDataProvider::GetInterpolatedClimateData(const FDa
 	
 	// @TODO implement precipitation
 	// @TODO convert Position to lat long
-	return FWeatherData(0.0f, Temperature);
+	return FClimateData(0.0f, Temperature);
 }
 
-TResourceArray<FWeatherData>* UWorldClimWeatherDataProvider::GetRawClimateData(const FDateTime& TimeStamp)
+TResourceArray<FClimateData>* UWorldClimWeatherDataProvider::CreateRawClimateDataResourceArray()
 {
 	return nullptr;
 }

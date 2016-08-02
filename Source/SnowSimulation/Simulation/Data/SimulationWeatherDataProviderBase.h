@@ -25,18 +25,16 @@ public:
 	virtual void Initialize() PURE_VIRTUAL(USimulationWeatherDataProviderBase::Initialize, ;);
 
 	/** Returns the climate Data at the given cell. */
-	virtual FWeatherData GetInterpolatedClimateData(const FDateTime& TimeStamp, int IndexX, int IndexY) PURE_VIRTUAL(USimulationWeatherDataProviderBase::GetInterpolatedClimateData, return FWeatherData(););
+	virtual FClimateData GetInterpolatedClimateData(const FDateTime& TimeStamp, int IndexX, int IndexY) PURE_VIRTUAL(USimulationWeatherDataProviderBase::GetInterpolatedClimateData, return FClimateData(););
 
 	/** Returns the climate Data at the given position. */
-	FWeatherData GetInterpolatedClimateData(const FDateTime& TimeStamp, const FVector2D& Position);
+	FClimateData GetInterpolatedClimateData(const FDateTime& TimeStamp, const FVector2D& Position);
 
 	/** Returns the resolution of this weather data provider. */
 	virtual int32 GetResolution() PURE_VIRTUAL(USimulationWeatherDataProviderBase::GetResolution, return 0;);
 
-	/** Returns the climate Data at the given cell. */
-	virtual TResourceArray<FWeatherData>* GetRawClimateData(const FDateTime& TimeStamp) PURE_VIRTUAL(USimulationWeatherDataProviderBase::GetInterpolatedClimateData, return nullptr;);
-
-
+	/** Creates a resource array containing all weather data. Caller is responsible of deleting the resource. */
+	virtual TResourceArray<FClimateData>* CreateRawClimateDataResourceArray() PURE_VIRTUAL(USimulationWeatherDataProviderBase::GetInterpolatedClimateData, return nullptr;);
 };
 
 
