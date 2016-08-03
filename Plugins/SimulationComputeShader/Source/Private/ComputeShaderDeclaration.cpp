@@ -14,7 +14,9 @@ FComputeShaderDeclaration::FComputeShaderDeclaration(const ShaderMetaType::Compi
 	OutputSurface.Bind(Initializer.ParameterMap, TEXT("OutputSurface"));
 	SimulationCells.Bind(Initializer.ParameterMap, TEXT("SimulationCellsBuffer"));
 	WeatherData.Bind(Initializer.ParameterMap, TEXT("WeatherDataBuffer"));
+	SnowMap.Bind(Initializer.ParameterMap, TEXT("SnowOutputBuffer"));
 	MaxSnow.Bind(Initializer.ParameterMap, TEXT("MaxSnowBuffer"));
+
 }
 
 void FComputeShaderDeclaration::ModifyCompilationEnvironment(EShaderPlatform Platform, FShaderCompilerEnvironment& OutEnvironment)
@@ -23,7 +25,10 @@ void FComputeShaderDeclaration::ModifyCompilationEnvironment(EShaderPlatform Pla
 	OutEnvironment.CompilerFlags.Add(CFLAG_StandardOptimization);
 }
 
-void FComputeShaderDeclaration::SetParameters(FRHICommandList& RHICmdList, FUnorderedAccessViewRHIRef OutputSurfaceUAV, FUnorderedAccessViewRHIRef SimulationCellsUAV, FUnorderedAccessViewRHIRef TemperatureDataUAV, FUnorderedAccessViewRHIRef MaxSnowUAV)
+void FComputeShaderDeclaration::SetParameters(
+	FRHICommandList& RHICmdList, FUnorderedAccessViewRHIRef OutputSurfaceUAV, 
+	FUnorderedAccessViewRHIRef SimulationCellsUAV, FUnorderedAccessViewRHIRef TemperatureDataUAV, 
+	FUnorderedAccessViewRHIRef SnowMapUAV, FUnorderedAccessViewRHIRef MaxSnowUAV)
 {
 	FComputeShaderRHIParamRef ComputeShaderRHI = GetComputeShader();
 
@@ -33,6 +38,8 @@ void FComputeShaderDeclaration::SetParameters(FRHICommandList& RHICmdList, FUnor
 		RHICmdList.SetUAVParameter(ComputeShaderRHI, SimulationCells.GetBaseIndex(), SimulationCellsUAV);
 	if (WeatherData.IsBound())
 		RHICmdList.SetUAVParameter(ComputeShaderRHI, WeatherData.GetBaseIndex(), TemperatureDataUAV);
+	if (SnowMap.IsBound())
+		RHICmdList.SetUAVParameter(ComputeShaderRHI, SnowMap.GetBaseIndex(), SnowMapUAV);
 	if (MaxSnow.IsBound())
 		RHICmdList.SetUAVParameter(ComputeShaderRHI, MaxSnow.GetBaseIndex(), MaxSnowUAV);
 }

@@ -53,12 +53,18 @@ public:
 		Ar << OutputSurface;
 		Ar << SimulationCells;
 		Ar << WeatherData;
+		Ar << SnowMap;
+		Ar << MaxSnow;
 
 		return bShaderHasOutdatedParams;
 	}
 
 	// Binds our runtime surface to the shader using an UAV.
-	void SetParameters(FRHICommandList& RHICmdList, FUnorderedAccessViewRHIRef OutputSurfaceUAV, FUnorderedAccessViewRHIRef SimulationCellsUAV, FUnorderedAccessViewRHIRef TemperatureDataUAV, FUnorderedAccessViewRHIRef MaxSnowUAV);
+	void SetParameters(
+		FRHICommandList& RHICmdList, FUnorderedAccessViewRHIRef OutputSurfaceUAV, 
+		FUnorderedAccessViewRHIRef SimulationCellsUAV, FUnorderedAccessViewRHIRef TemperatureDataUAV, 
+		FUnorderedAccessViewRHIRef SnowMapUAV, FUnorderedAccessViewRHIRef MaxSnowUAV);
+
 	// This function is required to bind our constant / uniform buffers to the shader.
 	void SetUniformBuffers(FRHICommandList& RHICmdList, FComputeShaderConstantParameters& ConstantParameters, FComputeShaderVariableParameters& VariableParameters);
 	// This is used to clean up the buffer binds after each invocation to let them be changed and used elsewhere if needed.
@@ -73,6 +79,9 @@ private:
 
 	// Temperature input data for the simulation.
 	FShaderResourceParameter WeatherData;
+
+	// Resulting snow map which is passed to the fragment shader.
+	FShaderResourceParameter SnowMap;
 
 	// Maximum snow result from the simulation.
 	FShaderResourceParameter MaxSnow;

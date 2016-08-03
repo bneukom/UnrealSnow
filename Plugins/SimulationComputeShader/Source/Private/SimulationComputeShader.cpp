@@ -24,10 +24,9 @@ void FSimulationComputeShader::Initialize(
 	int32 TotalSimulationHours, int32 CellsDimension, int32 ClimateDataDimension)
 {
 	NumCells = Cells.Num();
-	MaxSnowArray.Add(0);
 
+	// Create output texture
 	FRHIResourceCreateInfo CreateInfo;
-
 	Texture = RHICreateTexture2D(CellsDimension, CellsDimension, PF_R32_UINT, 1, 1, TexCreate_ShaderResource | TexCreate_UAV, CreateInfo);
 	TextureUAV = RHICreateUnorderedAccessView(Texture);
 
@@ -38,8 +37,13 @@ void FSimulationComputeShader::Initialize(
 	ClimateDataBuffer = new FRWStructuredBuffer();
 	ClimateDataBuffer->Initialize(sizeof(FClimateData), TotalSimulationHours * ClimateDataDimension * ClimateDataDimension, &ClimateData, 0, true, false);
 
+	TResourceArray<float> MaxSnowArray;
+	MaxSnowArray.Add(0);
 	MaxSnowBuffer = new FRWStructuredBuffer();
-	MaxSnowBuffer->Initialize(sizeof(uint32), 1, &MaxSnowArray, 0, true, false);
+	MaxSnowBuffer->Initialize(sizeof(float), 1, &MaxSnowArray, 0, true, false);
+
+	SnowOutputBuffer = new FRWStructuredBuffer();
+	SnowOutputBuffer->Initialize(sizeof(float), CellsDimension * CellsDimension, nullptr, 0, true, false);
 
 	// Fill constant parameters
 	ConstantParameters.CellsDimension = CellsDimension;
@@ -111,24 +115,39 @@ void FSimulationComputeShader::ExecuteComputeShaderInternal()
 	RHICmdList.SetComputeShader(ComputeShader->GetComputeShader());
 
 	// Set inputs/outputs and dispatch compute shader
-	ComputeShader->SetParameters(RHICmdList, TextureUAV, SimulationCellsBuffer->UAV, ClimateDataBuffer->UAV, MaxSnowBuffer->UAV);
+	ComputeShader->SetParameters(RHICmdList, TextureUAV, SimulationCellsBuffer->UAV, ClimateDataBuffer->UAV, SnowOutputBuffer->UAV, MaxSnowBuffer->UAV);
 	ComputeShader->SetUniformBuffers(RHICmdList, ConstantParameters, VariableParameters);
 	DispatchComputeShader(RHICmdList, *ComputeShader, Texture->GetSizeX() / NUM_THREADS_PER_GROUP_DIMENSION, Texture->GetSizeY() / NUM_THREADS_PER_GROUP_DIMENSION, 1);
 	ComputeShader->UnbindBuffers(RHICmdList);
 
 	IsComputeShaderExecuting = false;
 
-	// Copy results from GPU
+	// Copy results from the GPU
 	if (Debug)
 	{
 		TArray<FComputeShaderSimulationCell> SimulationCells;
 		SimulationCells.Reserve(NumCells);
 		SimulationCells.AddUninitialized(NumCells);
-		uint32* Buffer = (uint32*)RHICmdList.LockStructuredBuffer(SimulationCellsBuffer->Buffer, 0, SimulationCellsBuffer->NumBytes, RLM_ReadOnly);
-		FMemory::Memcpy(SimulationCells.GetData(), Buffer, SimulationCellsBuffer->NumBytes);
+		uint32* CellsBuffer = (uint32*)RHICmdList.LockStructuredBuffer(SimulationCellsBuffer->Buffer, 0, SimulationCellsBuffer->NumBytes, RLM_ReadOnly);
+		FMemory::Memcpy(SimulationCells.GetData(), CellsBuffer, SimulationCellsBuffer->NumBytes);
 		RHICmdList.UnlockStructuredBuffer(SimulationCellsBuffer->Buffer);
-	}
+		UE_LOG(LogConsoleResponse, Display, TEXT("Number of cells \"%i\""), SimulationCells.Num());
 
-	// @TODO read max snow
+		// Log max snow
+		TArray<float> MaxSnowArray;
+		MaxSnowArray.Reserve(1);
+		MaxSnowArray.AddUninitialized(1);
+		uint32* MaxBuffer = (uint32*)RHICmdList.LockStructuredBuffer(MaxSnowBuffer->Buffer, 0, MaxSnowBuffer->NumBytes, RLM_ReadOnly);
+		FMemory::Memcpy(MaxSnowArray.GetData(), MaxBuffer, MaxSnowBuffer->NumBytes);
+		RHICmdList.UnlockStructuredBuffer(MaxSnowBuffer->Buffer);
+		UE_LOG(LogConsoleResponse, Display, TEXT("Maximum snow \"%i\""), MaxBuffer[0]);
+
+		TArray<float> SnowArray;
+		SnowArray.Reserve(NumCells);
+		SnowArray.AddUninitialized(NumCells);
+		uint32* SnowBuffer = (uint32*)RHICmdList.LockStructuredBuffer(SnowOutputBuffer->Buffer, 0, SnowOutputBuffer->NumBytes, RLM_ReadOnly);
+		FMemory::Memcpy(SnowArray.GetData(), SnowBuffer, SnowOutputBuffer->NumBytes);
+		RHICmdList.UnlockStructuredBuffer(SnowOutputBuffer->Buffer);
+	}
 }
 

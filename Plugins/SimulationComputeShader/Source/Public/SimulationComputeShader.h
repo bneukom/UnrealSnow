@@ -38,7 +38,7 @@ public:
 private:
 	bool IsComputeShaderExecuting;
 	bool IsUnloading;
-	bool Debug = false;
+	bool Debug = true;
 
 	int32 NumCells;
 
@@ -60,5 +60,7 @@ private:
 
 	/** Maximum snow. */
 	FRWStructuredBuffer* MaxSnowBuffer;
-	TResourceArray<uint32> MaxSnowArray;
+
+	/** Output snow map array. */
+	FRWStructuredBuffer* SnowOutputBuffer;
 };

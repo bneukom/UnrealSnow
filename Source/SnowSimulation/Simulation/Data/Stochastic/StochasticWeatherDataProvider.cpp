@@ -55,7 +55,7 @@ void UStochasticWeatherDataProvider::Initialize()
 					{
 						for (int32 X = 0; X < Resolution; ++X)
 						{
-							float Noise = USimplexNoiseBPLibrary::SimplexNoiseScaled2D(X * PrecipitationNoiseScale, Y * PrecipitationNoiseScale, 0.9f) + 0.1f;
+							float Noise = FMath::Max(USimplexNoiseBPLibrary::SimplexNoiseScaled2D(X * PrecipitationNoiseScale, Y * PrecipitationNoiseScale, 0.9f) + 0.2f, 0.0f);
 							Measurement[X][Y] = Noise;
 						}
 					}
@@ -106,42 +106,36 @@ FClimateData UStochasticWeatherDataProvider::GetInterpolatedClimateData(const FD
 	int TimeStep = TimeStepTimespan.GetTotalHours();
 	auto& Data = ClimateData[TimeStep];
 
-	if (IndexX < Resolution - 1 && IndexY < Resolution - 1) {
-		int WeatherCellSize = Simulation->CellsDimension / Resolution;
+	int WeatherCellSize = Simulation->CellsDimension / Resolution;
 
-		float GridIndexX = SimulationIndexX % (WeatherCellSize + 1);
-		float GridIndexY = SimulationIndexY % (WeatherCellSize + 1);
+	float GridIndexX = SimulationIndexX % (WeatherCellSize + 1);
+	float GridIndexY = SimulationIndexY % (WeatherCellSize + 1);
 
-		int XCellA = IndexX;
-		int XCellB = IndexX + 1;
-		int YCellA = IndexY;
-		int YCellB = IndexY + 1;
+	int XCellA = IndexX;
+	int XCellB = FMath::Min(IndexX + 1, Resolution - 1);
+	int YCellA = IndexY;
+	int YCellB = FMath::Min(IndexY + 1, Resolution - 1);
 
-		float AA = Data[XCellA + Resolution * YCellA].Precipitation;
-		float AB = Data[XCellA + Resolution * YCellB].Precipitation;
-		float BA = Data[XCellB + Resolution * YCellA].Precipitation;
-		float BB = Data[XCellB + Resolution * YCellB].Precipitation;
+	float AA = Data[XCellA + Resolution * YCellA].Precipitation;
+	float AB = Data[XCellA + Resolution * YCellB].Precipitation;
+	float BA = Data[XCellB + Resolution * YCellA].Precipitation;
+	float BB = Data[XCellB + Resolution * YCellB].Precipitation;
 
-		float Y1 = (1 - GridIndexY / WeatherCellSize);
-		float Y2 = GridIndexY / WeatherCellSize;
+	float Y1 = (1 - GridIndexY / WeatherCellSize);
+	float Y2 = GridIndexY / WeatherCellSize;
 
-		// Bilinear interpolation
-		// @TODO assume measurements are top left corner
-		float Lerp1 = Y1 * AA + Y2 * AB;
-		float Lerp2 = Y1 * BA + Y2 * BB;
+	// Bilinear interpolation
+	// @TODO assume measurements are top left corner
+	float Lerp1 = Y1 * AA + Y2 * AB;
+	float Lerp2 = Y1 * BA + Y2 * BB;
 
-		float X1 = (1 - GridIndexX / WeatherCellSize);
-		float X2 = GridIndexX / WeatherCellSize;
+	float X1 = (1 - GridIndexX / WeatherCellSize);
+	float X2 = GridIndexX / WeatherCellSize;
 
-		float Precipitation = X1 * Lerp1 + X2 * Lerp2;
+	float Precipitation = X1 * Lerp1 + X2 * Lerp2;
 
-		auto Original = Data[IndexX + Resolution * IndexY];
-		return FClimateData(Precipitation, Original.Temperature);
-	}
-	else 
-	{
-		return Data[IndexX + Resolution * IndexY];
-	}
+	auto Original = Data[IndexX + Resolution * IndexY];
+	return FClimateData(Precipitation, Original.Temperature);
 }
 
 TResourceArray<FClimateData>* UStochasticWeatherDataProvider::CreateRawClimateDataResourceArray()
