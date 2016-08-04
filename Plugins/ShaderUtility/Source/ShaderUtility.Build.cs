@@ -1,16 +1,22 @@
 namespace UnrealBuildTool.Rules
 {
-	public class PixelShader : ModuleRules
+	public class ShaderUtility : ModuleRules
 	{
-		public PixelShader(TargetInfo Target)
+		public ShaderUtility(TargetInfo Target)
         {
             PrivateIncludePaths.AddRange(
                 new string[] {
-					"PixelShader/Private"
+					"ShaderUtility/Private"
 				}
                 );
 
-			PublicDependencyModuleNames.AddRange(
+            PublicIncludePaths.AddRange(
+                new string[] {
+                    "ShaderUtility/Public",
+                }
+                );
+
+            PrivateDependencyModuleNames.AddRange(
 				new string[]
 				{
 					"Core",

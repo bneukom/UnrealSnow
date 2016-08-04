@@ -1,14 +1,14 @@
 namespace UnrealBuildTool.Rules
 {
-	public class SimulationComputeShader : ModuleRules
+	public class SimulationPixelShader : ModuleRules
 	{
-		public SimulationComputeShader(TargetInfo Target)
+		public SimulationPixelShader(TargetInfo Target)
         {
             PrivateIncludePaths.AddRange(
                 new string[] {
-					"SimulationComputeShader/Private",
+					"SimulationPixelShader/Private",
                     "ShaderUtility/Public"
-                }
+				}
                 );
 
 			PublicDependencyModuleNames.AddRange(
@@ -23,6 +23,7 @@ namespace UnrealBuildTool.Rules
                     "ShaderUtility"
 				}
 				);
+
 		}
 	}
 }

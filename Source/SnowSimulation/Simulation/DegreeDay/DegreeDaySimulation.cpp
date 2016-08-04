@@ -4,7 +4,3 @@
 #include "SnowSimulation/Simulation/SnowSimulationActor.h"
 #include "SnowSimulation/Util/MathUtil.h"
 
-float UDegreeDaySimulation::GetMaxSnow()
-{
-	return MaxSnow;
-}

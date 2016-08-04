@@ -113,6 +113,9 @@ private:
 	/** Color buffer for the snow mask texture. */
 	TArray<FColor> SnowMapTextureData;
 
+	/** The maximum snow amount (mm) of the current time step. */
+	float MaxSnow;
+
 	// @TODO Degrees or radians?
 	/**
 	* Calculates the solar radiation as described in Swifts "Algorithm for Solar Radiation on Mountain Slopes".
@@ -230,9 +233,11 @@ public:
 
 	virtual void RenderDebug(UWorld* World, int CellDebugInfoDisplayDistance, EDebugVisualizationType DebugVisualizationType) override;
 
-	virtual UTexture2D* GetSnowMapTexture() override final;
+	virtual UTexture* GetSnowMapTexture() override final;
 
 	virtual TArray<FColor> GetSnowMapTextureData() override final;
 
+	virtual float GetMaxSnow() override final;
 };
+
 

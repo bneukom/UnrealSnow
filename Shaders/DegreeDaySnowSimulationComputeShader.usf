@@ -1,5 +1,5 @@
 #include "Common.usf"
-#define UINT_FLOAT_SCALE 1000
+#define UINT_FLOAT_SCALE 100000.0f
 
 struct SimulationCell
 {
@@ -113,23 +113,23 @@ float SolarRadiationIndex(float I, float A, float L0, float J)
 
 float GetInterpolatedPrecipitation(int weatherIndexX, int weatherIndexY, int simulationIndexX, int simulationIndexY, int timeStepOffset)
 {
-	int weatherCellSize = SimulationConstants.CellsDimension / SimulationConstants.ClimateDataDimension;
+	int weatherCellSize = SimulationCSConstants.CellsDimension / SimulationCSConstants.ClimateDataDimension;
 
-	int indexX = (int)(simulationIndexX / (float)SimulationConstants.CellsDimension * SimulationConstants.ClimateDataDimension);
-	int indexY = (int)(simulationIndexY / (float)SimulationConstants.CellsDimension * SimulationConstants.ClimateDataDimension);
+	int indexX = (int)(simulationIndexX / (float)SimulationCSConstants.CellsDimension * SimulationCSConstants.ClimateDataDimension);
+	int indexY = (int)(simulationIndexY / (float)SimulationCSConstants.CellsDimension * SimulationCSConstants.ClimateDataDimension);
 
 	float gridIndexX = simulationIndexX % (weatherCellSize + 1);
 	float gridIndexY = simulationIndexY % (weatherCellSize + 1);
 
 	int xCellA = indexX;
-	int xCellB = min(indexX + 1, SimulationConstants.ClimateDataDimension - 1);
+	int xCellB = min(indexX + 1, SimulationCSConstants.ClimateDataDimension - 1);
 	int yCellA = indexY;
-	int yCellB = min(indexY + 1, SimulationConstants.ClimateDataDimension - 1);
+	int yCellB = min(indexY + 1, SimulationCSConstants.ClimateDataDimension - 1);
 
-	float aa = WeatherDataBuffer[timeStepOffset + xCellA + SimulationConstants.ClimateDataDimension * yCellA].Precipitation;
-	float ab = WeatherDataBuffer[timeStepOffset + xCellA + SimulationConstants.ClimateDataDimension * yCellB].Precipitation;
-	float ba = WeatherDataBuffer[timeStepOffset + xCellB + SimulationConstants.ClimateDataDimension * yCellA].Precipitation;
-	float bb = WeatherDataBuffer[timeStepOffset + xCellB + SimulationConstants.ClimateDataDimension * yCellB].Precipitation;
+	float aa = WeatherDataBuffer[timeStepOffset + xCellA + SimulationCSConstants.ClimateDataDimension * yCellA].Precipitation;
+	float ab = WeatherDataBuffer[timeStepOffset + xCellA + SimulationCSConstants.ClimateDataDimension * yCellB].Precipitation;
+	float ba = WeatherDataBuffer[timeStepOffset + xCellB + SimulationCSConstants.ClimateDataDimension * yCellA].Precipitation;
+	float bb = WeatherDataBuffer[timeStepOffset + xCellB + SimulationCSConstants.ClimateDataDimension * yCellB].Precipitation;
 
 	float y1 = (1 - gridIndexY / weatherCellSize);
 	float y2 = gridIndexY / weatherCellSize;
@@ -149,14 +149,14 @@ float GetInterpolatedPrecipitation(int weatherIndexX, int weatherIndexY, int sim
 [numthreads(4, 4, 1)]
 void MainComputeShader(uint3 ThreadId : SV_DispatchThreadID)
 {
-	int cellIndex = ThreadId.x + ThreadId.y * SimulationConstants.ThreadGroupCountX;
-	int cellIndexX = cellIndex % SimulationConstants.CellsDimension;
-	int cellIndexY = cellIndex / SimulationConstants.CellsDimension;
+	int cellIndex = ThreadId.x + ThreadId.y * SimulationCSConstants.ThreadGroupCountX;
+	int cellIndexX = cellIndex % SimulationCSConstants.CellsDimension;
+	int cellIndexY = cellIndex / SimulationCSConstants.CellsDimension;
 
-	int timeStepOffset = SimulationVariables.CurrentSimulationStep * SimulationConstants.ClimateDataDimension * SimulationConstants.ClimateDataDimension;
-	int weatherIndexX = (float)(cellIndexX / (float)SimulationConstants.CellsDimension * SimulationConstants.ClimateDataDimension);
-	int weatherIndexY = (float)(cellIndexY / (float)SimulationConstants.CellsDimension * SimulationConstants.ClimateDataDimension);
-	int weatherIndex = timeStepOffset + weatherIndexX + weatherIndexY * SimulationConstants.ClimateDataDimension;
+	int timeStepOffset = SimulationCSVariables.CurrentSimulationStep * SimulationCSConstants.ClimateDataDimension * SimulationCSConstants.ClimateDataDimension;
+	int weatherIndexX = (float)(cellIndexX / (float)SimulationCSConstants.CellsDimension * SimulationCSConstants.ClimateDataDimension);
+	int weatherIndexY = (float)(cellIndexY / (float)SimulationCSConstants.CellsDimension * SimulationCSConstants.ClimateDataDimension);
+	int weatherIndex = timeStepOffset + weatherIndexX + weatherIndexY * SimulationCSConstants.ClimateDataDimension;
 
 	SimulationCell cell = SimulationCellsBuffer[cellIndex];
 		
@@ -174,16 +174,16 @@ void MainComputeShader(uint3 ThreadId : SV_DispatchThreadID)
 		SimulationCellsBuffer[cellIndex].DaysSinceLastSnowfall = 0;
 
 		// New snow/rainfall
-		bool rain = tAir > SimulationConstants.TSnowB;
+		bool rain = tAir > SimulationCSConstants.TSnowB;
 
-		if (tAir > SimulationConstants.TSnowB)
+		if (tAir > SimulationCSConstants.TSnowB)
 		{
 			SimulationCellsBuffer[cellIndex].SnowAlbedo = 0.4; // New rain drops the albedo to 0.4
 		}
 		else 
 		{
 			// Variable lapse rate as described in "A variable lapse rate snowline model for the Remarkables, Central Otago, New Zealand"
-			float snowRate = clamp(1 - (tAir - SimulationConstants.TSnowA) / (SimulationConstants.TSnowB - SimulationConstants.TSnowA), 0.0f, 1.0f);
+			float snowRate = clamp(1 - (tAir - SimulationCSConstants.TSnowA) / (SimulationCSConstants.TSnowB - SimulationCSConstants.TSnowA), 0.0f, 1.0f);
 			
 
 			SimulationCellsBuffer[cellIndex].SnowWaterEquivalent += (precipitation * areaSquareMeters * snowRate); // l/m^2 * m^2 = l
@@ -196,23 +196,24 @@ void MainComputeShader(uint3 ThreadId : SV_DispatchThreadID)
 	{
 		if (SimulationCellsBuffer[cellIndex].DaysSinceLastSnowfall >= 0) {
 			// @TODO is time T the degree-days or the time since the last snowfall?
-			SimulationCellsBuffer[cellIndex].SnowAlbedo = 0.4 * (1 + exp(-SimulationConstants.k_e * SimulationCellsBuffer[cellIndex].DaysSinceLastSnowfall)); 
+			SimulationCellsBuffer[cellIndex].SnowAlbedo = 0.4 * (1 + exp(-SimulationCSConstants.k_e * SimulationCellsBuffer[cellIndex].DaysSinceLastSnowfall)); 
 		}
 
 		// Temperature higher than melt threshold and cell contains snow
-		if (tAir > SimulationConstants.TMeltA)
+		if (tAir > SimulationCSConstants.TMeltA)
 		{
-			const float dayNormalization = 24.0 / 1.0; // day 
+			const float dayNormalization = 1.0 / 24.0; // day 
 
 			// Radiation Index
-			const float r_i = SolarRadiationIndex(SimulationCellsBuffer[cellIndex].Inclination, SimulationCellsBuffer[cellIndex].Aspect, SimulationCellsBuffer[cellIndex].Latitude, SimulationVariables.DayOfYear); // 1
+			const float r_i = SolarRadiationIndex(SimulationCellsBuffer[cellIndex].Inclination, SimulationCellsBuffer[cellIndex].Aspect, SimulationCellsBuffer[cellIndex].Latitude, SimulationCSVariables.DayOfYear); // 1
 
 			// Melt factor
 			const float vegetationDensity = 0;
 			const float k_v = exp(-4 * vegetationDensity); // 1
-			const float c_m = SimulationConstants.k_m * k_v * r_i *  (1 - SimulationCellsBuffer[cellIndex].SnowAlbedo) * dayNormalization * areaSquareMeters; // l/m^2/C°/day * day * m^2 = l/m^2 * 1/day * day * m^2 = l/C°
-			const float m = c_m * clamp((tAir - SimulationConstants.TMeltA) / (SimulationConstants.TMeltB - SimulationConstants.TMeltA), 0.0f, 1.0f); // l/C° * C° = l
+			const float c_m = SimulationCSConstants.k_m * k_v * r_i *  (1 - SimulationCellsBuffer[cellIndex].SnowAlbedo) * dayNormalization * areaSquareMeters; // l/m^2/C°/day * day * m^2 = l/m^2 * 1/day * day * m^2 = l/C°
+			const float m = c_m * clamp((tAir - SimulationCSConstants.TMeltA) / (SimulationCSConstants.TMeltB - SimulationCSConstants.TMeltA), 0.0f, 1.0f); // l/C° * C° = l
 
+			// ================= BUGGY ==================
 			// Apply melt
 			SimulationCellsBuffer[cellIndex].SnowWaterEquivalent -= m; 
 			SimulationCellsBuffer[cellIndex].SnowWaterEquivalent = max(0.0f, SimulationCellsBuffer[cellIndex].SnowWaterEquivalent);
@@ -230,10 +231,11 @@ void MainComputeShader(uint3 ThreadId : SV_DispatchThreadID)
 	SimulationCellsBuffer[cellIndex].InterpolatedSWE = we;
 	
 	// Find global max
-	InterlockedMax(MaxSnowBuffer[0], (uint)(we * UINT_FLOAT_SCALE));
+	InterlockedMax(MaxSnowBuffer[0], (uint)(we / areaSquareMeters * UINT_FLOAT_SCALE));
+	
 
 	// Used for the pixel shader
-	SnowOutputBuffer[cellIndex] = we;
+	SnowOutputBuffer[cellIndex] = we / areaSquareMeters;
 }
 
 

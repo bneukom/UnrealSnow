@@ -1,4 +1,5 @@
 #include "Common.usf"
+#define UINT_FLOAT_SCALE 100000.0f
 
 void MainVertexShader(
 	float4 InPosition : ATTRIBUTE0,
@@ -11,24 +12,21 @@ void MainVertexShader(
 	OutUV = InUV;
 }
 
-Texture2D<uint> TextureParameter;
+StructuredBuffer<float> SnowInputBuffer : register(s0);
+
+StructuredBuffer<uint> MaxSnowInputBuffer;
 
 void MainPixelShader(
 	in float2 uv : TEXCOORD0,
+	in uint instanceId : SV_InstanceID,
 	out float4 OutColor : SV_Target0
 	)
 {
-	//First we need to unpack the uint material and retrieve the underlying R8G8B8A8_UINT values.
-	float sizeX, sizeY;
-	TextureParameter.GetDimensions(sizeX, sizeY);
-	uint packedValue = TextureParameter.Load(int3(sizeX * uv.x, sizeY * uv.y, 0));
-	uint r = (packedValue & 0x000000FF);
-	uint g = (packedValue & 0x0000FF00) >> 8;
-	uint b = (packedValue & 0x00FF0000) >> 16;
-	uint a = (packedValue & 0xFF000000) >> 24;
-	
-	//Here we will just blend using the TextureParameterBlendFactor between our simple color change shader and the input from the compute shader
-	float alpha = length(uv) / length(float2(1, 1));
-	OutColor = lerp(PSConstants.StartColor, PSVariables.EndColor, alpha) * (1.0 - PSVariables.TextureParameterBlendFactor) 
-			   + float4(r, g, b, a) / 255.0 * PSVariables.TextureParameterBlendFactor;
+	int2 coord = int2(uv.x, uv.y);
+	int snowBufferIndex = coord.x + SimulationPSConstants.CellsDimension * coord.y;
+	float maxSnow = (float)MaxSnowInputBuffer[0] / UINT_FLOAT_SCALE;
+
+	float snowAmount = (float)SnowInputBuffer[snowBufferIndex] / maxSnow;
+
+	OutColor = float4(snowAmount, snowAmount, snowAmount, 1);
 }

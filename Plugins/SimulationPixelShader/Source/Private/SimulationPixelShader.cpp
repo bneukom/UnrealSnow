@@ -1,27 +1,3 @@
-/******************************************************************************
-* The MIT License (MIT)
-*
-* Copyright (c) 2015 Fredrik Lindh
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy
-* of this software and associated documentation files (the "Software"), to deal
-* in the Software without restriction, including without limitation the rights
-* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the Software is
-* furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in
-* all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-* THE SOFTWARE.
-******************************************************************************/
-
 #include "PixelShaderPrivatePCH.h"
 #include "RHIStaticStates.h"
 
@@ -29,12 +5,11 @@
 //It kind of makes sense since they do not contain any parameters that change and are purely used as their names suggest, as declarations :)
 TGlobalResource<FTextureVertexDeclaration> GTextureVertexDeclaration;
 
-FPixelShaderUsageExample::FPixelShaderUsageExample(FColor StartColor, ERHIFeatureLevel::Type ShaderFeatureLevel)
+FSimulationPixelShader::FSimulationPixelShader(ERHIFeatureLevel::Type ShaderFeatureLevel)
 {
 	FeatureLevel = ShaderFeatureLevel;
 
 	ConstantParameters = FPixelShaderConstantParameters();
-	ConstantParameters.StartColor = FVector4(StartColor.R / 255.0, StartColor.G / 255.0, StartColor.B / 255.0, StartColor.A / 255.0);
 	
 	VariableParameters = FPixelShaderVariableParameters();
 	
@@ -45,15 +20,22 @@ FPixelShaderUsageExample::FPixelShaderUsageExample(FColor StartColor, ERHIFeatur
 
 	CurrentTexture = NULL;
 	CurrentRenderTarget = NULL;
-	TextureParameterSRV = NULL;
 }
 
-FPixelShaderUsageExample::~FPixelShaderUsageExample()
+void FSimulationPixelShader::Initialize(FRWStructuredBuffer* SnowBuffer, FRWStructuredBuffer* MaxSnowBuffer, int32 CellsDimension)
+{
+	this->SnowInputBuffer = SnowBuffer;
+	this->MaxSnowInputBuffer = MaxSnowBuffer;
+
+	ConstantParameters.CellsDimension = CellsDimension;
+}
+
+FSimulationPixelShader::~FSimulationPixelShader()
 {
 	bIsUnloading = true;
 }
 
-void FPixelShaderUsageExample::ExecutePixelShader(UTextureRenderTarget2D* RenderTarget, FTexture2DRHIRef InputTexture, FColor EndColor, float TextureParameterBlendFactor)
+void FSimulationPixelShader::ExecutePixelShader(UTextureRenderTarget2D* RenderTarget)
 {
 	if (bIsUnloading || bIsPixelShaderExecuting) //Skip this execution round if we are already executing
 	{
@@ -62,59 +44,29 @@ void FPixelShaderUsageExample::ExecutePixelShader(UTextureRenderTarget2D* Render
 
 	bIsPixelShaderExecuting = true;
 
-	if (TextureParameter != InputTexture)
-	{
-		bMustRegenerateSRV = true;
-	}
-
-	//Now set our runtime parameters!
-	VariableParameters.EndColor = FVector4(EndColor.R / 255.0, EndColor.G / 255.0, EndColor.B / 255.0, EndColor.A / 255.0);
-	VariableParameters.TextureParameterBlendFactor = TextureParameterBlendFactor;
-
 	CurrentRenderTarget = RenderTarget;
-	TextureParameter = InputTexture;
 
 	//This macro sends the function we declare inside to be run on the render thread. What we do is essentially just send this class and tell the render thread to run the internal render function as soon as it can.
 	//I am still not 100% Certain on the thread safety of this, if you are getting crashes, depending on how advanced code you have in the start of the ExecutePixelShader function, you might have to use a lock :)
 	ENQUEUE_UNIQUE_RENDER_COMMAND_ONEPARAMETER(
 		FPixelShaderRunner,
-		FPixelShaderUsageExample*, PixelShader, this,
+		FSimulationPixelShader*, PixelShader, this,
 		{
 			PixelShader->ExecutePixelShaderInternal();
 		}
 	);
 }
 
-void FPixelShaderUsageExample::ExecutePixelShaderInternal()
+void FSimulationPixelShader::ExecutePixelShaderInternal()
 {
 	check(IsInRenderingThread());
 
 	if (bIsUnloading) //If we are about to unload, so just clean up the SRV :)
 	{
-		if (NULL != TextureParameterSRV)
-		{
-			TextureParameterSRV.SafeRelease();
-			TextureParameterSRV = NULL;
-		}
-
 		return;
 	}
 
 	FRHICommandListImmediate& RHICmdList = GRHICommandList.GetImmediateCommandList();
-
-	//If our input texture reference has changed, we need to recreate our SRV
-	if (bMustRegenerateSRV)
-	{
-		bMustRegenerateSRV = false;
-
-		if (NULL != TextureParameterSRV)
-		{
-			TextureParameterSRV.SafeRelease();
-			TextureParameterSRV = NULL;
-		}
-
-		TextureParameterSRV = RHICreateShaderResourceView(TextureParameter, 0);
-	}
 
 	//This is where the magic happens
 	CurrentTexture = CurrentRenderTarget->GetRenderTargetResource()->GetRenderTargetTexture();
@@ -129,7 +81,7 @@ void FPixelShaderUsageExample::ExecutePixelShaderInternal()
 
 	SetGlobalBoundShaderState(RHICmdList, FeatureLevel, BoundShaderState, GTextureVertexDeclaration.VertexDeclarationRHI, *VertexShader, *PixelShader);
 
-	PixelShader->SetSurfaces(RHICmdList, TextureParameterSRV);
+	PixelShader->SetParameters(RHICmdList, SnowInputBuffer->SRV, MaxSnowInputBuffer->SRV);
 	PixelShader->SetUniformBuffers(RHICmdList, ConstantParameters, VariableParameters);
 
 	// Draw a fullscreen quad that we can run our pixel shader on
@@ -139,33 +91,22 @@ void FPixelShaderUsageExample::ExecutePixelShaderInternal()
 	Vertices[2].Position = FVector4(-1.0f, -1.0f, 0, 1.0f);
 	Vertices[3].Position = FVector4(1.0f, -1.0f, 0, 1.0f);
 	Vertices[0].UV = FVector2D(0, 0);
-	Vertices[1].UV = FVector2D(1, 0);
-	Vertices[2].UV = FVector2D(0, 1);
-	Vertices[3].UV = FVector2D(1, 1);
+	Vertices[1].UV = FVector2D(ConstantParameters.CellsDimension, 0);
+	Vertices[2].UV = FVector2D(0, ConstantParameters.CellsDimension);
+	Vertices[3].UV = FVector2D(ConstantParameters.CellsDimension, ConstantParameters.CellsDimension);
 
 	DrawPrimitiveUP(RHICmdList, PT_TriangleStrip, 2, Vertices, sizeof(Vertices[0]));
 	 
-	if (bSave) //Save to disk if we have a save request!
-	{
-		bSave = false;
-
-		SaveScreenshot(RHICmdList);
-	}
-
 	bIsPixelShaderExecuting = false;
-}
 
-void FPixelShaderUsageExample::SaveScreenshot(FRHICommandListImmediate& RHICmdList)
-{
-	check(IsInRenderingThread());
-
+	// @TODO TEST
 	TArray<FColor> Bitmap;
 
 	FReadSurfaceDataFlags ReadDataFlags;
 	ReadDataFlags.SetLinearToGamma(false);
 	ReadDataFlags.SetOutputStencil(false);
 	ReadDataFlags.SetMip(0); //No mip supported ofc!
-	
+
 	//This is pretty straight forward. Since we are using a standard format, we can use this convenience function instead of having to lock rect.
 	RHICmdList.ReadSurfaceData(CurrentTexture, FIntRect(0, 0, CurrentTexture->GetSizeX(), CurrentTexture->GetSizeY()), Bitmap, ReadDataFlags);
 
@@ -182,10 +123,12 @@ void FPixelShaderUsageExample::SaveScreenshot(FRHICommandListImmediate& RHICmdLi
 		// Save the contents of the array to a bitmap file. (24bit only so alpha channel is dropped)
 		FFileHelper::CreateBitmap(*ScreenFileName, ExtendXWithMSAA, CurrentTexture->GetSizeY(), Bitmap.GetData());
 
-		UE_LOG(LogConsoleResponse, Display, TEXT("Content was saved to \"%s\""), *FPaths::ScreenShotDir());
 	}
 	else
 	{
 		UE_LOG(LogConsoleResponse, Error, TEXT("Failed to save BMP, format or texture type is not supported"));
 	}
 }
+
+
+

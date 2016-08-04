@@ -1,12 +1,12 @@
 #pragma once
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#pragma once
-
+#include "SimulationPixelShader.h"
 #include "SimulationComputeShader.h"
 #include "Simulation/DegreeDay/DegreeDaySimulation.h"
 #include "SnowSimulation/Simulation/SimulationBase.h"
 #include "DegreeDayGPUSimulation.generated.h"
+
 
 
 /**
@@ -20,6 +20,10 @@ class SNOWSIMULATION_API UDegreeDayGPUSimulation : public UDegreeDaySimulation
 
 private:
 	FSimulationComputeShader* SimulationComputeShader;
+
+	FSimulationPixelShader* SimulationPixelShader;
+
+	UTextureRenderTarget2D* RenderTarget;
 
 	/**
 	* Returns the cell at the given index or nullptr if the index is out of bounds.
@@ -40,9 +44,10 @@ public:
 
 	virtual void Initialize(ASnowSimulationActor* SimulationActor, UWorld* World) override final;
 
-	virtual UTexture2D* GetSnowMapTexture() override final;
+	virtual UTexture* GetSnowMapTexture() override final;
 
 	virtual TArray<FColor> GetSnowMapTextureData() override final;
 
+	virtual float GetMaxSnow() override final;
 };
 

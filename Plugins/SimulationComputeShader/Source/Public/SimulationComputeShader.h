@@ -20,8 +20,6 @@ public:
 	/** Initializes the simulation with the correct input data. */
 	void Initialize(TResourceArray<FComputeShaderSimulationCell>& Cells, TResourceArray<FClimateData>& WeatherData, float k_e, float k_m, float TMeltA, float TMeltB, float TSnowA, float TSnowB, int32 TotalSimulationHours, int32 CellsDimension, int32 WeatherDataResolution);
 
-	// @TODO create on heap and pass pointer?
-
 	/**
 	* Run this to execute the compute shader once!
 	* @param TotalElapsedTimeSeconds - We use this for simulation state 
@@ -33,8 +31,16 @@ public:
 	*/
 	void ExecuteComputeShaderInternal();
 
+	/** 
+	* Returns the maximum snow of the last execution.
+	*/
+	float GetMaxSnow();
+
 	FTexture2DRHIRef GetTexture() { return Texture; }
 
+	FRWStructuredBuffer* GetSnowBuffer() { return SnowOutputBuffer; }
+
+	FRWStructuredBuffer* GetMaxSnowBuffer() { return MaxSnowBuffer; }
 private:
 	bool IsComputeShaderExecuting;
 	bool IsUnloading;
@@ -60,6 +66,7 @@ private:
 
 	/** Maximum snow. */
 	FRWStructuredBuffer* MaxSnowBuffer;
+	float MaxSnow;
 
 	/** Output snow map array. */
 	FRWStructuredBuffer* SnowOutputBuffer;

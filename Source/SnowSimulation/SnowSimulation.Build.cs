@@ -9,7 +9,7 @@ public class SnowSimulation : ModuleRules
         PublicDependencyModuleNames.AddRange(new string[]
         {
             "Core", "CoreUObject", "Engine", "InputCore", "RenderCore", "Landscape", "RHI", "WorldClimData",
-            "SnowSimulation", "SimplexNoise", "SimulationComputeShader"
+            "SnowSimulation", "SimplexNoise", "SimulationComputeShader", "SimulationPixelShader", "ShaderUtility"
         });
     }
 

@@ -4,8 +4,8 @@
 
 // These are needed to actually implement the constant buffers so they are available inside our shader
 // They also need to be unique over the entire solution since they can in fact be accessed from any shader
-IMPLEMENT_UNIFORM_BUFFER_STRUCT(FComputeShaderConstantParameters, TEXT("SimulationConstants"))
-IMPLEMENT_UNIFORM_BUFFER_STRUCT(FComputeShaderVariableParameters, TEXT("SimulationVariables"))
+IMPLEMENT_UNIFORM_BUFFER_STRUCT(FComputeShaderConstantParameters, TEXT("SimulationCSConstants"))
+IMPLEMENT_UNIFORM_BUFFER_STRUCT(FComputeShaderVariableParameters, TEXT("SimulationCSVariables"))
 
 FComputeShaderDeclaration::FComputeShaderDeclaration(const ShaderMetaType::CompiledShaderInitializerType& Initializer)
 : FGlobalShader(Initializer)
@@ -63,6 +63,14 @@ void FComputeShaderDeclaration::UnbindBuffers(FRHICommandList& RHICmdList)
 
 	if (OutputSurface.IsBound())
 		RHICmdList.SetUAVParameter(ComputeShaderRHI, OutputSurface.GetBaseIndex(), FUnorderedAccessViewRHIRef());
+	if (SimulationCells.IsBound())
+		RHICmdList.SetUAVParameter(ComputeShaderRHI, SimulationCells.GetBaseIndex(), FUnorderedAccessViewRHIRef());
+	if (WeatherData.IsBound())
+		RHICmdList.SetUAVParameter(ComputeShaderRHI, WeatherData.GetBaseIndex(), FUnorderedAccessViewRHIRef());
+	if (SnowMap.IsBound())
+		RHICmdList.SetUAVParameter(ComputeShaderRHI, SnowMap.GetBaseIndex(), FUnorderedAccessViewRHIRef());
+	if (MaxSnow.IsBound())
+		RHICmdList.SetUAVParameter(ComputeShaderRHI, MaxSnow.GetBaseIndex(), FUnorderedAccessViewRHIRef());
 }
 
 // This is what will instantiate the shader into the engine from the engine/Shaders folder

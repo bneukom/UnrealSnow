@@ -1,0 +1,21 @@
+{
+    "FileVersion" : 1,
+	
+	"FriendlyName" : "Shader Utility",
+	"Version" : 1,
+	"VersionName" : "0.0.1",
+	"CreatedBy" : "bneukom",
+	"CreatedByURL" : "",
+	"EngineVersion" : "4.7.0",
+	"Description" : "",
+	"Category" : "Rendering",
+	
+    "Modules" :
+	[
+		{
+			"Name" : "ShaderUtility",
+			"Type" : "Runtime",
+			"LoadingPhase" : "PostConfigInit"
+		}
+	]
+}

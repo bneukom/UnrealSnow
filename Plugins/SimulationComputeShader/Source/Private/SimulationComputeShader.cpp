@@ -37,10 +37,10 @@ void FSimulationComputeShader::Initialize(
 	ClimateDataBuffer = new FRWStructuredBuffer();
 	ClimateDataBuffer->Initialize(sizeof(FClimateData), TotalSimulationHours * ClimateDataDimension * ClimateDataDimension, &ClimateData, 0, true, false);
 
-	TResourceArray<float> MaxSnowArray;
+	TResourceArray<uint32> MaxSnowArray;
 	MaxSnowArray.Add(0);
 	MaxSnowBuffer = new FRWStructuredBuffer();
-	MaxSnowBuffer->Initialize(sizeof(float), 1, &MaxSnowArray, 0, true, false);
+	MaxSnowBuffer->Initialize(sizeof(uint32), 1, &MaxSnowArray, 0, true, false);
 
 	SnowOutputBuffer = new FRWStructuredBuffer();
 	SnowOutputBuffer->Initialize(sizeof(float), CellsDimension * CellsDimension, nullptr, 0, true, false);
@@ -118,8 +118,19 @@ void FSimulationComputeShader::ExecuteComputeShaderInternal()
 	ComputeShader->SetParameters(RHICmdList, TextureUAV, SimulationCellsBuffer->UAV, ClimateDataBuffer->UAV, SnowOutputBuffer->UAV, MaxSnowBuffer->UAV);
 	ComputeShader->SetUniformBuffers(RHICmdList, ConstantParameters, VariableParameters);
 	DispatchComputeShader(RHICmdList, *ComputeShader, Texture->GetSizeX() / NUM_THREADS_PER_GROUP_DIMENSION, Texture->GetSizeY() / NUM_THREADS_PER_GROUP_DIMENSION, 1);
-	ComputeShader->UnbindBuffers(RHICmdList);
+	
+	// Store max snow
+	TArray<uint32> MaxSnowArray;
+	MaxSnowArray.Reserve(1);
+	MaxSnowArray.AddUninitialized(1);
+	uint32* MaxBuffer = (uint32*)RHICmdList.LockStructuredBuffer(MaxSnowBuffer->Buffer, 0, MaxSnowBuffer->NumBytes, RLM_ReadOnly);
+	FMemory::Memcpy(MaxSnowArray.GetData(), MaxBuffer, MaxSnowBuffer->NumBytes);
+	RHICmdList.UnlockStructuredBuffer(MaxSnowBuffer->Buffer);
 
+	MaxSnow = MaxSnowArray[0] / 100000.0f;
+	UE_LOG(LogConsoleResponse, Display, TEXT("Max snow \"%f\""), MaxSnow);
+
+	ComputeShader->UnbindBuffers(RHICmdList);
 	IsComputeShaderExecuting = false;
 
 	// Copy results from the GPU
@@ -131,17 +142,8 @@ void FSimulationComputeShader::ExecuteComputeShaderInternal()
 		uint32* CellsBuffer = (uint32*)RHICmdList.LockStructuredBuffer(SimulationCellsBuffer->Buffer, 0, SimulationCellsBuffer->NumBytes, RLM_ReadOnly);
 		FMemory::Memcpy(SimulationCells.GetData(), CellsBuffer, SimulationCellsBuffer->NumBytes);
 		RHICmdList.UnlockStructuredBuffer(SimulationCellsBuffer->Buffer);
-		UE_LOG(LogConsoleResponse, Display, TEXT("Number of cells \"%i\""), SimulationCells.Num());
 
 		// Log max snow
-		TArray<float> MaxSnowArray;
-		MaxSnowArray.Reserve(1);
-		MaxSnowArray.AddUninitialized(1);
-		uint32* MaxBuffer = (uint32*)RHICmdList.LockStructuredBuffer(MaxSnowBuffer->Buffer, 0, MaxSnowBuffer->NumBytes, RLM_ReadOnly);
-		FMemory::Memcpy(MaxSnowArray.GetData(), MaxBuffer, MaxSnowBuffer->NumBytes);
-		RHICmdList.UnlockStructuredBuffer(MaxSnowBuffer->Buffer);
-		UE_LOG(LogConsoleResponse, Display, TEXT("Maximum snow \"%i\""), MaxBuffer[0]);
-
 		TArray<float> SnowArray;
 		SnowArray.Reserve(NumCells);
 		SnowArray.AddUninitialized(NumCells);
@@ -149,5 +151,10 @@ void FSimulationComputeShader::ExecuteComputeShaderInternal()
 		FMemory::Memcpy(SnowArray.GetData(), SnowBuffer, SnowOutputBuffer->NumBytes);
 		RHICmdList.UnlockStructuredBuffer(SnowOutputBuffer->Buffer);
 	}
+}
+
+float FSimulationComputeShader::GetMaxSnow()
+{
+	return MaxSnow;
 }
 

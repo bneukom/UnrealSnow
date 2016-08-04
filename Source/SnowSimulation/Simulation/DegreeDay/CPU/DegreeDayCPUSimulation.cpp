@@ -219,7 +219,7 @@ void UDegreeDayCPUSimulation::Initialize(ASnowSimulationActor* SimulationActor, 
 	}
 }
 
-UTexture2D* UDegreeDayCPUSimulation::GetSnowMapTexture()
+UTexture* UDegreeDayCPUSimulation::GetSnowMapTexture()
 {
 	// @TODO what about garbage collection and concurrency when creating this texture?
 	// @TODO always create new texture too slow?
@@ -261,6 +261,11 @@ UTexture2D* UDegreeDayCPUSimulation::GetSnowMapTexture()
 TArray<FColor> UDegreeDayCPUSimulation::GetSnowMapTextureData()
 {
 	return SnowMapTextureData;
+}
+
+float UDegreeDayCPUSimulation::GetMaxSnow()
+{
+	return MaxSnow;
 }
 
 void UDegreeDayCPUSimulation::RenderDebug(UWorld* World, int CellDebugInfoDisplayDistance, EDebugVisualizationType DebugVisualizationType)

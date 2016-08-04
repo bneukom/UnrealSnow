@@ -54,12 +54,10 @@ public:
 	virtual float GetMaxSnow() PURE_VIRTUAL(USimulationBase::GetMaxSnow, return 0.0f;);
 
 	/** Returns the texture which contains the snow amount coded as gray scale values. */
-	virtual UTexture2D* GetSnowMapTexture() PURE_VIRTUAL(USimulationBase::GetSnowMapTexture, return nullptr;);
+	virtual UTexture* GetSnowMapTexture() PURE_VIRTUAL(USimulationBase::GetSnowMapTexture, return nullptr;);
 
 	/** Returns the snow map texture data array. */
 	virtual TArray<FColor> GetSnowMapTextureData() PURE_VIRTUAL(USimulationBase::GetSnowMapTextureData, return TArray<FColor>(););
-
-
 };
 
 

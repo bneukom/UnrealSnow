@@ -1,5 +1,6 @@
 #pragma once
 
+// @TODO move to WorldClimData (and rename this)
 /** Weather data (precipitation and temperature). */
 struct FClimateData {
 	float Temperature;

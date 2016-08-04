@@ -15,9 +15,6 @@ UCLASS(Blueprintable, BlueprintType)
 class SNOWSIMULATION_API UDegreeDaySimulation : public USimulationBase
 {
 	GENERATED_BODY()
-protected:
-	/** The maximum snow amount (mm) of the current time step. */
-	float MaxSnow;
 
 public:
 	/** Slope threshold for the snow deposition of the cells in degrees.*/
@@ -48,7 +45,5 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation", DisplayName = "k_m")
 	float k_m = 1;
 
-
-	virtual float GetMaxSnow() override final;
 };
 

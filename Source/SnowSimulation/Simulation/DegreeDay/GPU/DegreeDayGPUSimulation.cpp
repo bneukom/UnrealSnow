@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "SnowSimulation.h"
 #include "LandscapeDataAccess.h"
 #include "DegreeDayGPUSimulation.h"
@@ -15,12 +12,14 @@ FString UDegreeDayGPUSimulation::GetSimulationName()
 void UDegreeDayGPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, int32 CurrentSimulationStep)
 {
 	SimulationComputeShader->ExecuteComputeShader(CurrentSimulationStep);
+	SimulationPixelShader->ExecutePixelShader(RenderTarget);
 }
 
 void UDegreeDayGPUSimulation::Initialize(ASnowSimulationActor* SimulationActor, UWorld* World)
 {
 	// Create shader
 	SimulationComputeShader = new FSimulationComputeShader(World->Scene->GetFeatureLevel());
+	SimulationPixelShader = new FSimulationPixelShader(World->Scene->GetFeatureLevel());
 
 	// Create cells
 	float LandscapeSizeQuads = SimulationActor->LandscapeSizeQuads;
@@ -126,6 +125,10 @@ void UDegreeDayGPUSimulation::Initialize(ASnowSimulationActor* SimulationActor, 
 		float E = ((Z2 + Z8) / 2 - Z5) / (L * L);
 		Cell.Curvature = 2 * (D + E);
 	}
+
+	// Initialize render target
+ 	RenderTarget = NewObject<UTextureRenderTarget2D>(this);
+	RenderTarget->InitAutoFormat(CellsDimension, CellsDimension);
 	
 	// Initialize shader
 	auto ClimateData = SimulationActor->ClimateDataComponent->CreateRawClimateDataResourceArray();
@@ -133,17 +136,24 @@ void UDegreeDayGPUSimulation::Initialize(ASnowSimulationActor* SimulationActor, 
 	int32 TotalHours = static_cast<int32>(SimulationTimeSpan.GetTotalHours());
 
 	SimulationComputeShader->Initialize(Cells, *ClimateData, k_e, k_m, TMeltA, TMeltB, TSnowA, TSnowB, TotalHours, CellsDimension, SimulationActor->ClimateDataComponent->GetResolution());
-	
+	SimulationPixelShader->Initialize(SimulationComputeShader->GetSnowBuffer(), SimulationComputeShader->GetMaxSnowBuffer(), CellsDimension);
+
 	delete ClimateData;
 }
 
-UTexture2D* UDegreeDayGPUSimulation::GetSnowMapTexture()
+UTexture* UDegreeDayGPUSimulation::GetSnowMapTexture()
 {
-	return nullptr;
+	UTexture* RenderTargetTexture = Cast<UTexture>(RenderTarget);
+	return  RenderTargetTexture;
 }
 
 TArray<FColor> UDegreeDayGPUSimulation::GetSnowMapTextureData()
 {
 	return TArray<FColor>();
+}
+
+float UDegreeDayGPUSimulation::GetMaxSnow()
+{
+	return SimulationComputeShader->GetMaxSnow();
 }
 
