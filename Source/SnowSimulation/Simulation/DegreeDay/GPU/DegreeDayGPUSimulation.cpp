@@ -137,8 +137,6 @@ void UDegreeDayGPUSimulation::Initialize(ASnowSimulationActor* SimulationActor, 
 
 	SimulationComputeShader->Initialize(Cells, *ClimateData, k_e, k_m, TMeltA, TMeltB, TSnowA, TSnowB, TotalHours, CellsDimension, SimulationActor->ClimateDataComponent->GetResolution());
 	SimulationPixelShader->Initialize(SimulationComputeShader->GetSnowBuffer(), SimulationComputeShader->GetMaxSnowBuffer(), CellsDimension);
-
-	delete ClimateData;
 }
 
 UTexture* UDegreeDayGPUSimulation::GetSnowMapTexture()
