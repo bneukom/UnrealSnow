@@ -44,7 +44,7 @@ public:
 private:
 	bool IsComputeShaderExecuting;
 	bool IsUnloading;
-	bool Debug = true;
+	bool Debug = false;
 
 	int32 NumCells;
 

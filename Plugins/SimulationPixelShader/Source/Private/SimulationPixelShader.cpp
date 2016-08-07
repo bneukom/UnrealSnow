@@ -98,7 +98,8 @@ void FSimulationPixelShader::ExecutePixelShaderInternal()
 	DrawPrimitiveUP(RHICmdList, PT_TriangleStrip, 2, Vertices, sizeof(Vertices[0]));
 	 
 	bIsPixelShaderExecuting = false;
-
+	
+	/*
 	// @TODO TEST
 	TArray<FColor> Bitmap;
 
@@ -128,6 +129,7 @@ void FSimulationPixelShader::ExecutePixelShaderInternal()
 	{
 		UE_LOG(LogConsoleResponse, Error, TEXT("Failed to save BMP, format or texture type is not supported"));
 	}
+	*/
 }
 
 

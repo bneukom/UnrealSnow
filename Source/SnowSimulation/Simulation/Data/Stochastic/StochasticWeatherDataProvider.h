@@ -32,15 +32,15 @@ public:
 	// @TODO fix probabilities
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input", DisplayName = "P_I_W")
 	/** Initial probability of a wet day. */
-	float P_I_W = 1.0f;
+	float P_I_W = 0.6f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input", DisplayName = "P_WD")
 	/** Probability of a wet hour given the previous hour was dry. */
-	float P_WD = 1.0f;
+	float P_WD = 0.1f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input", DisplayName = "P_WW")
 	/** Probability of a wet hour given the previous hour was wet. */
-	float P_WW = 1.0f;
+	float P_WW = 0.6f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	/** Number of measuring stations per dimension. */

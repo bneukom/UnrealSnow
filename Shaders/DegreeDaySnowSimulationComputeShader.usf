@@ -149,7 +149,7 @@ float GetInterpolatedPrecipitation(int weatherIndexX, int weatherIndexY, int sim
 [numthreads(4, 4, 1)]
 void MainComputeShader(uint3 ThreadId : SV_DispatchThreadID)
 {
-	int cellIndex = ThreadId.x + ThreadId.y * SimulationCSConstants.ThreadGroupCountX;
+	int cellIndex = ThreadId.x + ThreadId.y * SimulationCSConstants.CellsDimension;
 	int cellIndexX = cellIndex % SimulationCSConstants.CellsDimension;
 	int cellIndexY = cellIndex / SimulationCSConstants.CellsDimension;
 
@@ -213,7 +213,6 @@ void MainComputeShader(uint3 ThreadId : SV_DispatchThreadID)
 			const float c_m = SimulationCSConstants.k_m * k_v * r_i *  (1 - SimulationCellsBuffer[cellIndex].SnowAlbedo) * dayNormalization * areaSquareMeters; // l/m^2/C°/day * day * m^2 = l/m^2 * 1/day * day * m^2 = l/C°
 			const float m = c_m * clamp((tAir - SimulationCSConstants.TMeltA) / (SimulationCSConstants.TMeltB - SimulationCSConstants.TMeltA), 0.0f, 1.0f); // l/C° * C° = l
 
-			// ================= BUGGY ==================
 			// Apply melt
 			SimulationCellsBuffer[cellIndex].SnowWaterEquivalent -= m; 
 			SimulationCellsBuffer[cellIndex].SnowWaterEquivalent = max(0.0f, SimulationCellsBuffer[cellIndex].SnowWaterEquivalent);
@@ -229,6 +228,8 @@ void MainComputeShader(uint3 ThreadId : SV_DispatchThreadID)
 	
 	float we = max(0.0f, SimulationCellsBuffer[cellIndex].SnowWaterEquivalent * (1 - f) * (1 + a3 * SimulationCellsBuffer[cellIndex].Curvature));
 	SimulationCellsBuffer[cellIndex].InterpolatedSWE = we;
+
+	SimulationCellsBuffer[cellIndex].InterpolatedSWE = 42.0;
 	
 	// Find global max
 	InterlockedMax(MaxSnowBuffer[0], (uint)(we / areaSquareMeters * UINT_FLOAT_SCALE));

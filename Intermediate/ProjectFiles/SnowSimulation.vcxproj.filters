@@ -86,9 +86,6 @@
     <Filter Include="Plugins\SimulationComputeShader">
       <UniqueIdentifier>{83986F86-5BE6-45E0-83E1-5ADB8901E175}</UniqueIdentifier>
     </Filter>
-    <None Include="..\..\Plugins\SimulationComputeShader\SimulationComputeShader.uplugin">
-      <Filter>Plugins\SimulationComputeShader</Filter>
-    </None>
     <Filter Include="Plugins\SimulationPixelShader">
       <UniqueIdentifier>{E73B85FF-FE3B-4CBB-9B21-B4BB9F3784E5}</UniqueIdentifier>
     </Filter>
@@ -371,6 +368,9 @@
     <ClInclude Include="..\..\Source\SnowSimulation\Util\TextureUtil.h">
       <Filter>Source\SnowSimulation\Util</Filter>
     </ClInclude>
+    <None Include="..\..\Plugins\SimulationComputeShader\SimulationComputeShader.uplugin">
+      <Filter>Plugins\SimulationComputeShader\Source</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Plugins\ShaderUtility\Source\Private\ShaderUtilityPrivatePCH.h">

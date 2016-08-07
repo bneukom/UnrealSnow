@@ -143,6 +143,7 @@ void FSimulationComputeShader::ExecuteComputeShaderInternal()
 		FMemory::Memcpy(SimulationCells.GetData(), CellsBuffer, SimulationCellsBuffer->NumBytes);
 		RHICmdList.UnlockStructuredBuffer(SimulationCellsBuffer->Buffer);
 
+
 		// Log max snow
 		TArray<float> SnowArray;
 		SnowArray.Reserve(NumCells);
