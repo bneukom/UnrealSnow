@@ -36,5 +36,5 @@ int32 UWorldClimWeatherDataProvider::GetResolution()
 void UWorldClimWeatherDataProvider::Initialize()
 {
 	const ASnowSimulationActor* Simulation = Cast<ASnowSimulationActor>(GetOwner());
-	Resolution = Simulation->CellsDimension;
+	Resolution = Simulation->CellsDimensionX;
 }

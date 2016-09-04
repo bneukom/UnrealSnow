@@ -38,7 +38,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	int CellSize = 9;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Simulation")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Simulation")
 	/** The current date of the simulation. */
 	FDateTime CurrentSimulationTime;
 
@@ -63,6 +63,10 @@ public:
 	float Latitude;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
+	/** Number of timesteps to be executed for each iteration. */
+	int32 Timesteps = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	/** The simulation used. */
 	USimulationBase* Simulation;
 
@@ -83,6 +87,10 @@ public:
 	bool WriteDebugTextures = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
+	/** If true takes a screenshot each time an iteration of the simulation is executed. */
+	bool SaveSimulationFrames = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	int CellDebugInfoDisplayDistance = 15000;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
@@ -90,20 +98,24 @@ public:
 	FString DebugTexturePath = "c:\\temp";
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Debug")
-	/** Number of simulation cells per dimension. */
-	int32 CellsDimension;
+	/** Number of simulation cells per dimension in x. */
+	int32 CellsDimensionX;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Debug")
+	/** Number of simulation cells per dimension in y. */
+	int32 CellsDimensionY;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Debug")
 	/** Landscape scale. */
 	FVector LandscapeScale;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Debug")
-	/** Overall landscape resolution. */
-	float OverallResolution;
+	/** Overall landscape resolution in x dimension. */
+	float OverallResolutionX;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Debug")
-	/** Overall landscape resolution. */
-	int32 LandscapeSizeQuads;
+	/** Overall landscape resolution in y dimension. */
+	float OverallResolutionY;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Debug")
 	/** Total number of simulation cells. */
@@ -131,9 +143,6 @@ public:
 	
 	/** Initializes the simulation. */
 	void Initialize();
-
-	/** Returns the current simulation time. */
-	FDateTime GetCurrentSimulationTime() const { return CurrentSimulationTime; }
 
 private:
 	/** Current simulation time the simulation has slept. */

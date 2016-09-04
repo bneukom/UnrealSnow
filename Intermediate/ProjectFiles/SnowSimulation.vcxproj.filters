@@ -376,5 +376,24 @@
     <ClInclude Include="..\..\Plugins\ShaderUtility\Source\Private\ShaderUtilityPrivatePCH.h">
       <Filter>Plugins\ShaderUtility\Source\Private</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\Simulation\Data\MeteoSwiss\MeteoSwissWeatherDataProvider.h">
+      <Filter>Source\SnowSimulation\Simulation\Data\MeteoSwiss</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SnowSimulation\Spectator\MovementPawn.h">
+      <Filter>Source\SnowSimulation\Spectator</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source\SnowSimulation\Simulation\Data\MeteoSwiss">
+      <UniqueIdentifier>{33c75627-623a-461c-a6eb-7ad03cda84e6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\Source\SnowSimulation\Simulation\Data\MeteoSwiss\MeteoSwissWeatherDataProvider.cpp">
+      <Filter>Source\SnowSimulation\Simulation\Data\MeteoSwiss</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SnowSimulation\Spectator\MovementPawn.cpp">
+      <Filter>Source\SnowSimulation\Spectator</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

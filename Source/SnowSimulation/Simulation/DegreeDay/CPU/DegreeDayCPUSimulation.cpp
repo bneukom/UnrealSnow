@@ -19,8 +19,9 @@ FString UDegreeDayCPUSimulation::GetSimulationName()
 }
 
 // Flops per iteration: (2 * 20 + 6 * 2) + (20 * 20 + 38 * 2)
-void UDegreeDayCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, int32 CurrentSimulationStep)
+void UDegreeDayCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, int32 CurrentSimulationStep, int32 Timesteps)
 {
+	/*
 	MaxSnow = 0;
 
 	// Simulation
@@ -30,8 +31,8 @@ void UDegreeDayCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, in
 
 		auto ClimateData = SimulationActor->ClimateDataComponent->GetInterpolatedClimateData(SimulationActor->CurrentSimulationTime, FVector2D(CellCentroid.X, CellCentroid.Y));
 			
-		float Altitude = CellCentroid.Z; // Altitude in cm
-		float Decay = -0.9f * Altitude / (100 * 100);
+		float Altitude = CellCentroid.Z - SimulationActor->ClimateDataComponent->GetMeasurementAltitude(); // Altitude in cm
+		float Decay = -0.5f * Altitude / (100 * 100);
 
 		const float TAir = ClimateData.Temperature + Decay; // degree Celsius
 
@@ -77,7 +78,7 @@ void UDegreeDayCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, in
 
 				// @TODO radiation index at nighttime? How about newer simulations?
 				// @TODO Blöschl (???) used different radiation values during night
-
+				
 				// Radiation Index
 				const float R_i = SolarRadiationIndex(Cell.Inclination, Cell.Aspect, Cell.Latitude, SimulationActor->CurrentSimulationTime.GetDayOfYear()); // 1
 
@@ -85,7 +86,9 @@ void UDegreeDayCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, in
 				const float VegetationDensity = 0;
 				const float k_v = FMath::Exp(-4 * VegetationDensity); // 1
 				const float c_m = k_m * k_v * R_i *  (1 - Cell.SnowAlbedo) * DayNormalization * AreaSquareMeters; // l/m^2/C°/day * day * m^2 = l/m^2 * 1/day * day * m^2 = l/C°
-				const float M = c_m *  FMath::Clamp((TAir - TMeltA) / (TMeltB - TMeltA), 0.0f, 1.0f); // l/C° * C° = l
+				const float MeltFactor = TAir < TMeltB ? (TAir - TMeltA) * (TAir - TMeltA) / (TMeltB - TMeltA) : (TAir - TMeltA);
+			
+				const float M = c_m * MeltFactor; // l/C° * C° = l
 
 				// Apply melt
 				Cell.SnowWaterEquivalent -= M; 
@@ -101,7 +104,7 @@ void UDegreeDayCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, in
 	{
 		float Slope = FMath::RadiansToDegrees(Cell.Inclination);
 
-		float f = Slope < 15 ? 0 : Slope / 80;
+		float f = Slope < 15 ? 0 : Slope / 65;
 		float a3 = 50;
 		float we = FMath::Max(0.0f, Cell.SnowWaterEquivalent * (1 - f) * (1 + a3 * Cell.Curvature));
 
@@ -110,10 +113,12 @@ void UDegreeDayCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, in
 		auto AreaSquareMeters = Cell.Area / (100 * 100);
 		MaxSnow = FMath::Max(Cell.InterpolatedSnowWaterEquivalent / AreaSquareMeters, MaxSnow);
 	}
+	*/
 }
 
 void UDegreeDayCPUSimulation::Initialize(ASnowSimulationActor* SimulationActor, UWorld* World)
 {
+	/*
 	CellsDimension = SimulationActor->CellsDimension;
 
 	float LandscapeSizeQuads = SimulationActor->LandscapeSizeQuads;
@@ -138,6 +143,8 @@ void UDegreeDayCPUSimulation::Initialize(ASnowSimulationActor* SimulationActor, 
 		// @TODO insert vertices at the very end which are currently not added because we are only iterating over Quads
 	}
 
+	float MinAltitude = 1e6;
+	float MaxAltitude = 0;
 	// Create Cells
 	int Index = 0;
 	for (int32 Y = 0; Y < CellsDimension; Y++)
@@ -155,6 +162,9 @@ void UDegreeDayCPUSimulation::Initialize(ASnowSimulationActor* SimulationActor, 
 			FVector Centroid = FVector((P0.X + P1.X + P2.X + P3.X) / 4, (P0.Y + P1.Y + P2.Y + P3.Y) / 4, (P0.Z + P1.Z + P2.Z + P3.Z) / 4);
 
 			float Altitude = Centroid.Z;
+			MinAltitude = FMath::Min(MinAltitude, Altitude);
+			MaxAltitude = FMath::Max(MaxAltitude, Altitude);
+
 			float Area = FMath::Abs(FVector::CrossProduct(P0 - P3, P1 - P3).Size() / 2 + FVector::CrossProduct(P2 - P3, P0 - P3).Size() / 2);
 
 			float AreaXY = FMath::Abs(FVector2D::CrossProduct(FVector2D(P0 - P3), FVector2D(P1 - P3)) / 2
@@ -217,10 +227,13 @@ void UDegreeDayCPUSimulation::Initialize(ASnowSimulationActor* SimulationActor, 
 			Cell.Curvature = 2 * (D + E);
 		}
 	}
+
+	*/
 }
 
 UTexture* UDegreeDayCPUSimulation::GetSnowMapTexture()
 {
+	/*
 	// @TODO what about garbage collection and concurrency when creating this texture?
 	// @TODO always create new texture too slow?
 
@@ -256,6 +269,9 @@ UTexture* UDegreeDayCPUSimulation::GetSnowMapTexture()
 	UpdateTextureFence.Wait();
 
 	return SnowMapTexture;
+	*/
+
+	return nullptr;
 }
 
 TArray<FColor> UDegreeDayCPUSimulation::GetSnowMapTextureData()
@@ -270,6 +286,7 @@ float UDegreeDayCPUSimulation::GetMaxSnow()
 
 void UDegreeDayCPUSimulation::RenderDebug(UWorld* World, int CellDebugInfoDisplayDistance, EDebugVisualizationType DebugVisualizationType)
 {
+	/*
 	// Draw SWE normal
 	if (DebugVisualizationType == EDebugVisualizationType::SnowHeight)
 	{
@@ -349,5 +366,6 @@ void UDegreeDayCPUSimulation::RenderDebug(UWorld* World, int CellDebugInfoDispla
 
 		Index++;
 	}
+	*/
 }
 

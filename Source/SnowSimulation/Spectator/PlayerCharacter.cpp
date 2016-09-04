@@ -13,7 +13,7 @@ APlayerCharacter::APlayerCharacter()
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 
-	GetCharacterMovement()->MaxFlySpeed = 5000;
+	GetCharacterMovement()->MaxFlySpeed = 5000000;
 	GetCharacterMovement()->DefaultLandMovementMode = EMovementMode::MOVE_Flying;
 	GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Flying;
 	
@@ -23,6 +23,7 @@ APlayerCharacter::APlayerCharacter()
 	FirstPersonCameraComponent->AttachParent = GetCapsuleComponent();
 	FirstPersonCameraComponent->RelativeLocation = FVector(-39.56f, 1.75f, 64.f); // Position the camera
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
+	FirstPersonCameraComponent->SetFieldOfView(55);
 }
 
 // Called when the game starts or when spawned

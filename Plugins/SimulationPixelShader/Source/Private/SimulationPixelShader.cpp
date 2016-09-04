@@ -1,6 +1,8 @@
 #include "PixelShaderPrivatePCH.h"
 #include "RHIStaticStates.h"
 
+#define WRITE_SNOW_MAP false
+
 //It seems to be the convention to expose all vertex declarations as globals, and then reference them as externs in the headers where they are needed.
 //It kind of makes sense since they do not contain any parameters that change and are purely used as their names suggest, as declarations :)
 TGlobalResource<FTextureVertexDeclaration> GTextureVertexDeclaration;
@@ -22,12 +24,13 @@ FSimulationPixelShader::FSimulationPixelShader(ERHIFeatureLevel::Type ShaderFeat
 	CurrentRenderTarget = NULL;
 }
 
-void FSimulationPixelShader::Initialize(FRWStructuredBuffer* SnowBuffer, FRWStructuredBuffer* MaxSnowBuffer, int32 CellsDimension)
+void FSimulationPixelShader::Initialize(FRWStructuredBuffer* SnowBuffer, FRWStructuredBuffer* MaxSnowBuffer, int32 CellsDimensionX, int32 CellsDimensionY)
 {
 	this->SnowInputBuffer = SnowBuffer;
 	this->MaxSnowInputBuffer = MaxSnowBuffer;
 
-	ConstantParameters.CellsDimension = CellsDimension;
+	ConstantParameters.CellsDimensionX = CellsDimensionX;
+	ConstantParameters.CellsDimensionY = CellsDimensionY;
 }
 
 FSimulationPixelShader::~FSimulationPixelShader()
@@ -91,16 +94,15 @@ void FSimulationPixelShader::ExecutePixelShaderInternal()
 	Vertices[2].Position = FVector4(-1.0f, -1.0f, 0, 1.0f);
 	Vertices[3].Position = FVector4(1.0f, -1.0f, 0, 1.0f);
 	Vertices[0].UV = FVector2D(0, 0);
-	Vertices[1].UV = FVector2D(ConstantParameters.CellsDimension, 0);
-	Vertices[2].UV = FVector2D(0, ConstantParameters.CellsDimension);
-	Vertices[3].UV = FVector2D(ConstantParameters.CellsDimension, ConstantParameters.CellsDimension);
+	Vertices[1].UV = FVector2D(ConstantParameters.CellsDimensionX, 0);
+	Vertices[2].UV = FVector2D(0, ConstantParameters.CellsDimensionY);
+	Vertices[3].UV = FVector2D(ConstantParameters.CellsDimensionX, ConstantParameters.CellsDimensionY);
 
 	DrawPrimitiveUP(RHICmdList, PT_TriangleStrip, 2, Vertices, sizeof(Vertices[0]));
 	 
 	bIsPixelShaderExecuting = false;
 	
-	/*
-	// @TODO TEST
+#if WRITE_SNOW_MAP
 	TArray<FColor> Bitmap;
 
 	FReadSurfaceDataFlags ReadDataFlags;
@@ -129,7 +131,8 @@ void FSimulationPixelShader::ExecutePixelShaderInternal()
 	{
 		UE_LOG(LogConsoleResponse, Error, TEXT("Failed to save BMP, format or texture type is not supported"));
 	}
-	*/
+#endif
+
 }
 
 

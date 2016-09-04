@@ -5,6 +5,7 @@
 #include "WeatherData.h"
 #include "RWStructuredBuffer.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(SnowComputeShader, Log, All);
 
 /**
 * This class demonstrates how to use the compute shader we have declared.
@@ -18,13 +19,16 @@ public:
 	~FSimulationComputeShader();
 
 	/** Initializes the simulation with the correct input data. */
-	void Initialize(TResourceArray<FComputeShaderSimulationCell>& Cells, TResourceArray<FClimateData>& WeatherData, float k_e, float k_m, float TMeltA, float TMeltB, float TSnowA, float TSnowB, int32 TotalSimulationHours, int32 CellsDimension, int32 WeatherDataResolution);
+	void Initialize(
+		TResourceArray<FComputeShaderSimulationCell>& Cells, TResourceArray<FClimateData>& WeatherData, float k_e, float k_m, 
+		float TMeltA, float TMeltB, float TSnowA, float TSnowB, int32 TotalSimulationHours, 
+		int32 CellsDimensionX, int32 CellsDimensionY, int32 WeatherDataResolution, float MeasurementAltitude, float MaxSnow);
 
 	/**
 	* Run this to execute the compute shader once!
 	* @param TotalElapsedTimeSeconds - We use this for simulation state 
 	*/
-	void ExecuteComputeShader(int CurrentTimeStep);
+	void ExecuteComputeShader(int CurrentTimeStep, int32 Timesteps);
 
 	/**
 	* Only execute this from the render thread.

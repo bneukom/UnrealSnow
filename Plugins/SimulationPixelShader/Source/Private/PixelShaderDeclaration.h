@@ -31,7 +31,8 @@
 //This buffer should contain variables that never, or rarely change
 BEGIN_UNIFORM_BUFFER_STRUCT(FPixelShaderConstantParameters, )
 DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(int, ClimateDataDimension)
-DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(int, CellsDimension)
+DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(int, CellsDimensionX)
+DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(int, CellsDimensionY)
 END_UNIFORM_BUFFER_STRUCT(FPixelShaderConstantParameters)
 
 //This buffer is for variables that change very often (each frame for example)

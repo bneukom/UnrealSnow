@@ -31,16 +31,28 @@ private:
 	* @param Index the index of the cell
 	* @return the cell at the given index or nullptr if the index is out of bounds
 	*/
-	int GetCellChecked(int Index, int NumCells)
+	int GetCellChecked(int Index)
 	{
-		return (Index >= 0 && Index < NumCells) ? Index : -1;
+		return (Index >= 0 && Index < CellsDimensionX * CellsDimensionY) ? Index : -1;
+	}
+
+	/**
+	* Returns the cell at the given x and y position or a nullptr if the indices are out of bounds.
+	*
+	* @param X
+	* @param Y
+	* @return the cell at the given x and y position or a nullptr if the indices are out of bounds.
+	*/
+	int GetCellChecked(int X, int Y)
+	{
+		return GetCellChecked(X + Y * CellsDimensionX);
 	}
 
 public:
 
 	virtual FString GetSimulationName() override final;
 
-	virtual void Simulate(ASnowSimulationActor* SimulationActor, int32 CurrentSimulationStep) override final;
+	virtual void Simulate(ASnowSimulationActor* SimulationActor, int32 CurrentSimulationStep, int32 Timesteps) override final;
 
 	virtual void Initialize(ASnowSimulationActor* SimulationActor, UWorld* World) override final;
 

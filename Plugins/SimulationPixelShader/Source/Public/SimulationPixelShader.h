@@ -50,7 +50,7 @@ public:
 	void ExecutePixelShaderInternal();
 
 	/** Initializes the simulation with the correct input data. */
-	void Initialize(FRWStructuredBuffer* SnowBuffer, FRWStructuredBuffer* MaxSnowBuffer, int32 CellsDimension);
+	void Initialize(FRWStructuredBuffer* SnowBuffer, FRWStructuredBuffer* MaxSnowBuffer, int32 CellsDimensionX, int32 CellsDimensionY);
 
 private:
 	bool bIsPixelShaderExecuting;

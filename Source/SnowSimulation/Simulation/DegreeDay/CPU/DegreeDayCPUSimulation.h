@@ -210,7 +210,7 @@ private:
 	*/
 	FSimulationCell* GetCellChecked(int X, int Y)
 	{
-		return GetCellChecked(X + Y * CellsDimension);
+		return GetCellChecked(X + Y * CellsDimensionX);
 	}
 
 	/**
@@ -227,7 +227,7 @@ private:
 public:
 	virtual FString GetSimulationName() override final;
 
-	virtual void Simulate(ASnowSimulationActor* SimulationActor, int32 CurrentSimulationStep) override final;
+	virtual void Simulate(ASnowSimulationActor* SimulationActor, int32 CurrentSimulationStep, int32 Timesteps) override final;
 
 	virtual void Initialize(ASnowSimulationActor* SimulationActor, UWorld* World) override final;
 

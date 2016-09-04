@@ -31,11 +31,11 @@ public:
 
 	/** Threshold A air temperature above which some snow starts melting. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation", DisplayName = "TMelt A")
-	float TMeltA = 0;
+	float TMeltA = -5;
 
 	/** Threshold B air temperature above which all snow starts melting. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation", DisplayName = "TMelt B")
-	float TMeltB = 2;
+	float TMeltB = -2;
 
 	/** Time constant. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation", DisplayName = "k_e")

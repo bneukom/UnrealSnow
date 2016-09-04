@@ -24,6 +24,9 @@ public:
 	/** Initializes the data provider. */
 	virtual void Initialize() PURE_VIRTUAL(USimulationWeatherDataProviderBase::Initialize, ;);
 
+	/** Returns the altitude at which the measurements were taken. */
+	virtual float GetMeasurementAltitude() PURE_VIRTUAL(UMeteoSwissWeatherDataProvider::GetMeasurementAltitude(), return 0.0f;);
+
 	/** Returns the climate Data at the given cell. */
 	virtual FClimateData GetInterpolatedClimateData(const FDateTime& TimeStamp, int IndexX, int IndexY) PURE_VIRTUAL(USimulationWeatherDataProviderBase::GetInterpolatedClimateData, return FClimateData(););
 

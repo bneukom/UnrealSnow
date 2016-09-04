@@ -22,9 +22,9 @@ class SNOWSIMULATION_API USimulationBase : public UObject
 	GENERATED_BODY()
 
 protected:
+	int32 CellsDimensionX;
 
-	int32 CellsDimension;
-
+	int32 CellsDimensionY;
 public:
 
 	/**
@@ -40,12 +40,9 @@ public:
 	/**
 	* Runs the simulation on the given cells until the given end time is reached.
 	* @param SimulationActor	the actor
-	* @param Data				input data used for the simulation
-	* @param StartTime			Start of the simulation
-	* @param EndTime			End of the simulation
-	* @param TimeStepHours		Time step of the simulation in hours
+	* @param TimeStep		Time step of the simulation in hours
 	*/
-	virtual void Simulate(ASnowSimulationActor* SimulationActor, int32 TimeStep) PURE_VIRTUAL(USimulationBase::Simulate, ;);
+	virtual void Simulate(ASnowSimulationActor* SimulationActor, int32 Time, int32 Timesteps) PURE_VIRTUAL(USimulationBase::Simulate, ;);
 
 	/** Renders debug information of the simulation every tick. */
 	virtual void RenderDebug(UWorld* World, int CellDebugInfoDisplayDistance, EDebugVisualizationType VisualizationType) PURE_VIRTUAL(USimulationBase::RenderDebug, ;);

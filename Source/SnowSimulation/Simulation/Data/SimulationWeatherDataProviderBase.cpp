@@ -7,8 +7,8 @@ FClimateData USimulationWeatherDataProviderBase::GetInterpolatedClimateData(cons
 {
 	const ASnowSimulationActor* Owner = Cast<ASnowSimulationActor>(GetOwner());
 
-	const float CellSizeX = Owner->OverallResolution * Owner->LandscapeScale.X / Owner->CellsDimension;
-	const float CellSizeY = Owner->OverallResolution * Owner->LandscapeScale.Y / Owner->CellsDimension;
+	const float CellSizeX = Owner->OverallResolutionX * Owner->LandscapeScale.X / Owner->CellsDimensionX;
+	const float CellSizeY = Owner->OverallResolutionY * Owner->LandscapeScale.Y / Owner->CellsDimensionY;
 
 	const int32 IndexX = static_cast<int32>(Position.X / CellSizeX);
 	const int32 IndexY = static_cast<int32>(Position.Y / CellSizeY);

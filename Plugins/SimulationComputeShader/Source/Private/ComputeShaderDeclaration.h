@@ -8,7 +8,7 @@
 BEGIN_UNIFORM_BUFFER_STRUCT(FComputeShaderConstantParameters, )
 DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(int, TotalSimulationHours)
 DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(int, ClimateDataDimension)
-DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(int, CellsDimension)
+DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(int, CellsDimensionX)
 DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, ThreadGroupCountX)
 DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, ThreadGroupCountY)
 DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, TSnowA)
@@ -17,12 +17,15 @@ DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, TMeltA)
 DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, TMeltB)
 DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, k_e)
 DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, k_m)
+DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, MeasurementAltitude)
 END_UNIFORM_BUFFER_STRUCT(FComputeShaderConstantParameters)
 
 // This buffer is for variables that change very often (each frame for example)
 BEGIN_UNIFORM_BUFFER_STRUCT(FComputeShaderVariableParameters, )
 DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(int, CurrentSimulationStep)
+DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(int, Timesteps)
 DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(int, DayOfYear)
+DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(int, HourOfDay)
 END_UNIFORM_BUFFER_STRUCT(FComputeShaderVariableParameters)
 
 typedef TUniformBufferRef<FComputeShaderConstantParameters> FComputeShaderConstantParametersRef;
@@ -67,6 +70,7 @@ public:
 
 	// This function is required to bind our constant / uniform buffers to the shader.
 	void SetUniformBuffers(FRHICommandList& RHICmdList, FComputeShaderConstantParameters& ConstantParameters, FComputeShaderVariableParameters& VariableParameters);
+	
 	// This is used to clean up the buffer binds after each invocation to let them be changed and used elsewhere if needed.
 	void UnbindBuffers(FRHICommandList& RHICmdList);
 

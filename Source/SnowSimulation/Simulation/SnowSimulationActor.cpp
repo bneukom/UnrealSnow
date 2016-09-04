@@ -56,15 +56,26 @@ void ASnowSimulationActor::Tick(float DeltaTime)
 		CurrentSleepTime = 0;
 
 		// Simulate next step
-		Simulation->Simulate(this, CurrentSimulationStep);
+		Simulation->Simulate(this, CurrentSimulationStep, Timesteps);
 
 		// Update the snow material to reflect changes from the simulation
 		UpdateMaterialTexture();
 		SetScalarParameterValue(Landscape, TEXT("MaxSnow"), Simulation->GetMaxSnow());
 			
 		// Update timestep
-		CurrentSimulationTime += FTimespan(1, 0, 0);
-		CurrentSimulationStep++;
+		CurrentSimulationTime += FTimespan(Timesteps, 0, 0);
+		CurrentSimulationStep += Timesteps;
+
+		// Take screenshot
+		if (SaveSimulationFrames)
+		{
+
+			FString FileName = "simulation_" + FString::FromInt(CurrentSimulationTime.GetYear()) + "_"
+				+ FString::FromInt(CurrentSimulationTime.GetMonth()) + "_" + FString::FromInt(CurrentSimulationTime.GetDay()) + "_"
+				+ FString::FromInt(CurrentSimulationTime.GetHour()) + ".png";
+
+			FScreenshotRequest::RequestScreenshot(FileName, false, false);
+		}
 	}
 
 	// Render debug information
@@ -112,23 +123,29 @@ void ASnowSimulationActor::Initialize()
 		if (Landscape)
 		{
 			auto& LandscapeComponents = Landscape->LandscapeComponents;
+			auto NumLandscapes = Landscape->LandscapeComponents.Num();
+			auto LastLandscapeComponent = Landscape->LandscapeComponents[NumLandscapes - 1];
+			int32 NumComponentsX = LastLandscapeComponent->SectionBaseX / LastLandscapeComponent->ComponentSizeQuads + 1;
+			int32 NumComponentsY = LastLandscapeComponent->SectionBaseY / LastLandscapeComponent->ComponentSizeQuads + 1;
 
-			LandscapeSizeQuads = FMath::Sqrt(LandscapeComponents.Num() * (Landscape->ComponentSizeQuads) * (Landscape->ComponentSizeQuads));
-			CellsDimension = LandscapeSizeQuads / CellSize - 1; // -1 because we create cells and use 4 vertices
-			NumCells = CellsDimension * CellsDimension;
-			OverallResolution = Landscape->SubsectionSizeQuads * FMath::Sqrt(LandscapeComponents.Num());
+			OverallResolutionX = Landscape->SubsectionSizeQuads * Landscape->NumSubsections * NumComponentsX + 1;
+			OverallResolutionY = Landscape->SubsectionSizeQuads * Landscape->NumSubsections * NumComponentsY + 1;
+
+			CellsDimensionX = OverallResolutionX / CellSize - 1; // -1 because we create cells and use 4 vertices
+			CellsDimensionY = OverallResolutionY / CellSize - 1; // -1 because we create cells and use 4 vertices
+			NumCells = CellsDimensionX * CellsDimensionY;
 
 			UE_LOG(SimulationLog, Display, TEXT("Num components: %d"), LandscapeComponents.Num());
 			UE_LOG(SimulationLog, Display, TEXT("Num subsections: %d"), Landscape->NumSubsections);
 			UE_LOG(SimulationLog, Display, TEXT("SubsectionSizeQuads: %d"), Landscape->SubsectionSizeQuads);
 			UE_LOG(SimulationLog, Display, TEXT("ComponentSizeQuads: %d"), Landscape->ComponentSizeQuads);
-			UE_LOG(SimulationLog, Display, TEXT("LandscapeSizeQuads: %d"), LandscapeSizeQuads);
 		}
 
-
 		// Update shader
-		SetScalarParameterValue(Landscape, TEXT("CellsDimension"), CellsDimension);
-		SetScalarParameterValue(Landscape, TEXT("Resolution"), OverallResolution);
+		SetScalarParameterValue(Landscape, TEXT("CellsDimensionX"), CellsDimensionX);
+		SetScalarParameterValue(Landscape, TEXT("CellsDimensionY"), CellsDimensionY);
+		SetScalarParameterValue(Landscape, TEXT("ResolutionX"), OverallResolutionX);
+		SetScalarParameterValue(Landscape, TEXT("ResolutionY"), OverallResolutionY);
 	}
 }
 
@@ -138,7 +155,7 @@ void ASnowSimulationActor::UpdateMaterialTexture()
 	if (WriteDebugTextures)
 	{
 		auto SnowMapPath = DebugTexturePath + "\\SnowMap";
-		FFileHelper::CreateBitmap(*SnowMapPath, CellsDimension, CellsDimension, Simulation->GetSnowMapTextureData().GetData());
+		FFileHelper::CreateBitmap(*SnowMapPath, CellsDimensionX, CellsDimensionY, Simulation->GetSnowMapTextureData().GetData());
 	}
 	SetTextureParameterValue(Landscape, TEXT("SnowMap"), SnowMapTexture, GEngine);
 }

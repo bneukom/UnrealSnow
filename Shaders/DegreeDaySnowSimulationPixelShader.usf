@@ -23,7 +23,7 @@ void MainPixelShader(
 	)
 {
 	int2 coord = int2(uv.x, uv.y);
-	int snowBufferIndex = coord.x + SimulationPSConstants.CellsDimension * coord.y;
+	int snowBufferIndex = coord.x + SimulationPSConstants.CellsDimensionX * coord.y;
 	float maxSnow = (float)MaxSnowInputBuffer[0] / UINT_FLOAT_SCALE;
 
 	float snowAmount = (float)SnowInputBuffer[snowBufferIndex] / maxSnow;

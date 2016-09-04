@@ -40,7 +40,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input", DisplayName = "P_WW")
 	/** Probability of a wet hour given the previous hour was wet. */
-	float P_WW = 0.6f;
+	float P_WW = 0.75f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	/** Number of measuring stations per dimension. */
