@@ -1,27 +1,40 @@
 # Unreal Terrain Snow Simulation
-Snow simulation for large terrains which runs in real-time on the GPU. The simulation is based on the paper [Geospecific rendering of alpine terrain](https://www.cs.utah.edu/~thompson/publications/Premoze:1999:GRA.pdf) by Simon Premoze et al. with several changes. 
+Snow simulation for large terrains which runs in real-time on the GPU. The simulation is based on the paper [Geospecific rendering of alpine terrain](https://www.cs.utah.edu/~thompson/publications/Premoze:1999:GRA.pdf) by Simon Premoze et al. with several changes.
+
+There are two implementations available of the simulation. The GPU implementation which uses a Compute Shader and an implementation which runs on the CPU. The simulations write the amount of snow into a texture which is then used by the Landscape rendering Blueprint.
 
 # How to Use
 
-The main Actor used by the simulation is the 
+The main Actor used by the simulation is the [SnowSimulationActor](https://github.com/bneukom/snowsimulation/blob/master/Source/SnowSimulation/Simulation/SnowSimulationActor.cpp).
 
 ## Digital Elevation Model
-The first step is importing a digital elevation model. An easy way to generate an artificial digital is to use a tool such as ![World Machine](http://www.world-machine.com/). See https://wiki.unrealengine.com/World_Machine_to_Unreal_Engine_4_-_In_Depth_Guide for a guide on how to import a digital elevation model into the Unreal Engine.
+The first step is importing a digital elevation model. An easy way to generate an artificial digital is to use a tool such as [World Machine](http://www.world-machine.com/). See https://wiki.unrealengine.com/World_Machine_to_Unreal_Engine_4_-_In_Depth_Guide for a guide on how to import a digital elevation model into the Unreal Engine.
 
-## Weather Data
+## Climate Data
 
-# Implementation Details
+Climate data is globally available and comes in various data formats. Currently supported sources are:
 
-There are two implementations available of the simulation. The GPU implementation which uses a Compute Shader and an implementation which runs on the CPU. The simulations write the amount of snow into a texture which is then used by the Landscape rendering Blueprint.
+1. MeteoSwiss
+2. WorldClim
+3. Stochastic Weather Generator
+   The stochastic weather generator 
+
+If additional climate data imports are needed the interface [USimulationWeatherDataProviderBase](https://github.com/bneukom/snowsimulation/blob/master/Source/SnowSimulation/Simulation/Data/SimulationWeatherDataProviderBase.h) can be extended.
+
+
 
 # TODO
 
 1. Fix GPU bugs with rendering target
 2. Improve statistical weather generator
 
-   The statistical weather generator is only able to generate weather data for a single location. It should be updated to be able to generate weather data for larger scales. An approach for this
+   The statistical weather generator is only able to generate weather data for a single site. It should be updated to be able to generate weather data for multiple sites. This could be achieved by using 
+   
+3. Fix interpolation for multiple climate data sites
 
 # Screenshots
+
+Some results of the simulations:
 
 ![snow comparison](http://i.imgur.com/fou2hOm.jpg)
 
