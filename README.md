@@ -17,6 +17,7 @@ Climate data is globally available and comes in various data formats. Currently 
 1. MeteoSwiss
 2. WorldClim
 3. Stochastic Weather Generator
+
    The stochastic weather generator uses a two state markov chain to simulate temperature and precipitation as described in *Stochastic simulation of daily precipitation, temperature, and solar radiation* by Richardson.
 
 If additional climate data imports are needed the interface [USimulationWeatherDataProviderBase](https://github.com/bneukom/snowsimulation/blob/master/Source/SnowSimulation/Simulation/Data/SimulationWeatherDataProviderBase.h) can be extended.
