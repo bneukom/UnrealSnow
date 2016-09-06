@@ -28,13 +28,13 @@ If additional climate data imports are needed the interface [USimulationWeatherD
 
 # Future Work
 
-1. Update stochastich weather generator to work with multiple sites
-2. Update simulation to work with level streaming
-3. LOD for snow simulation
+- Update stochastich weather generator to work with multiple sites
+- Update simulation to work with level streaming
+- LOD for snow simulation
 
 # Screenshots
 
-Some results of the simulations:
+Some results of the simulation. For these screenshots a 2 meter resolution digital elevation model and 2.5 meter resolution orthoimage were used.
 
 ![snow comparison](http://i.imgur.com/fou2hOm.jpg)
 
