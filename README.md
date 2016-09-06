@@ -12,7 +12,7 @@ The first step is importing a digital elevation model. An easy way to generate a
 ## Simulation Actor
 
 The main Actor used by the simulation is the [SnowSimulationActor](https://github.com/bneukom/snowsimulation/blob/master/Source/SnowSimulation/Simulation/SnowSimulationActor.cpp).
-In the construction script of the SnowSimulationActor the simulation type must be set (as can be seen in the B_SnowSimulationActor Blueprint). The Simulation Actor uses the first Landscape Actor in the scene for the simulation.
+In the construction script of the SnowSimulationActor the simulation type (CPU/GPU) must be set (as can be seen in the B_SnowSimulationActor Blueprint). The Simulation Actor uses the first Landscape Actor in the scene for the simulation.
 
 ## Climate Data
 
@@ -25,6 +25,12 @@ Furthermore the SnowSimulationActor needs a climate data provider component. Cli
    The stochastic weather generator uses a two state markov chain to simulate temperature and precipitation as described in *Stochastic simulation of daily precipitation, temperature, and solar radiation* by Richardson.
 
 If additional climate data imports are needed the interface [USimulationWeatherDataProviderBase](https://github.com/bneukom/snowsimulation/blob/master/Source/SnowSimulation/Simulation/Data/SimulationWeatherDataProviderBase.h) can be extended.
+
+# Future Work
+
+1. Update stochastich weather generator to work with multiple sites
+2. Update simulation to work with level streaming
+3. LOD for snow simulation
 
 # Screenshots
 
