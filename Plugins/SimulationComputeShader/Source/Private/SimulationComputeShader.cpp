@@ -1,6 +1,7 @@
 
 #include "ComputeShaderPrivatePCH.h"
 #include "WeatherData.h"
+#include "CellDebugInformation.h"
 
 
 #define NUM_THREADS_PER_GROUP_DIMENSION 4 // This has to be the same as in the compute shaders spec [X, X, 1]
@@ -65,46 +66,49 @@ void FSimulationComputeShader::Initialize(
 	VariableParameters = FComputeShaderVariableParameters();
 }
 
-void FSimulationComputeShader::ExecuteComputeShader(int CurrentSimulationStep, int32 Timesteps)
+void FSimulationComputeShader::ExecuteComputeShader(int CurrentTimeStep, int32 Timesteps, int HourOfDay, bool CaptureDebugInformation, TArray<FDebugCellInformation>& CellDebugInformation)
 {
 	// Skip this execution round if we are already executing
 	if (IsUnloading || IsComputeShaderExecuting) return;
 
 	IsComputeShaderExecuting = true;
 
-	// Now set our runtime parameters
-	VariableParameters.CurrentSimulationStep = CurrentSimulationStep;
+	// Set the variable parameters
+	VariableParameters.HourOfDay = HourOfDay;
+	VariableParameters.CurrentSimulationStep = CurrentTimeStep;
 	VariableParameters.Timesteps = Timesteps;
 
 	// This macro sends the function we declare inside to be run on the render thread. What we do is essentially just send this class and tell the render thread to run the internal render function as soon as it can.
 	// I am still not 100% Certain on the thread safety of this, if you are getting crashes, depending on how advanced code you have in the start of the ExecutePixelShader function, you might have to use a lock :)
-	ENQUEUE_UNIQUE_RENDER_COMMAND_ONEPARAMETER(
+	ENQUEUE_UNIQUE_RENDER_COMMAND_THREEPARAMETER(
 		FComputeShaderRunner,
-		FSimulationComputeShader*, ComputeShader, this, 
+		FSimulationComputeShader*, ComputeShader, this,
+		bool, CaptureDebugInformation, CaptureDebugInformation,
+		TArray<FDebugCellInformation>&, CellDebugInformation, CellDebugInformation,
 		{
-			ComputeShader->ExecuteComputeShaderInternal();
+			ComputeShader->ExecuteComputeShaderInternal(CaptureDebugInformation, CellDebugInformation);
 		}
 	);
 }
 
-void FSimulationComputeShader::ExecuteComputeShaderInternal()
+void FSimulationComputeShader::ExecuteComputeShaderInternal(bool CaptureDebugInformation, TArray<FDebugCellInformation>& DebugInformation)
 {
 	check(IsInRenderingThread());
 
 	// If we are about to unload, so just clean up the UAV
 	if (IsUnloading)
 	{
-		if (NULL != TextureUAV)
+		if (TextureUAV != NULL)
 		{
 			TextureUAV.SafeRelease();
 			TextureUAV = NULL;
 		}
-		if (NULL != SimulationCellsBuffer)
+		if (SimulationCellsBuffer != NULL)
 		{
 			SimulationCellsBuffer->Release();
 			delete SimulationCellsBuffer;
 		}
-		if (NULL != MaxSnowBuffer)
+		if (MaxSnowBuffer != NULL)
 		{
 			MaxSnowBuffer->Release();
 			delete MaxSnowBuffer;
@@ -119,8 +123,6 @@ void FSimulationComputeShader::ExecuteComputeShaderInternal()
 	TShaderMapRef<FComputeShaderDeclaration> ComputeShader(GetGlobalShaderMap(FeatureLevel));
 	
 	RHICmdList.SetComputeShader(ComputeShader->GetComputeShader());
-
-	
 
 	// Set inputs/outputs and dispatch compute shader
 	ComputeShader->SetParameters(RHICmdList, TextureUAV, SimulationCellsBuffer->UAV, ClimateDataBuffer->UAV, SnowOutputBuffer->UAV, MaxSnowBuffer->UAV);
@@ -156,15 +158,18 @@ void FSimulationComputeShader::ExecuteComputeShaderInternal()
 	IsComputeShaderExecuting = false;
 
 	// Copy results from the GPU
+	if (CaptureDebugInformation)
+	{
+		TArray<FComputeShaderSimulationCell> SimulationCells;
+		SimulationCells.Reserve(NumCells);
+		SimulationCells.AddUninitialized(NumCells);
+		uint32* CellsBuffer = (uint32*)RHICmdList.LockStructuredBuffer(SimulationCellsBuffer->Buffer, 0, SimulationCellsBuffer->NumBytes, RLM_ReadOnly);
+		FMemory::Memcpy(SimulationCells.GetData(), CellsBuffer, SimulationCellsBuffer->NumBytes);
+		RHICmdList.UnlockStructuredBuffer(SimulationCellsBuffer->Buffer);
+
+	}
+
 #if DEBUG_GPU_RESULT
-	TArray<FComputeShaderSimulationCell> SimulationCells;
-	SimulationCells.Reserve(NumCells);
-	SimulationCells.AddUninitialized(NumCells);
-	uint32* CellsBuffer = (uint32*)RHICmdList.LockStructuredBuffer(SimulationCellsBuffer->Buffer, 0, SimulationCellsBuffer->NumBytes, RLM_ReadOnly);
-	FMemory::Memcpy(SimulationCells.GetData(), CellsBuffer, SimulationCellsBuffer->NumBytes);
-	RHICmdList.UnlockStructuredBuffer(SimulationCellsBuffer->Buffer);
-
-
 	// Log max snow
 	TArray<float> SnowArray;
 	SnowArray.Reserve(NumCells);

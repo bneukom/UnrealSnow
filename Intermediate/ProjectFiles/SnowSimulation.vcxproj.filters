@@ -382,6 +382,9 @@
     <ClInclude Include="..\..\Source\SnowSimulation\Spectator\MovementPawn.h">
       <Filter>Source\SnowSimulation\Spectator</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Plugins\SimulationComputeShader\Source\Public\CellDebugInformation.h">
+      <Filter>Plugins\SimulationComputeShader\Source\Public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source\SnowSimulation\Simulation\Data\MeteoSwiss">

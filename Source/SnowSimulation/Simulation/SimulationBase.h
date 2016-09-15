@@ -5,8 +5,8 @@
 #include "Array.h"
 #include "DateTime.h"
 #include "Data/SimulationWeatherDataProviderBase.h"
+#include "CellDebugInformation.h"
 #include "SimulationBase.generated.h"
-
 
 // Forward declarations
 class ASnowSimulationActor;
@@ -22,10 +22,21 @@ class SNOWSIMULATION_API USimulationBase : public UObject
 	GENERATED_BODY()
 
 protected:
+	/** Number of cells in x direction. */
 	int32 CellsDimensionX;
 
+	/** Number of cells in y direction. */
 	int32 CellsDimensionY;
+
+	/** Whether debug information should be captured during the simulation. */
+	bool CaptureDebugInformation;
 public:
+
+	/** Starts capturing debug information. */
+	void startCaptureDebugInformation() { CaptureDebugInformation = true; }
+
+	/** Stops capturing debug information. */
+	void stopCaptureDebugInformation() { CaptureDebugInformation = false; }
 
 	/**
 	* Returns the name of the simulation.
@@ -55,6 +66,11 @@ public:
 
 	/** Returns the snow map texture data array. */
 	virtual TArray<FColor> GetSnowMapTextureData() PURE_VIRTUAL(USimulationBase::GetSnowMapTextureData, return TArray<FColor>(););
+
+	/** Returns debug information for the cells. Only gets called after #startCaptureDebugInformation(). */
+	virtual TArray<FDebugCellInformation> GetCellDebugInformation() PURE_VIRTUAL(USimulationBase::GetCellDebugInformation, return TArray<FDebugCellInformation>(););
+
+
 };
 
 

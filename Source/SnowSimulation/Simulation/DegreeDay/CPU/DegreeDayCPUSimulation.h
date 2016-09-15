@@ -45,7 +45,7 @@ struct SNOWSIMULATION_API FSimulationCell
 	const float Latitude;
 
 	/** Snow water equivalent (SWE) as the mass of water stored in liters. */
-	float SnowWaterEquivalent = 0;
+	float SnowWaterEquivalent;
 
 	/** Snow water equivalent (SWE) after interpolation according to Blöschl. */
 	float InterpolatedSnowWaterEquivalent = 0;
@@ -78,11 +78,11 @@ struct SNOWSIMULATION_API FSimulationCell
 	}
 
 	FSimulationCell() : Index(0), P1(FVector::ZeroVector), P2(FVector::ZeroVector), P3(FVector::ZeroVector), P4(FVector::ZeroVector),
-		Normal(FVector::ZeroVector), Area(0), AreaXY(0), Centroid(FVector::ZeroVector), Altitude(0), Aspect(0), Inclination(0), Latitude(0) {}
+		Normal(FVector::ZeroVector), Area(0), AreaXY(0), Centroid(FVector::ZeroVector), Altitude(0), Aspect(0), Inclination(0), Latitude(0), SnowWaterEquivalent(0) {}
 
 	FSimulationCell(
 		int Index, FVector& p1, FVector& p2, FVector& p3, FVector& p4, FVector& Normal,
-		float Area, float AreaXY, FVector Centroid, float Altitude, float Aspect, float Inclination, float Latitude) :
+		float Area, float AreaXY, FVector Centroid, float Altitude, float Aspect, float Inclination, float Latitude, float SWE) :
 		Index(Index), P1(p1), P2(p2), P3(p3), P4(p4), Normal(Normal),
 		Area(Area), AreaXY(AreaXY),
 		Centroid(Centroid),
@@ -116,7 +116,12 @@ private:
 	/** The maximum snow amount (mm) of the current time step. */
 	float MaxSnow;
 
-	// @TODO Degrees or radians?
+	/** Number of cells in x direction. */
+	int32 CellsDimensionX;
+
+	/** Number of cells in x direction. */
+	int32 CellsDimensionY;
+
 	/**
 	* Calculates the solar radiation as described in Swifts "Algorithm for Solar Radiation on Mountain Slopes".
 	*

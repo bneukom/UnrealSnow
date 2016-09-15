@@ -5,8 +5,8 @@
 #include "SimulationComputeShader.h"
 #include "Simulation/DegreeDay/DegreeDaySimulation.h"
 #include "SnowSimulation/Simulation/SimulationBase.h"
+#include "CellDebugInformation.h"
 #include "DegreeDayGPUSimulation.generated.h"
-
 
 
 /**
@@ -24,6 +24,8 @@ private:
 	FSimulationPixelShader* SimulationPixelShader;
 
 	UTextureRenderTarget2D* RenderTarget;
+
+	TArray<FDebugCellInformation> CellDebugInformation;
 
 	/**
 	* Returns the cell at the given index or nullptr if the index is out of bounds.

@@ -11,7 +11,7 @@ FString UDegreeDayGPUSimulation::GetSimulationName()
 
 void UDegreeDayGPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, int32 CurrentSimulationStep, int32 Timesteps)
 {
-	SimulationComputeShader->ExecuteComputeShader(CurrentSimulationStep, Timesteps);
+	SimulationComputeShader->ExecuteComputeShader(CurrentSimulationStep, Timesteps, SimulationActor->CurrentSimulationTime.GetHour(), CaptureDebugInformation, CellDebugInformation);
 	SimulationPixelShader->ExecutePixelShader(RenderTarget);
 }
 
@@ -29,6 +29,8 @@ void UDegreeDayGPUSimulation::Initialize(ASnowSimulationActor* SimulationActor, 
 	CellsDimensionY = SimulationActor->CellsDimensionY;
 	int32 NumCells = SimulationActor->NumCells;
 
+	CellDebugInformation.SetNumUninitialized(CellsDimensionX * CellsDimensionY);
+
 	TArray<FVector> CellWorldVertices;
 	CellWorldVertices.SetNumUninitialized(ResolutionX * ResolutionY);
 
@@ -44,7 +46,6 @@ void UDegreeDayGPUSimulation::Initialize(ASnowSimulationActor* SimulationActor, 
 				CellWorldVertices[Component->SectionBaseX + X + ResolutionX * Y + Component->SectionBaseY * ResolutionX] = LandscapeData.GetWorldVertex(X, Y);
 			}
 		}
-		// @TODO insert vertices at the very end which are currently not added because we are only iterating over Quads
 	}
 
 	// Create Cells
@@ -111,8 +112,6 @@ void UDegreeDayGPUSimulation::Initialize(ASnowSimulationActor* SimulationActor, 
 	auto Scale = SimulationActor->LandscapeScale;
 	const float L = SimulationActor->LandscapeScale.X / 100 * SimulationActor->CellSize;
 
-	float MinCurvature = 1e6;
-	float MaxCurvatere = 0;
 	for (int32 CellIndexY = 0; CellIndexY < CellsDimensionY; ++CellIndexY)
 	{
 		for (int32 CellIndexX = 0; CellIndexX < CellsDimensionX; ++CellIndexX)
@@ -146,8 +145,6 @@ void UDegreeDayGPUSimulation::Initialize(ASnowSimulationActor* SimulationActor, 
 			float D = ((Z4 + Z6) / 2 - Z5) / (L * L);
 			float E = ((Z2 + Z8) / 2 - Z5) / (L * L);
 			Cell.Curvature = 2 * (D + E);
-			MinCurvature = FMath::Min(MinCurvature, Cell.Curvature);
-			MaxCurvatere = FMath::Max(MaxCurvatere, Cell.Curvature);
 		}
 	}
 

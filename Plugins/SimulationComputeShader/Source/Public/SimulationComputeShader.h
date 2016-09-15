@@ -4,6 +4,7 @@
 #include "Private/ComputeShaderDeclaration.h"
 #include "WeatherData.h"
 #include "RWStructuredBuffer.h"
+#include "CellDebugInformation.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(SnowComputeShader, Log, All);
 
@@ -28,12 +29,12 @@ public:
 	* Run this to execute the compute shader once!
 	* @param TotalElapsedTimeSeconds - We use this for simulation state 
 	*/
-	void ExecuteComputeShader(int CurrentTimeStep, int32 Timesteps);
+	void ExecuteComputeShader(int CurrentTimeStep, int32 Timesteps, int HourOfDay, bool CaptureDebugInformation, TArray<FDebugCellInformation>& DebugInformation);
 
 	/**
 	* Only execute this from the render thread.
 	*/
-	void ExecuteComputeShaderInternal();
+	void ExecuteComputeShaderInternal(bool CaptudeDebugInformation, TArray<FDebugCellInformation>& DebugInformation);
 
 	/** 
 	* Returns the maximum snow of the last execution.
@@ -68,7 +69,7 @@ private:
 	/** Temperature data for the simulation. */
 	FRWStructuredBuffer* ClimateDataBuffer;
 
-	/** Maximum snow. */
+	/** Maximum snow buffer. */
 	FRWStructuredBuffer* MaxSnowBuffer;
 	float MaxSnow;
 
