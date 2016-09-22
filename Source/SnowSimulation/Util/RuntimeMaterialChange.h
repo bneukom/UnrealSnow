@@ -3,6 +3,7 @@
 #include "Materials/MaterialInstance.h"
 #include "Engine/Engine.h"
 #include "Private/Materials/MaterialInstanceSupport.h"
+#include "LandscapeComponent.h"
 
 /**
 * Start of code taken from MaterialInstance.cpp
@@ -98,7 +99,7 @@ void SetVectorParameterValue(ALandscapeProxy* Landscape, FName ParameterName, FL
 		}
 	}
 }
-void SetTextureParameterValue(ALandscapeProxy* Landscape, FName ParameterName, UTexture* Value, UEngine* GEngine)
+void SetTextureParameterValue(ALandscapeProxy* Landscape, FName ParameterName, UTexture* Value, UEngine* Engine)
 {
 	if (Landscape)
 	{
@@ -121,7 +122,7 @@ void SetTextureParameterValue(ALandscapeProxy* Landscape, FName ParameterName, U
 						ParameterValue->ParameterName = ParameterName;
 						ParameterValue->ExpressionGUID.Invalidate();
 						// Force an update on first use
-						ParameterValue->ParameterValue = Value == GEngine->DefaultDiffuseTexture ? NULL : GEngine->DefaultDiffuseTexture;
+						ParameterValue->ParameterValue = Value == Engine->DefaultDiffuseTexture ? NULL : Engine->DefaultDiffuseTexture;
 					}
 
 					// Don't enqueue an update if it isn't needed

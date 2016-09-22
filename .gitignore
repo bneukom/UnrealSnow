@@ -78,3 +78,4 @@ DerivedDataCache/*
 # Maps
 *.umap
 Content/Maps/*
+Content\Maps\*

@@ -25,7 +25,7 @@ FSimulationComputeShader::~FSimulationComputeShader()
 void FSimulationComputeShader::Initialize(
 	TResourceArray<FComputeShaderSimulationCell>& Cells, TResourceArray<FClimateData>& ClimateData, 
 	float k_e, float k_m, float TMeltA, float TMeltB, float TSnowA, float TSnowB, 
-	int32 TotalSimulationHours, int32 CellsDimensionX, int32 CellsDimensionY, int32 ClimateDataDimension, float MeasurementAltitude, float MaxSnow)
+	int32 TotalSimulationHours, int32 CellsDimensionX, int32 CellsDimensionY, int32 ClimateDataDimension, float MeasurementAltitude, float InitialMaxSnow)
 {
 	NumCells = Cells.Num();
 
@@ -43,7 +43,7 @@ void FSimulationComputeShader::Initialize(
 
 	// @TODO use uniform?
 	TResourceArray<uint32> MaxSnowArray;
-	MaxSnowArray.Add(MaxSnow);
+	MaxSnowArray.Add(InitialMaxSnow);
 	MaxSnowBuffer = new FRWStructuredBuffer();
 	MaxSnowBuffer->Initialize(sizeof(uint32), 1, &MaxSnowArray, 0, true, false);
 

@@ -154,6 +154,7 @@ void ASnowSimulationActor::UpdateMaterialTexture()
 	auto SnowMapTexture = Simulation->GetSnowMapTexture();
 	if (WriteDebugTextures)
 	{
+		// @TODO buggy for GPU version
 		auto SnowMapPath = DebugTexturePath + "\\SnowMap";
 		FFileHelper::CreateBitmap(*SnowMapPath, CellsDimensionX, CellsDimensionY, Simulation->GetSnowMapTextureData().GetData());
 	}

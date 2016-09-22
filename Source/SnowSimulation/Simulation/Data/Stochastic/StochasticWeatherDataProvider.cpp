@@ -51,12 +51,12 @@ void UStochasticWeatherDataProvider::Initialize()
 				{
 					// Generate Precipitation noise for each station
 					const float PrecipitationNoiseScale = 0.01;
-					for (int32 Y = 0; Y < Resolution; ++Y)
+					for (int32 NoiseY = 0; NoiseY < Resolution; ++NoiseY)
 					{
-						for (int32 X = 0; X < Resolution; ++X)
+						for (int32 NoiseX = 0; NoiseX < Resolution; ++NoiseX)
 						{
-							float Noise = FMath::Max(USimplexNoiseBPLibrary::SimplexNoiseScaled2D(X * PrecipitationNoiseScale, Y * PrecipitationNoiseScale, 0.9f) + 0.2f, 0.0f);
-							Measurement[X][Y] = Noise;
+							float Noise = FMath::Max(USimplexNoiseBPLibrary::SimplexNoiseScaled2D(NoiseX * PrecipitationNoiseScale, NoiseY * PrecipitationNoiseScale, 0.9f) + 0.2f, 0.0f);
+							Measurement[NoiseX][NoiseY] = Noise;
 						}
 					}
 

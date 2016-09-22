@@ -7,6 +7,7 @@
 #include "SnowSimulation/Simulation/SnowSimulationActor.h"
 #include "Util/TextureUtil.h"
 #include "SnowSimulation/Util/MathUtil.h"
+#include "LandscapeComponent.h"
 
 
 // @TODO Use Fearings stability method for small scale snow?

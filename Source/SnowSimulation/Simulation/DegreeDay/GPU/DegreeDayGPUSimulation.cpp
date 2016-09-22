@@ -3,6 +3,7 @@
 #include "DegreeDayGPUSimulation.h"
 #include "SnowSimulation/Simulation/SnowSimulationActor.h"
 #include "SnowSimulation/Util/MathUtil.h"
+#include "LandscapeComponent.h"
 
 FString UDegreeDayGPUSimulation::GetSimulationName()
 {

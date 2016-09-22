@@ -16,9 +16,9 @@ TResourceArray<FClimateData>* UMeteoSwissWeatherDataProvider::CreateRawClimateDa
 	TResourceArray<FClimateData>* ClimateDataResourceArray = new TResourceArray<FClimateData>();
 	ClimateDataResourceArray->Reserve(ClimateData.Num());
 
-	for (const FClimateData& ClimateData : ClimateData)
+	for (const FClimateData& Data : ClimateData)
 	{
-		ClimateDataResourceArray->Add(ClimateData);
+		ClimateDataResourceArray->Add(Data);
 	}
 
 	return ClimateDataResourceArray;
