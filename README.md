@@ -1,7 +1,7 @@
 # Unreal Terrain Snow Simulation
 Snow simulation for large terrains which runs in real-time on the GPU. The simulation is based on the paper [Geospecific rendering of alpine terrain](https://www.cs.utah.edu/~thompson/publications/Premoze:1999:GRA.pdf) by Premoze et al. with several changes.
 
-There are two implementations of the simulation available. The GPU implementation which uses a Compute Shader and an implementation which runs on the CPU. The simulations write the amount of snow into a texture which is then used by the landscape rendering Blueprint.
+There are two implementations of the simulation available. The GPU implementation which uses a Compute Shader and an implementation which runs on the CPU. The simulation writes the amount of snow into a texture which is then used by the landscape rendering Blueprint for the snow visualization.
 
 # How to Use
 
@@ -25,6 +25,10 @@ Furthermore the SnowSimulationActor needs a climate data provider component. Cli
    The stochastic weather generator uses a two state markov chain to simulate temperature and precipitation as described in *Stochastic simulation of daily precipitation, temperature, and solar radiation* by Richardson.
 
 If additional climate data imports are needed the interface [USimulationWeatherDataProviderBase](https://github.com/bneukom/snowsimulation/blob/master/Source/SnowSimulation/Simulation/Data/SimulationWeatherDataProviderBase.h) can be extended.
+
+## Simulation
+
+After adding the climate data component the properties of the simulation should be set. The timestep (in hours) as well as the start and end date are the two most important. Debug information can be visualized in the debug category of the simulation actor.
 
 # Future Work
 
