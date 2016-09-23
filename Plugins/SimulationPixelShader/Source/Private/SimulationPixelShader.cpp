@@ -49,8 +49,6 @@ void FSimulationPixelShader::ExecutePixelShader(UTextureRenderTarget2D* RenderTa
 
 	CurrentRenderTarget = RenderTarget;
 
-	//This macro sends the function we declare inside to be run on the render thread. What we do is essentially just send this class and tell the render thread to run the internal render function as soon as it can.
-	//I am still not 100% Certain on the thread safety of this, if you are getting crashes, depending on how advanced code you have in the start of the ExecutePixelShader function, you might have to use a lock :)
 	ENQUEUE_UNIQUE_RENDER_COMMAND_ONEPARAMETER(
 		FPixelShaderRunner,
 		FSimulationPixelShader*, PixelShader, this,
@@ -64,14 +62,14 @@ void FSimulationPixelShader::ExecutePixelShaderInternal()
 {
 	check(IsInRenderingThread());
 
-	if (bIsUnloading) //If we are about to unload, so just clean up the SRV :)
+	// Only cleanup
+	if (bIsUnloading) 
 	{
 		return;
 	}
 
 	FRHICommandListImmediate& RHICmdList = GRHICommandList.GetImmediateCommandList();
 
-	//This is where the magic happens
 	CurrentTexture = CurrentRenderTarget->GetRenderTargetResource()->GetRenderTargetTexture();
 	SetRenderTarget(RHICmdList, CurrentTexture, FTextureRHIRef());
 	RHICmdList.SetBlendState(TStaticBlendState<>::GetRHI());
