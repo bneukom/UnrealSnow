@@ -34,11 +34,15 @@ After adding the climate data component the properties of the simulation should 
 
 - Update stochastich weather generator to work with multiple sites
 - Update simulation to work with level streaming
-- LOD for snow simulation
+- Tessellation level of detail for snow simulation
 
 # Screenshots
 
 Some results of the simulation. For these screenshots a 2 meter resolution digital elevation model and 2.5 meter resolution orthoimage were used.
+
+![mountain without snow](http://i.imgur.com/zj4JuEZ.jpg)
+
+![mountain with snow](http://i.imgur.com/hJl4aBN.jpg)
 
 ![snow comparison](http://i.imgur.com/fou2hOm.jpg)
 
