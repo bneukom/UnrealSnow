@@ -10,10 +10,6 @@ public class SnowSimulationTarget : TargetRules
 		Type = TargetType.Game;
 	}
 
-	//
-	// TargetRules interface.
-	//
-
 	public override void SetupBinaries(
 		TargetInfo Target,
 		ref List<UEBuildBinaryConfiguration> OutBuildBinaryConfigurations,

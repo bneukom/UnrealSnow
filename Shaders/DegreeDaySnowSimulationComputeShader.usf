@@ -119,41 +119,6 @@ float SolarRadiationIndex(float I, float A, float L0, float J, out float T4, out
 	return R4 / R3;
 }
 
-/*
-float GetInterpolatedPrecipitation(int weatherIndexX, int weatherIndexY, int simulationIndexX, int simulationIndexY, int timeStepOffset)
-{
-	int weatherCellSize = SimulationCSConstants.CellsDimension / SimulationCSConstants.ClimateDataDimension;
-
-	int indexX = (int)(simulationIndexX / (float)SimulationCSConstants.CellsDimension * SimulationCSConstants.ClimateDataDimension);
-	int indexY = (int)(simulationIndexY / (float)SimulationCSConstants.CellsDimension * SimulationCSConstants.ClimateDataDimension);
-
-	float gridIndexX = simulationIndexX % (weatherCellSize + 1);
-	float gridIndexY = simulationIndexY % (weatherCellSize + 1);
-
-	int xCellA = indexX;
-	int xCellB = min(indexX + 1, SimulationCSConstants.ClimateDataDimension - 1);
-	int yCellA = indexY;
-	int yCellB = min(indexY + 1, SimulationCSConstants.ClimateDataDimension - 1);
-
-	float aa = WeatherDataBuffer[timeStepOffset + xCellA + SimulationCSConstants.ClimateDataDimension * yCellA].Precipitation;
-	float ab = WeatherDataBuffer[timeStepOffset + xCellA + SimulationCSConstants.ClimateDataDimension * yCellB].Precipitation;
-	float ba = WeatherDataBuffer[timeStepOffset + xCellB + SimulationCSConstants.ClimateDataDimension * yCellA].Precipitation;
-	float bb = WeatherDataBuffer[timeStepOffset + xCellB + SimulationCSConstants.ClimateDataDimension * yCellB].Precipitation;
-
-	float y1 = (1 - gridIndexY / weatherCellSize);
-	float y2 = gridIndexY / weatherCellSize;
-
-	// Bilinear interpolation
-	float lerp1 = y1 * aa + y2 * ab;
-	float lerp2 = y1 * ba + y2 * bb;
-
-	float x1 = (1 - gridIndexX / weatherCellSize);
-	float x2 = gridIndexX / weatherCellSize;
-
-	float precipitation = x1 * lerp1 + x2 * lerp2;
-	return precipitation;
-}
-*/
 
 [numthreads(4, 4, 1)]
 void MainComputeShader(uint3 ThreadId : SV_DispatchThreadID)
@@ -161,16 +126,6 @@ void MainComputeShader(uint3 ThreadId : SV_DispatchThreadID)
 	int cellIndex = ThreadId.x + ThreadId.y * SimulationCSConstants.CellsDimensionX;
 	int cellIndexX = cellIndex % SimulationCSConstants.CellsDimensionX;
 	int cellIndexY = cellIndex / SimulationCSConstants.CellsDimensionX;
-
-	// TODO fix interpolation
-	/*
-	int timeStepOffset = SimulationCSVariables.CurrentSimulationStep * SimulationCSConstants.ClimateDataDimension * SimulationCSConstants.ClimateDataDimension;
-	int weatherIndexX = (float)(cellIndexX / (float)SimulationCSConstants.CellsDimension * SimulationCSConstants.ClimateDataDimension);
-	int weatherIndexY = (float)(cellIndexY / (float)SimulationCSConstants.CellsDimension * SimulationCSConstants.ClimateDataDimension);
-	int weatherIndex = timeStepOffset + weatherIndexX + weatherIndexY * SimulationCSConstants.ClimateDataDimension;
-	
-	float precipitation = GetInterpolatedPrecipitation(weatherIndexX, weatherIndexY, cellIndexX, cellIndexY, timeStepOffset);
-	*/
 
 	SimulationCell cell = SimulationCellsBuffer[cellIndex];
 	float areaSquareMeters = SimulationCellsBuffer[cellIndex].AreaXY / (100 * 100); // m^2

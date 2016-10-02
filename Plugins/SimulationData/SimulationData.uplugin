@@ -1,0 +1,21 @@
+{
+    "PluginFileVersion" : 3,
+	
+	"FriendlyName" : "Snow Simulation",
+	"Version" : 1,
+	"VersionName" : "1.0",
+	"CreatedBy" : "bneukom",
+	"CreatedByURL" : "benjamin.neukom@gmail.com",
+	"EngineVersion" : "4.7.0",
+	"Description" : "Snow simulation.",
+	"Category" : "Programming Rendering.Plugins",
+	
+    "Modules" :
+	[
+		{
+			"Name" : "SimulationData",
+			"Type" : "Runtime",
+			"LoadingPhase" : "PostConfigInit"
+		}
+	]
+}
