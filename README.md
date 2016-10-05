@@ -1,5 +1,5 @@
 # Unreal Terrain Snow Simulation
-Snow simulation for large terrains which runs in real-time on the GPU. The simulation is based on the paper [Geospecific rendering of alpine terrain](https://www.cs.utah.edu/~thompson/publications/Premoze:1999:GRA.pdf) by Premoze et al. with several changes.
+Snow simulation for large terrains which runs in real-time on the GPU. The simulation is based on the paper [Geospecific rendering of alpine terrain](https://www.cs.utah.edu/~thompson/publications/Premoze:1999:GRA.pdf) by Premoze et al. with several additions.
 
 There are two implementations of the simulation available. The GPU implementation which uses a Compute Shader and an implementation which runs on the CPU. The simulation writes the amount of snow into a texture which is then used by the landscape rendering Blueprint for the snow visualization.
 
