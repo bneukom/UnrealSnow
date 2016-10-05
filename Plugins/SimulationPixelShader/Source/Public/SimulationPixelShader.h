@@ -42,12 +42,12 @@ public:
 	* Let the user change render target during runtime if they want to.
 	* @param RenderTarget - This is the output render target
 	*/
-	void ExecutePixelShader(UTextureRenderTarget2D* RenderTarget);
+	void ExecutePixelShader(UTextureRenderTarget2D* RenderTarget, bool SaveSnowMap);
 
 	/**
 	* Only execute this from the render thread
 	*/
-	void ExecutePixelShaderInternal();
+	void ExecutePixelShaderInternal(bool SaveSnowMap);
 
 	/** Initializes the simulation with the correct input data. */
 	void Initialize(FRWStructuredBuffer* SnowBuffer, FRWStructuredBuffer* MaxSnowBuffer, int32 CellsDimensionX, int32 CellsDimensionY);

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "ComputeShaderSimulationCell.h"
+#include "GPUSimulationCell.h"
 #include "Private/ComputeShaderDeclaration.h"
 #include "ClimateData.h"
 #include "RWStructuredBuffer.h"
-#include "CellDebugInformation.h"
+#include "DebugCell.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(SnowComputeShader, Log, All);
 
@@ -21,7 +21,7 @@ public:
 
 	/** Initializes the simulation with the correct input data. */
 	void Initialize(
-		TResourceArray<FComputeShaderSimulationCell>& Cells, TResourceArray<FClimateData>& WeatherData, float k_e, float k_m, 
+		TResourceArray<FGPUSimulationCell>& Cells, TResourceArray<FClimateData>& WeatherData, float k_e, float k_m, 
 		float TMeltA, float TMeltB, float TSnowA, float TSnowB, int32 TotalSimulationHours, 
 		int32 CellsDimensionX, int32 CellsDimensionY,  float MeasurementAltitude, float MaxSnow);
 
@@ -29,12 +29,12 @@ public:
 	* Run this to execute the compute shader once!
 	* @param TotalElapsedTimeSeconds - We use this for simulation state 
 	*/
-	void ExecuteComputeShader(int CurrentTimeStep, int32 Timesteps, int HourOfDay, bool CaptureDebugInformation, TArray<FDebugCellInformation>& DebugInformation);
+	void ExecuteComputeShader(int CurrentTimeStep, int32 Timesteps, int HourOfDay, bool CaptureDebugInformation, TArray<FDebugCell>& DebugInformation);
 
 	/**
 	* Only execute this from the render thread.
 	*/
-	void ExecuteComputeShaderInternal(bool CaptudeDebugInformation, TArray<FDebugCellInformation>& DebugInformation);
+	void ExecuteComputeShaderInternal(bool CaptudeDebugInformation, TArray<FDebugCell>& DebugInformation);
 
 	/** 
 	* Returns the maximum snow of the last execution.

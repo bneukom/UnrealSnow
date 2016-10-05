@@ -6,7 +6,7 @@
 #include "DegreeDayCPUSimulation.generated.h"
 
 
-struct SIMULATION_API FSimulationCell
+struct SIMULATION_API FCPUSimulationCell
 {
 	const FVector P1;
 
@@ -21,7 +21,7 @@ struct SIMULATION_API FSimulationCell
 	const int Index;
 
 	/** Eight neighborhood starting from north. */
-	TArray<FSimulationCell*> Neighbours;
+	TArray<FCPUSimulationCell*> Neighbours;
 
 	/** Area in cm^2. */
 	const float Area;
@@ -56,7 +56,7 @@ struct SIMULATION_API FSimulationCell
 	/** The days since the last snow has fallen on this cell. */
 	float DaysSinceLastSnowfall = 0;
 
-	/** The curvature (second derivative) of the terrain at the given cell. */
+	/** The curvature (second derivative) of the terrain for this cell. */
 	float Curvature = 0.0f;
 
 	/** Returns true if all neighbours have been set (non null). */
@@ -77,10 +77,10 @@ struct SIMULATION_API FSimulationCell
 		return SnowWaterEquivalent / (Area / (100 * 100));
 	}
 
-	FSimulationCell() : Index(0), P1(FVector::ZeroVector), P2(FVector::ZeroVector), P3(FVector::ZeroVector), P4(FVector::ZeroVector),
+	FCPUSimulationCell() : Index(0), P1(FVector::ZeroVector), P2(FVector::ZeroVector), P3(FVector::ZeroVector), P4(FVector::ZeroVector),
 		Normal(FVector::ZeroVector), Area(0), AreaXY(0), Centroid(FVector::ZeroVector), Altitude(0), Aspect(0), Inclination(0), Latitude(0), SnowWaterEquivalent(0) {}
 
-	FSimulationCell(
+	FCPUSimulationCell(
 		int Index, FVector& p1, FVector& p2, FVector& p3, FVector& p4, FVector& Normal,
 		float Area, float AreaXY, FVector Centroid, float Altitude, float Aspect, float Inclination, float Latitude, float SWE) :
 		Index(Index), P1(p1), P2(p2), P3(p3), P4(p4), Normal(Normal),
@@ -105,7 +105,7 @@ class SIMULATION_API UDegreeDayCPUSimulation : public UDegreeDaySimulation
 	GENERATED_BODY()
 private:
 	/** The cells this simulation uses. */
-	TArray<FSimulationCell> Cells;
+	TArray<FCPUSimulationCell> Cells;
 
 	/** The snow mask used by the landscape material. */
 	UTexture2D* SnowMapTexture;
@@ -115,12 +115,6 @@ private:
 
 	/** The maximum snow amount (mm) of the current time step. */
 	float MaxSnow;
-
-	/** Number of cells in x direction. */
-	int32 CellsDimensionX;
-
-	/** Number of cells in x direction. */
-	int32 CellsDimensionY;
 
 	/**
 	* Calculates the solar radiation as described in Swifts "Algorithm for Solar Radiation on Mountain Slopes".
@@ -206,41 +200,17 @@ private:
 			FMath::Cos(D) * FMath::Cos(W) * (FMath::Sin(X + V) - FMath::Sin(Y + V)) * (12 / PI));
 	}
 
-	/**
-	* Returns the cell at the given x and y position or a nullptr if the indices are out of bounds.
-	*
-	* @param X
-	* @param Y
-	* @return the cell at the given x and y position or a nullptr if the indices are out of bounds.
-	*/
-	FSimulationCell* GetCellChecked(int X, int Y)
-	{
-		return GetCellChecked(X + Y * CellsDimensionX);
-	}
-
-	/**
-	* Returns the cell at the given index or nullptr if the index is out of bounds.
-	*
-	* @param Index the index of the cell
-	* @return the cell at the given index or nullptr if the index is out of bounds
-	*/
-	FSimulationCell* GetCellChecked(int Index)
-	{
-		return (Index >= 0 && Index < Cells.Num()) ? &Cells[Index] : nullptr;
-	}
 
 public:
 	virtual FString GetSimulationName() override final;
 
-	virtual void Simulate(ASnowSimulationActor* SimulationActor, int32 CurrentSimulationStep, int32 Timesteps) override final;
+	virtual void Simulate(ASnowSimulationActor* SimulationActor, int32 CurrentSimulationStep, int32 Timesteps, bool SaveSnowMap, bool CaptureDebugInformation, TArray<FDebugCell> DebugCells) override final;
 
-	virtual void Initialize(ASnowSimulationActor* SimulationActor, UWorld* World) override final;
+	virtual void Initialize(ASnowSimulationActor* SimulationActor, const TArray<FLandscapeCell>& Cells, float InitialMaxSnow, UWorld* World) override final;
 
 	virtual void RenderDebug(UWorld* World, int CellDebugInfoDisplayDistance, EDebugVisualizationType DebugVisualizationType) override;
 
 	virtual UTexture* GetSnowMapTexture() override final;
-
-	virtual TArray<FColor> GetSnowMapTextureData() override final;
 
 	virtual float GetMaxSnow() override final;
 };

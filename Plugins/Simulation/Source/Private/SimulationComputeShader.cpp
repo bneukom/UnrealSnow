@@ -1,7 +1,7 @@
 
 #include "Simulation.h"
 #include "ClimateData.h"
-#include "CellDebugInformation.h"
+#include "DebugCell.h"
 
 
 #define NUM_THREADS_PER_GROUP_DIMENSION 4 // This has to be the same as in the compute shaders spec [X, X, 1]
@@ -23,7 +23,7 @@ FSimulationComputeShader::~FSimulationComputeShader()
 }
 
 void FSimulationComputeShader::Initialize(
-	TResourceArray<FComputeShaderSimulationCell>& Cells, TResourceArray<FClimateData>& ClimateData, 
+	TResourceArray<FGPUSimulationCell>& Cells, TResourceArray<FClimateData>& ClimateData, 
 	float k_e, float k_m, float TMeltA, float TMeltB, float TSnowA, float TSnowB, 
 	int32 TotalSimulationHours, int32 CellsDimensionX, int32 CellsDimensionY, float MeasurementAltitude, float InitialMaxSnow)
 {
@@ -36,7 +36,7 @@ void FSimulationComputeShader::Initialize(
 
 	// Create input data buffers
 	SimulationCellsBuffer = new FRWStructuredBuffer();
-	SimulationCellsBuffer->Initialize(sizeof(FComputeShaderSimulationCell), CellsDimensionX * CellsDimensionY, &Cells, 0, true, false);
+	SimulationCellsBuffer->Initialize(sizeof(FGPUSimulationCell), CellsDimensionX * CellsDimensionY, &Cells, 0, true, false);
 
 	ClimateDataBuffer = new FRWStructuredBuffer();
 	ClimateDataBuffer->Initialize(sizeof(FClimateData), ClimateData.Num(), &ClimateData, 0, true, false);
@@ -65,7 +65,7 @@ void FSimulationComputeShader::Initialize(
 	VariableParameters = FComputeShaderVariableParameters();
 }
 
-void FSimulationComputeShader::ExecuteComputeShader(int CurrentTimeStep, int32 Timesteps, int HourOfDay, bool CaptureDebugInformation, TArray<FDebugCellInformation>& CellDebugInformation)
+void FSimulationComputeShader::ExecuteComputeShader(int CurrentTimeStep, int32 Timesteps, int HourOfDay, bool CaptureDebugInformation, TArray<FDebugCell>& CellDebugInformation)
 {
 	// Skip this execution round if we are already executing
 	if (IsUnloading || IsComputeShaderExecuting) return;
@@ -83,14 +83,14 @@ void FSimulationComputeShader::ExecuteComputeShader(int CurrentTimeStep, int32 T
 		FComputeShaderRunner,
 		FSimulationComputeShader*, ComputeShader, this,
 		bool, CaptureDebugInformation, CaptureDebugInformation,
-		TArray<FDebugCellInformation>&, CellDebugInformation, CellDebugInformation,
+		TArray<FDebugCell>&, CellDebugInformation, CellDebugInformation,
 		{
 			ComputeShader->ExecuteComputeShaderInternal(CaptureDebugInformation, CellDebugInformation);
 		}
 	);
 }
 
-void FSimulationComputeShader::ExecuteComputeShaderInternal(bool CaptureDebugInformation, TArray<FDebugCellInformation>& DebugInformation)
+void FSimulationComputeShader::ExecuteComputeShaderInternal(bool CaptureDebugInformation, TArray<FDebugCell>& DebugInformation)
 {
 	check(IsInRenderingThread());
 
@@ -159,7 +159,7 @@ void FSimulationComputeShader::ExecuteComputeShaderInternal(bool CaptureDebugInf
 	if (CaptureDebugInformation)
 	{
 		// Copy results from the GPU
-		TArray<FComputeShaderSimulationCell> SimulationCells;
+		TArray<FGPUSimulationCell> SimulationCells;
 		SimulationCells.Reserve(NumCells);
 		SimulationCells.AddUninitialized(NumCells);
 		uint32* CellsBuffer = (uint32*)RHICmdList.LockStructuredBuffer(SimulationCellsBuffer->Buffer, 0, SimulationCellsBuffer->NumBytes, RLM_ReadOnly);
@@ -170,7 +170,6 @@ void FSimulationComputeShader::ExecuteComputeShaderInternal(bool CaptureDebugInf
 		for (auto& Cell : SimulationCells)
 		{
 			float SnowMM = Cell.InterpolatedSWE / (Cell.Area / (100 * 100));
-			DebugInformation.Add(FDebugCellInformation(SnowMM));
 		}
 	}
 

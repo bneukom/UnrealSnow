@@ -4,6 +4,7 @@
 #include "LandscapeDataAccess.h"
 #include "DegreeDayCPUSimulation.h"
 #include "SnowSimulationActor.h"
+#include "GPUSimulationCell.h"
 #include "Util/TextureUtil.h"
 #include "Util/MathUtil.h"
 #include "LandscapeComponent.h"
@@ -19,7 +20,7 @@ FString UDegreeDayCPUSimulation::GetSimulationName()
 }
 
 // Flops per iteration: (2 * 20 + 6 * 2) + (20 * 20 + 38 * 2)
-void UDegreeDayCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, int32 CurrentSimulationStep, int32 Timesteps)
+void UDegreeDayCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, int32 CurrentSimulationStep, int32 Timesteps, bool SaveSnowMap, bool CaptureDebugInformation, TArray<FDebugCell> DebugCells)
 {
 	MaxSnow = 0;
 
@@ -129,129 +130,20 @@ void UDegreeDayCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, in
 	}
 }
 
-void UDegreeDayCPUSimulation::Initialize(ASnowSimulationActor* SimulationActor, UWorld* World)
+void UDegreeDayCPUSimulation::Initialize(ASnowSimulationActor* SimulationActor, const TArray<FLandscapeCell>& LandscapeCells, float InitialMaxSnow, UWorld* World)
 {
-	CellsDimensionX = SimulationActor->CellsDimensionX;
-	CellsDimensionY = SimulationActor->CellsDimensionY;
-
-	// Create cells
-	float ResolutionX = SimulationActor->OverallResolutionX;
-	float ResolutionY = SimulationActor->OverallResolutionY;
-	int CellSize = SimulationActor->CellSize;
-	CellsDimensionX = SimulationActor->CellsDimensionX;
-	CellsDimensionY = SimulationActor->CellsDimensionY;
-	int32 NumCells = SimulationActor->NumCells;
-
-	TArray<FVector> CellWorldVertices;
-	CellWorldVertices.SetNumUninitialized(ResolutionX * ResolutionY);
-
-	auto& LandscapeComponents = SimulationActor->Landscape->LandscapeComponents;
-	for (auto Component : LandscapeComponents)
-	{
-		// @TODO use runtime compatible version
-		FLandscapeComponentDataInterface LandscapeData(Component);
-		for (int32 Y = 0; Y < Component->ComponentSizeQuads; Y++) // not +1 because the vertices are stored twice (first and last)
-		{
-			for (int32 X = 0; X < Component->ComponentSizeQuads; X++) // not +1 because the vertices are stored twice (first and last)
-			{
-				CellWorldVertices[Component->SectionBaseX + X + ResolutionX * Y + Component->SectionBaseY * ResolutionX] = LandscapeData.GetWorldVertex(X, Y);
-			}
-		}
-	}
-
 	// Create Cells
-	int Index = 0;
-	for (int32 Y = 0; Y < CellsDimensionY; Y++)
+	TResourceArray<FGPUSimulationCell> Cells;
+	for (const FLandscapeCell& LandscapeCell : LandscapeCells)
 	{
-		for (int32 X = 0; X < CellsDimensionX; X++)
-		{
-			auto VertexX = X * CellSize;
-			auto VertexY = Y * CellSize;
-			FVector P0 = CellWorldVertices[VertexY * ResolutionX + VertexX];
-			FVector P1 = CellWorldVertices[VertexY * ResolutionX + (VertexX + CellSize)];
-			FVector P2 = CellWorldVertices[(VertexY + CellSize) * ResolutionX + VertexX];
-			FVector P3 = CellWorldVertices[(VertexY + CellSize) * ResolutionX + (VertexX + CellSize)];
-
-			FVector Normal = FVector::CrossProduct(P1 - P0, P2 - P0);
-			FVector Centroid = FVector((P0.X + P1.X + P2.X + P3.X) / 4, (P0.Y + P1.Y + P2.Y + P3.Y) / 4, (P0.Z + P1.Z + P2.Z + P3.Z) / 4);
-
-			float Altitude = Centroid.Z;
-
-			float Area = FMath::Abs(FVector::CrossProduct(P0 - P3, P1 - P3).Size() / 2 + FVector::CrossProduct(P2 - P3, P0 - P3).Size() / 2);
-
-			float AreaXY = FMath::Abs(FVector2D::CrossProduct(FVector2D(P0 - P3), FVector2D(P1 - P3)) / 2
-				+ FVector2D::CrossProduct(FVector2D(P2 - P3), FVector2D(P0 - P3)) / 2);
-
-			FVector P0toP3 = P3 - P0;
-			FVector P0toP3ProjXY = FVector(P0toP3.X, P0toP3.Y, 0);
-			float Inclination = IsAlmostZero(P0toP3.Size()) ? 0 : FMath::Abs(FMath::Acos(FVector::DotProduct(P0toP3, P0toP3ProjXY) / (P0toP3.Size() * P0toP3ProjXY.Size())));
-
-			// @TODO assume constant for the moment, later handle in input data
-			const float Latitude = FMath::DegreesToRadians(47);
-
-			// @TODO what is the aspect of the XY plane?
-			FVector NormalProjXY = FVector(Normal.X, Normal.Y, 0);
-			float Aspect = IsAlmostZero(NormalProjXY.Size()) ? 0 : FMath::Abs(FMath::Acos(FVector::DotProduct(SimulationActor->North, NormalProjXY) / NormalProjXY.Size()));
-			
-			// Initial conditions
-			float SnowWaterEquivalent = 0.0f;
-			if (Altitude / 100.0f > 3300.0f)
-			{
-				auto AreaSquareMeters = Area / (100 * 100);
-				float we = (2.5 + Altitude / 100 * 0.001) * AreaSquareMeters;
-
-				SnowWaterEquivalent = we;
-
-				MaxSnow = FMath::Max(SnowWaterEquivalent / AreaSquareMeters, MaxSnow);
-			}
-			
-			FSimulationCell Cell(Index, P0, P1, P2, P3, Normal, Area, AreaXY, Centroid, Altitude, Aspect, Inclination, Latitude, SnowWaterEquivalent);
-
-			Cells.Add(Cell);
-			Index++;
-		}
+		FGPUSimulationCell Cell(LandscapeCell.Aspect, LandscapeCell.Inclination, LandscapeCell.Altitude,
+			LandscapeCell.Latitude, LandscapeCell.Area, LandscapeCell.AreaXY, LandscapeCell.InitialWaterEquivalent);
+		Cells.Add(Cell);
 	}
 
 	// Distance between neighboring cells in cm (calculate as in https://forums.unrealengine.com/showthread.php?57338-Calculating-Exact-Map-Size)
 	auto Scale = SimulationActor->LandscapeScale;
 	const float L = SimulationActor->LandscapeScale.X / 100 * SimulationActor->CellSize;
-
-	// Calculate curvature as described in "Quantitative Analysis of Land Surface Topography" by Zevenbergen and Thorne.
-	for (int32 CellIndexY = 0; CellIndexY < CellsDimensionY; ++CellIndexY)
-	{
-		for (int32 CellIndexX = 0; CellIndexX < CellsDimensionX; ++CellIndexX)
-		{
-			auto& Current = Cells[CellIndexX + CellsDimensionX * CellIndexY];
-
-			Current.Neighbours[0] = GetCellChecked(CellIndexX, CellIndexY - 1);			// N
-			Current.Neighbours[1] = GetCellChecked(CellIndexX + 1, CellIndexY - 1);		// NE
-			Current.Neighbours[2] = GetCellChecked(CellIndexX + 1, CellIndexY);			// E
-			Current.Neighbours[3] = GetCellChecked(CellIndexX + 1, CellIndexY + 1);		// SE
-
-			Current.Neighbours[4] = GetCellChecked(CellIndexX, CellIndexY + 1);			// S
-			Current.Neighbours[5] = GetCellChecked(CellIndexX - 1, CellIndexY + 1); 	// SW
-			Current.Neighbours[6] = GetCellChecked(CellIndexX - 1, CellIndexY);			// W
-			Current.Neighbours[7] = GetCellChecked(CellIndexX - 1, CellIndexY - 1);		// NW
-
-			if (Current.AllNeighboursSet()) {
-
-				float Z1 = Current.Neighbours[1]->Altitude / 100; // NW
-				float Z2 = Current.Neighbours[0]->Altitude / 100; // N
-				float Z3 = Current.Neighbours[7]->Altitude / 100; // NE
-				float Z4 = Current.Neighbours[2]->Altitude / 100; // W
-				float Z5 = Current.Altitude / 100;
-				float Z6 = Current.Neighbours[6]->Altitude / 100; // E
-				float Z7 = Current.Neighbours[3]->Altitude / 100; // SW	
-				float Z8 = Current.Neighbours[4]->Altitude / 100; // S
-				float Z9 = Current.Neighbours[5]->Altitude / 100; // SE
-
-				float D = ((Z4 + Z6) / 2 - Z5) / (L * L);
-				float E = ((Z2 + Z8) / 2 - Z5) / (L * L);
-				Current.Curvature = 2 * (D + E);
-			}
-		}
-	}
-
 }
 
 UTexture* UDegreeDayCPUSimulation::GetSnowMapTexture()
@@ -291,11 +183,6 @@ UTexture* UDegreeDayCPUSimulation::GetSnowMapTexture()
 	UpdateTextureFence.Wait();
 
 	return SnowMapTexture;
-}
-
-TArray<FColor> UDegreeDayCPUSimulation::GetSnowMapTextureData()
-{
-	return SnowMapTextureData;
 }
 
 float UDegreeDayCPUSimulation::GetMaxSnow()

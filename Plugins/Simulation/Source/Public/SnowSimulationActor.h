@@ -7,8 +7,8 @@
 #include "GenericPlatformFile.h"
 #include "SimulationWeatherDataProviderBase.h"
 #include "SimulationBase.h"
+#include "LandscapeCell.h"
 #include "SnowSimulationActor.generated.h"
-
 
 DECLARE_LOG_CATEGORY_EXTERN(SimulationLog, Log, All);
 
@@ -82,8 +82,8 @@ public:
 	bool RenderGrid = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
-	/** If true, writes the snow map to the path specified in Snow Map Path. */
-	bool WriteDebugTextures = true;
+	/** If true, writes the snow map to screenshot folder. */
+	bool SaveSnowMap = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	/** If true takes a screenshot each time an iteration of the simulation is executed. */
@@ -91,10 +91,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	int CellDebugInfoDisplayDistance = 15000;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
-	/** The path the snow map gets written when Write Snow Map is set to true. */
-	FString DebugTexturePath = "c:\\temp";
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Debug")
 	/** Number of simulation cells per dimension in x. */
@@ -153,6 +149,18 @@ private:
 	/** Minimum and maximum snow water equivalent (SWE) of the landscape. */
 	float MinSWE, MaxSWE;
 
+	/** Max snow from the initial conditions. */
+	float InitialMaxSnow;
+
+	/** Landscape cells. */
+	TArray<FLandscapeCell> LandscapeCells;
+
+	/** Cells for debugging. */
+	TArray<FDebugCell> DebugCells;
+
+	/** Slope of the terrain. */
+	UTexture* SlopeTexture;
+
 	/** 
 	* Updates the material with data from the simulation.
 	*/
@@ -165,5 +173,29 @@ private:
 
 	/** Renders the debug information from the simulation. */
 	void DoRenderDebugInformation();
+
+
+	/**
+	* Returns the cell at the given x and y position or a nullptr if the indices are out of bounds.
+	*
+	* @param X
+	* @param Y
+	* @return the cell at the given x and y position or a nullptr if the indices are out of bounds.
+	*/
+	FLandscapeCell* GetCellChecked(int X, int Y)
+	{
+		return GetCellChecked(X + Y * CellsDimensionX);
+	}
+
+	/**
+	* Returns the cell at the given index or nullptr if the index is out of bounds.
+	*
+	* @param Index the index of the cell
+	* @return the cell at the given index or nullptr if the index is out of bounds
+	*/
+	FLandscapeCell* GetCellChecked(int Index)
+	{
+		return (Index >= 0 && Index < LandscapeCells.Num()) ? &LandscapeCells[Index] : nullptr;
+	}
 
 };

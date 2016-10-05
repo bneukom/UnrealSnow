@@ -38,7 +38,7 @@ FSimulationPixelShader::~FSimulationPixelShader()
 	bIsUnloading = true;
 }
 
-void FSimulationPixelShader::ExecutePixelShader(UTextureRenderTarget2D* RenderTarget)
+void FSimulationPixelShader::ExecutePixelShader(UTextureRenderTarget2D* RenderTarget, bool SaveSnowMap)
 {
 	if (bIsUnloading || bIsPixelShaderExecuting) //Skip this execution round if we are already executing
 	{
@@ -49,16 +49,17 @@ void FSimulationPixelShader::ExecutePixelShader(UTextureRenderTarget2D* RenderTa
 
 	CurrentRenderTarget = RenderTarget;
 
-	ENQUEUE_UNIQUE_RENDER_COMMAND_ONEPARAMETER(
+	ENQUEUE_UNIQUE_RENDER_COMMAND_TWOPARAMETER(
 		FPixelShaderRunner,
 		FSimulationPixelShader*, PixelShader, this,
+		bool, SaveSnowMap, SaveSnowMap,
 		{
-			PixelShader->ExecutePixelShaderInternal();
+			PixelShader->ExecutePixelShaderInternal(SaveSnowMap);
 		}
 	);
 }
 
-void FSimulationPixelShader::ExecutePixelShaderInternal()
+void FSimulationPixelShader::ExecutePixelShaderInternal(bool SaveSnowMap)
 {
 	check(IsInRenderingThread());
 
@@ -100,37 +101,37 @@ void FSimulationPixelShader::ExecutePixelShaderInternal()
 	 
 	bIsPixelShaderExecuting = false;
 	
-#if WRITE_SNOW_MAP
-	TArray<FColor> Bitmap;
-
-	FReadSurfaceDataFlags ReadDataFlags;
-	ReadDataFlags.SetLinearToGamma(false);
-	ReadDataFlags.SetOutputStencil(false);
-	ReadDataFlags.SetMip(0); //No mip supported ofc!
-
-	//This is pretty straight forward. Since we are using a standard format, we can use this convenience function instead of having to lock rect.
-	RHICmdList.ReadSurfaceData(CurrentTexture, FIntRect(0, 0, CurrentTexture->GetSizeX(), CurrentTexture->GetSizeY()), Bitmap, ReadDataFlags);
-
-	// if the format and texture type is supported
-	if (Bitmap.Num())
+	if (SaveSnowMap) 
 	{
-		// Create screenshot folder if not already present.
-		IFileManager::Get().MakeDirectory(*FPaths::ScreenShotDir(), true);
+		TArray<FColor> Bitmap;
 
-		const FString ScreenFileName(FPaths::ScreenShotDir() / TEXT("VisualizeTexture"));
+		FReadSurfaceDataFlags ReadDataFlags;
+		ReadDataFlags.SetLinearToGamma(false);
+		ReadDataFlags.SetOutputStencil(false);
+		ReadDataFlags.SetMip(0);
 
-		uint32 ExtendXWithMSAA = Bitmap.Num() / CurrentTexture->GetSizeY();
+		//This is pretty straight forward. Since we are using a standard format, we can use this convenience function instead of having to lock rect.
+		RHICmdList.ReadSurfaceData(CurrentTexture, FIntRect(0, 0, CurrentTexture->GetSizeX(), CurrentTexture->GetSizeY()), Bitmap, ReadDataFlags);
 
-		// Save the contents of the array to a bitmap file. (24bit only so alpha channel is dropped)
-		FFileHelper::CreateBitmap(*ScreenFileName, ExtendXWithMSAA, CurrentTexture->GetSizeY(), Bitmap.GetData());
+		// if the format and texture type is supported
+		if (Bitmap.Num())
+		{
+			// Create screenshot folder if not already present.
+			IFileManager::Get().MakeDirectory(*FPaths::ScreenShotDir(), true);
 
+			const FString ScreenFileName(FPaths::ScreenShotDir() / TEXT("SnowMap"));
+
+			uint32 ExtendXWithMSAA = Bitmap.Num() / CurrentTexture->GetSizeY();
+
+			// Save the contents of the array to a bitmap file. (24bit only so alpha channel is dropped)
+			FFileHelper::CreateBitmap(*ScreenFileName, ExtendXWithMSAA, CurrentTexture->GetSizeY(), Bitmap.GetData());
+
+		}
+		else
+		{
+			UE_LOG(LogConsoleResponse, Error, TEXT("Failed to save BMP, format or texture type is not supported"));
+		}
 	}
-	else
-	{
-		UE_LOG(LogConsoleResponse, Error, TEXT("Failed to save BMP, format or texture type is not supported"));
-	}
-#endif
-
 }
 
 
