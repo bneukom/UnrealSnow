@@ -130,17 +130,20 @@ void MainComputeShader(uint3 ThreadId : SV_DispatchThreadID)
 	SimulationCell cell = SimulationCellsBuffer[cellIndex];
 	float areaSquareMeters = SimulationCellsBuffer[cellIndex].AreaXY / (100 * 100); // m^2
 
-	for (int time = 0; time < SimulationCSVariables.Timesteps; ++time) { 	
-		float decay = -0.5f * (SimulationCellsBuffer[cellIndex].Altitude - SimulationCSConstants.MeasurementAltitude) / (100 * 100);
-		float tAir = WeatherDataBuffer[SimulationCSVariables.CurrentSimulationStep + time].Temperature + decay; // degree Celsius
+	for (int time = 0; time < SimulationCSVariables.Timesteps; ++time) {
+		float stationAltitudeOffset = (SimulationCellsBuffer[cellIndex].Altitude - SimulationCSConstants.MeasurementAltitude); 	
+		float temperatureLapse = -0.5f * stationAltitudeOffset / (100 * 100);
+		float tAir = WeatherDataBuffer[SimulationCSVariables.CurrentSimulationStep + time].Temperature + temperatureLapse; // degree Celsius
 	
-		float precipitation = WeatherDataBuffer[SimulationCSVariables.CurrentSimulationStep + time].Precipitation;	
+		float precipitationLapse = 10 * stationAltitudeOffset / (100 * 1000);
+		float precipitation = WeatherDataBuffer[SimulationCSVariables.CurrentSimulationStep + time].Precipitation;
 
 		SimulationCellsBuffer[cellIndex].DaysSinceLastSnowfall += 1.0f / 24.0f;
 
 		// Apply precipitation
 		if (precipitation > 0)
 		{
+			precipitation += precipitationLapse;
 			SimulationCellsBuffer[cellIndex].DaysSinceLastSnowfall = 0;
 
 			// New snow/rainfall

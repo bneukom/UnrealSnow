@@ -2,6 +2,7 @@
 #include "UnrealMathUtility.h"
 #include "SnowSimulationActor.h"
 #include "Util/MathUtil.h"
+#include "Util/TextureUtil.h"
 #include "Util/RuntimeMaterialChange.h"
 #include "TextureResource.h"
 #include "RenderingThread.h"
@@ -56,7 +57,7 @@ void ASnowSimulationActor::Tick(float DeltaTime)
 		CurrentSleepTime = 0;
 
 		// Simulate next step
-		Simulation->Simulate(this, CurrentSimulationStep, Timesteps, SaveSnowMap, DebugVisualizationType != EDebugVisualizationType::Nothing, DebugCells);
+		Simulation->Simulate(this, CurrentSimulationStep, Timesteps, SaveMaterialTextures, DebugVisualizationType != EDebugVisualizationType::Nothing, DebugCells);
 
 		// Update the snow material to reflect changes from the simulation
 		UpdateMaterialTexture();
@@ -79,7 +80,7 @@ void ASnowSimulationActor::Tick(float DeltaTime)
 	}
 
 	// Render debug information
-	// if (DebugVisualizationType != EDebugVisualizationType::Nothing) Simulation->RenderDebug(Cells, GetWorld(), CellDebugInfoDisplayDistance, DebugVisualizationType);
+	if (DebugVisualizationType != EDebugVisualizationType::Nothing) DoRenderDebugInformation();
 	if (RenderGrid) DoRenderGrid();
 
 }
@@ -87,14 +88,14 @@ void ASnowSimulationActor::Tick(float DeltaTime)
 void ASnowSimulationActor::DoRenderGrid()
 {
 	const auto Location = GetWorld()->GetFirstPlayerController()->PlayerCameraManager->GetCameraLocation();
-	auto DebugCells = Simulation->GetCellDebugInformation();
+	
 	for (FDebugCell& Cell : DebugCells)
 	{
 		FVector Normal(Cell.Normal);
 		Normal.Normalize();
 
 		// @TODO get exact position using the height map
-		FVector zOffset(0, 0, 50);
+		FVector zOffset(0, 0, DebugGridZOffset);
 
 		if (FVector::Dist(Cell.Centroid, Location) < CellDebugInfoDisplayDistance)
 		{
@@ -109,35 +110,31 @@ void ASnowSimulationActor::DoRenderGrid()
 
 void ASnowSimulationActor::DoRenderDebugInformation()
 {
-	/*
+	const auto Location = GetWorld()->GetFirstPlayerController()->PlayerCameraManager->GetCameraLocation();
+	auto PlayerController = GetWorld()->GetFirstPlayerController();
+	auto Pawn = PlayerController->GetPawn();
+
 	// Draw SWE normal
 	if (DebugVisualizationType == EDebugVisualizationType::SnowHeight)
 	{
-		for (auto& Cell : Cells)
+		for (auto& Cell : DebugCells)
 		{
-			if (Cell.SnowWaterEquivalent > 0)
+			if (Cell.SnowMM > 0 && FVector::Dist(Cell.P1, Location) < CellDebugInfoDisplayDistance)
 			{
 				FVector Normal(Cell.Normal);
 				Normal.Normalize();
 
 				// @TODO get exact position using the height map
-				FVector zOffset(0, 0, 50);
+				FVector zOffset(0, 0, DebugGridZOffset);
 
-				// Height of the snow for this cell
-				auto AreaSquareMeters = Cell.Area / (100 * 100);
-				auto SWE = Cell.SnowWaterEquivalent / AreaSquareMeters; // l/m^2 or mm
-																		//DrawDebugLine(World, Cell.Centroid + zOffset, Cell.Centroid + zOffset + (Normal * SWE * 10), FColor(255, 0, 0), false, -1, 0, 0.0f);
-				DrawDebugLine(World, Cell.Centroid + zOffset, Cell.Centroid + FVector(0, 0, SWE / 10) + zOffset, FColor(255, 0, 0), false, -1, 0, 0.0f);
+				DrawDebugLine(GetWorld(), Cell.Centroid + zOffset, Cell.Centroid + FVector(0, 0, Cell.SnowMM / 10) + zOffset, FColor(255, 0, 0), false, -1, 0, 0.0f);
 			}
 		}
 	}
-	const auto Location = World->GetFirstPlayerController()->PlayerCameraManager->GetCameraLocation();
-	auto PlayerController = World->GetFirstPlayerController();
-	auto Pawn = PlayerController->GetPawn();
 
-	// Render snow water equivalent
+	// Render debug strings
 	int Index = 0;
-	for (auto& Cell : Cells)
+	for (auto& Cell : DebugCells)
 	{
 		auto Offset = Cell.Normal;
 		Offset.Normalize();
@@ -145,7 +142,7 @@ void ASnowSimulationActor::DoRenderDebugInformation()
 		// @TODO get position from heightmap
 		Offset *= 10;
 
-		if (FVector::Dist(Cell.Centroid + Offset, Location) < CellDebugInfoDisplayDistance)
+		if (FVector::Dist(Cell.P1 + Offset, Location) < CellDebugInfoDisplayDistance)
 		{
 			FCollisionQueryParams TraceParams(FName(TEXT("Trace SWE")), true);
 			TraceParams.bTraceComplex = true;
@@ -154,7 +151,7 @@ void ASnowSimulationActor::DoRenderDebugInformation()
 			//Re-initialize hit info
 			FHitResult HitOut(ForceInit);
 
-			World->LineTraceSingleByChannel(HitOut, Location, Cell.P1 + Offset, ECC_WorldStatic, TraceParams);
+			GetWorld()->LineTraceSingleByChannel(HitOut, Location, Cell.P1 + Offset, ECC_WorldStatic, TraceParams);
 
 			auto Hit = HitOut.GetActor();
 
@@ -163,23 +160,20 @@ void ASnowSimulationActor::DoRenderDebugInformation()
 			{
 				switch (DebugVisualizationType)
 				{
-				case EDebugVisualizationType::SWE:
-					DrawDebugString(World, Cell.Centroid, FString::FromInt(static_cast<int>(Cell.SnowWaterEquivalent)), nullptr, FColor::Purple, 0, true);
-					break;
 				case EDebugVisualizationType::SnowHeight:
-					DrawDebugString(World, Cell.Centroid, FString::FromInt(static_cast<int>(Cell.GetSnowHeight())) + " mm", nullptr, FColor::Purple, 0, true);
+					DrawDebugString(GetWorld(), Cell.Centroid, FString::FromInt(static_cast<int>(Cell.SnowMM)) + " mm", nullptr, FColor::Purple, 0, true);
 					break;
 				case EDebugVisualizationType::Position:
-					DrawDebugString(World, Cell.Centroid, "(" + FString::FromInt(static_cast<int>(Cell.Centroid.X / 100)) + "/" + FString::FromInt(static_cast<int>(Cell.Centroid.Y / 100)) + ")", nullptr, FColor::Purple, 0, true);
+					DrawDebugString(GetWorld(), Cell.Centroid, "(" + FString::FromInt(static_cast<int>(Cell.Centroid.X / 100)) + "/" + FString::FromInt(static_cast<int>(Cell.Centroid.Y / 100)) + ")", nullptr, FColor::Purple, 0, true);
 					break;
 				case EDebugVisualizationType::Altitude:
-					DrawDebugString(World, Cell.Centroid, FString::FromInt(static_cast<int>(Cell.Altitude / 100)) + "m", nullptr, FColor::Purple, 0, true);
+					DrawDebugString(GetWorld(), Cell.Centroid, FString::FromInt(static_cast<int>(Cell.Altitude / 100)) + "m", nullptr, FColor::Purple, 0, true);
 					break;
 				case EDebugVisualizationType::Index:
-					DrawDebugString(World, Cell.Centroid, FString::FromInt(Index), nullptr, FColor::Purple, 0, true);
+					DrawDebugString(GetWorld(), Cell.Centroid, FString::FromInt(Index), nullptr, FColor::Purple, 0, true);
 					break;
 				case EDebugVisualizationType::Curvature:
-					DrawDebugString(World, Cell.Centroid, FString::SanitizeFloat(Cell.Curvature), nullptr, FColor::Purple, 0, true);
+					DrawDebugString(GetWorld(), Cell.Centroid, FString::SanitizeFloat(Cell.Curvature), nullptr, FColor::Purple, 0, true);
 					break;
 				default:
 					break;
@@ -189,7 +183,6 @@ void ASnowSimulationActor::DoRenderDebugInformation()
 
 		Index++;
 	}
-	*/
 }
 
 void ASnowSimulationActor::Initialize()
@@ -217,12 +210,14 @@ void ASnowSimulationActor::Initialize()
 			CellsDimensionY = OverallResolutionY / CellSize - 1; // -1 because we create cells and use 4 vertices
 			NumCells = CellsDimensionX * CellsDimensionY;
 
-			DebugCells.SetNumUninitialized(CellsDimensionX * CellsDimensionY);
-			LandscapeCells.SetNumUninitialized(CellsDimensionX * CellsDimensionY);
+			DebugCells.Reserve(CellsDimensionX * CellsDimensionY);
+			LandscapeCells.Reserve(CellsDimensionX * CellsDimensionY);
 
 			TArray<FVector> CellWorldVertices;
 			CellWorldVertices.SetNumUninitialized(OverallResolutionX * OverallResolutionY);
 
+			float MinAltitude = 1e6;
+			float MaxAltitude = 0;
 			for (auto Component : LandscapeComponents)
 			{
 				// @TODO use runtime compatible version
@@ -231,7 +226,10 @@ void ASnowSimulationActor::Initialize()
 				{
 					for (int32 X = 0; X < Component->ComponentSizeQuads; X++) // not +1 because the vertices are stored twice (first and last)
 					{
-						CellWorldVertices[Component->SectionBaseX + X + OverallResolutionX * Y + Component->SectionBaseY * OverallResolutionX] = LandscapeData.GetWorldVertex(X, Y);
+						auto Vertex = LandscapeData.GetWorldVertex(X, Y);
+						CellWorldVertices[Component->SectionBaseX + X + OverallResolutionX * Y + Component->SectionBaseY * OverallResolutionX] = Vertex;
+						MinAltitude = FMath::Min(MinAltitude, Vertex.Z);
+						MaxAltitude = FMath::Max(MaxAltitude, Vertex.Z);
 					}
 				}
 			}
@@ -239,33 +237,59 @@ void ASnowSimulationActor::Initialize()
 			// Distance between neighboring cells in cm (calculate as in https://forums.unrealengine.com/showthread.php?57338-Calculating-Exact-Map-Size)
 			const float L = LandscapeScale.X / 100 * CellSize;
 
+			/*
 			// Calculate slope map
+			SlopeTexture = UTexture2D::CreateTransient((OverallResolutionX - 1), (OverallResolutionY - 1), EPixelFormat::PF_B8G8R8A8);
+			SlopeTexture->UpdateResource();
+
+			TArray<FColor> SlopeTextureData;
+			SlopeTextureData.Empty((OverallResolutionX - 1) * (OverallResolutionY - 1));
+
 			for (int32 Y = 1; Y < OverallResolutionY - 1; Y++)
 			{
 				for (int32 X = 1; X < OverallResolutionX - 1; X++)
 				{
-					FVector C1 = CellWorldVertices[(Y - 1) * OverallResolutionX + (X - 1)];
-					FVector C2 = CellWorldVertices[(Y - 1) * OverallResolutionX + (X + 0)];
-					FVector C3 = CellWorldVertices[(Y - 1) * OverallResolutionX + (X + 1)];
-					FVector C4 = CellWorldVertices[(Y + 0) * OverallResolutionX + (X - 1)];
-					FVector C5 = CellWorldVertices[(Y + 0) * OverallResolutionX + (X + 0)];
-					FVector C6 = CellWorldVertices[(Y + 0) * OverallResolutionX + (X + 1)];
-					FVector C7 = CellWorldVertices[(Y + 1) * OverallResolutionX + (X - 1)];
-					FVector C8 = CellWorldVertices[(Y + 1) * OverallResolutionX + (X + 0)];
-					FVector C9 = CellWorldVertices[(Y + 1) * OverallResolutionX + (X + 1)];
+					FVector C1 = CellWorldVertices[(Y - 1) * (OverallResolutionX - 1) + (X - 1)];
+					FVector C2 = CellWorldVertices[(Y - 1) * (OverallResolutionX - 1) + (X + 0)];
+					FVector C3 = CellWorldVertices[(Y - 1) * (OverallResolutionX - 1) + (X + 1)];
+					FVector C4 = CellWorldVertices[(Y + 0) * (OverallResolutionX - 1) + (X - 1)];
+					FVector C5 = CellWorldVertices[(Y + 0) * (OverallResolutionX - 1) + (X + 0)];
+					FVector C6 = CellWorldVertices[(Y + 0) * (OverallResolutionX - 1) + (X + 1)];
+					FVector C7 = CellWorldVertices[(Y + 1) * (OverallResolutionX - 1) + (X - 1)];
+					FVector C8 = CellWorldVertices[(Y + 1) * (OverallResolutionX - 1) + (X + 0)];
+					FVector C9 = CellWorldVertices[(Y + 1) * (OverallResolutionX - 1) + (X + 1)];
 
-					float x = (C3.Z + 2 * C6.Z + C9.Z - C1.Z - 2 * C4.Z - C7.Z) / (8 * L);
-					float y = (C1.Z + 2 * C2.Z + C3.Z - C7.Z - 2 * C8.Z - C9.Z) / (8 * L);
-
-					float Slope = FMath::Acos(FMath::Sqrt(x * x + y * y));
+					float x = (C3.Z + 2 * C6.Z + C9.Z - C1.Z - 2 * C4.Z - C7.Z) / (8 * L * 100);
+					float y = (C1.Z + 2 * C2.Z + C3.Z - C7.Z - 2 * C8.Z - C9.Z) / (8 * L * 100);
+					float Slope = FMath::Atan(FMath::Sqrt(x * x + y * y));
+					float GrayScale = Slope / (PI / 2) * 255;
+					uint8 GrayInt = static_cast<uint8>(GrayScale);
+					SlopeTextureData.Add(FColor(GrayInt, GrayInt, GrayInt));
 				}
 			}
+			FRenderCommandFence UpdateTextureFence;
+			UpdateTextureFence.BeginFence();
+
+			UpdateTexture(SlopeTexture, SlopeTextureData);
+
+			UpdateTextureFence.Wait();
+
+			if (SaveMaterialTextures)
+			{
+				// Create screenshot folder if not already present.
+				IFileManager::Get().MakeDirectory(*FPaths::ScreenShotDir(), true);
+
+				const FString ScreenFileName(FPaths::ScreenShotDir() / TEXT("SlopeMap"));
+
+				uint32 ExtendXWithMSAA = SlopeTextureData.Num() / SlopeTexture->GetSizeY();
+
+				// Save the contents of the array to a bitmap file. (24bit only so alpha channel is dropped)
+				FFileHelper::CreateBitmap(*ScreenFileName, ExtendXWithMSAA, SlopeTexture->GetSizeY(), SlopeTextureData.GetData());
+			}
+			*/
 
 			// Create Cells
-			float MinAltitude = 1e6;
-			float MaxAltitude = 0;
-
-
+			
 			int Index = 0;
 			for (int32 Y = 0; Y < CellsDimensionY; Y++)
 			{
@@ -282,8 +306,7 @@ void ASnowSimulationActor::Initialize()
 					FVector Centroid = FVector((P0.X + P1.X + P2.X + P3.X) / 4, (P0.Y + P1.Y + P2.Y + P3.Y) / 4, (P0.Z + P1.Z + P2.Z + P3.Z) / 4);
 
 					float Altitude = Centroid.Z;
-					MinAltitude = FMath::Min(MinAltitude, Altitude);
-					MaxAltitude = FMath::Max(MaxAltitude, Altitude);
+
 					float Area = FMath::Abs(FVector::CrossProduct(P0 - P3, P1 - P3).Size() / 2 + FVector::CrossProduct(P2 - P3, P0 - P3).Size() / 2);
 
 					float AreaXY = FMath::Abs(FVector2D::CrossProduct(FVector2D(P0 - P3), FVector2D(P1 - P3)) / 2
@@ -316,7 +339,7 @@ void ASnowSimulationActor::Initialize()
 					FLandscapeCell Cell(Index, P0, P1, P2, P3, Normal, Area, AreaXY, Centroid, Altitude, Aspect, Inclination, Latitude, SnowWaterEquivalent);
 					LandscapeCells.Add(Cell);
 
-					FDebugCell DebugCell(P0, P1, P2, P3, Centroid, Normal);
+					FDebugCell DebugCell(P0, P1, P2, P3, Centroid, Normal, Altitude);
 					DebugCells.Add(DebugCell);
 
 					Index++;

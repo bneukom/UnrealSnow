@@ -4,7 +4,7 @@
 #include "LandscapeDataAccess.h"
 #include "DegreeDayCPUSimulation.h"
 #include "SnowSimulationActor.h"
-#include "GPUSimulationCell.h"
+#include "Cells/GPUSimulationCell.h"
 #include "Util/TextureUtil.h"
 #include "Util/MathUtil.h"
 #include "LandscapeComponent.h"
@@ -20,7 +20,7 @@ FString UDegreeDayCPUSimulation::GetSimulationName()
 }
 
 // Flops per iteration: (2 * 20 + 6 * 2) + (20 * 20 + 38 * 2)
-void UDegreeDayCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, int32 CurrentSimulationStep, int32 Timesteps, bool SaveSnowMap, bool CaptureDebugInformation, TArray<FDebugCell> DebugCells)
+void UDegreeDayCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, int32 CurrentSimulationStep, int32 Timesteps, bool SaveSnowMap, bool CaptureDebugInformation, TArray<FDebugCell>& DebugCells)
 {
 	MaxSnow = 0;
 
@@ -35,11 +35,13 @@ void UDegreeDayCPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, in
 		auto ClimateData = (*ClimateDataArray)[CurrentSimulationStep];
 			
 		float Altitude = CellCentroid.Z - SimulationActor->ClimateDataComponent->GetMeasurementAltitude(); // Altitude in cm
-		float Decay = -0.5f * Altitude / (100 * 100);
+		
+		float TemperatureLapse = -0.5f * Altitude / (100 * 100);
+		float PrecipitationLapse = 0.5f * Altitude / (100 * 1000);
 
-		const float TAir = ClimateData.Temperature + Decay; // degree Celsius
+		const float TAir = ClimateData.Temperature + TemperatureLapse; // degree Celsius
 
-		const float Precipitation = ClimateData.Precipitation; // l/m^2 or mm
+		const float Precipitation = ClimateData.Precipitation + PrecipitationLapse; // l/m^2 or mm
 			
 		// @TODO use AreaXY because very steep slopes with big areas would receive too much snow
 		const float AreaSquareMeters = Cell.AreaXY / (100 * 100); // m^2
@@ -173,7 +175,7 @@ UTexture* UDegreeDayCPUSimulation::GetSnowMapTexture()
 		}
 	}
 
-	// Update material
+	// Update texture
 	FRenderCommandFence UpdateTextureFence;
 
 	UpdateTextureFence.BeginFence();

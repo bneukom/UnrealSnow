@@ -5,8 +5,8 @@
 #include "Array.h"
 #include "DateTime.h"
 #include "SimulationWeatherDataProviderBase.h"
-#include "DebugCell.h"
-#include "LandscapeCell.h"
+#include "Cells/DebugCell.h"
+#include "Cells/LandscapeCell.h"
 #include "SimulationBase.generated.h"
 
 // Forward declarations
@@ -45,7 +45,7 @@ public:
 	* @param SimulationActor	the actor
 	* @param TimeStep		Time step of the simulation in hours
 	*/
-	virtual void Simulate(ASnowSimulationActor* SimulationActor, int32 Time, int32 Timesteps, bool SaveSnowMap, bool CaptureDebugInformation, TArray<FDebugCell> DebugCells) PURE_VIRTUAL(USimulationBase::Simulate, ;);
+	virtual void Simulate(ASnowSimulationActor* SimulationActor, int32 Time, int32 Timesteps, bool SaveSnowMap, bool CaptureDebugInformation, TArray<FDebugCell>& DebugCells) PURE_VIRTUAL(USimulationBase::Simulate, ;);
 
 	/** Renders debug information of the simulation every tick. */
 	virtual void RenderDebug(UWorld* World, int CellDebugInfoDisplayDistance, EDebugVisualizationType VisualizationType) PURE_VIRTUAL(USimulationBase::RenderDebug, ;);
@@ -55,9 +55,6 @@ public:
 
 	/** Returns the texture which contains the snow amount coded as gray scale values. */
 	virtual UTexture* GetSnowMapTexture() PURE_VIRTUAL(USimulationBase::GetSnowMapTexture, return nullptr;);
-
-	/** Returns debug information for the cells. Only gets called after #startCaptureDebugInformation(). */
-	virtual TArray<FDebugCell> GetCellDebugInformation() PURE_VIRTUAL(USimulationBase::GetCellDebugInformation, return TArray<FDebugCell>(););
 
 };
 

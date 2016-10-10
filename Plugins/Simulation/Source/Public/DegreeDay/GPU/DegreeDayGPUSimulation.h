@@ -5,8 +5,8 @@
 #include "SimulationComputeShader.h"
 #include "DegreeDay/DegreeDaySimulation.h"
 #include "SimulationBase.h"
-#include "DebugCell.h"
-#include "LandscapeCell.h"
+#include "Cells/DebugCell.h"
+#include "Cells/LandscapeCell.h"
 #include "DegreeDayGPUSimulation.generated.h"
 
 
@@ -30,7 +30,7 @@ public:
 
 	virtual FString GetSimulationName() override final;
 
-	virtual void Simulate(ASnowSimulationActor* SimulationActor, int32 CurrentSimulationStep, int32 Timesteps, bool SaveSnowMap, bool CaptureDebugInformation, TArray<FDebugCell> DebugCells) override final;
+	virtual void Simulate(ASnowSimulationActor* SimulationActor, int32 CurrentSimulationStep, int32 Timesteps, bool SaveSnowMap, bool CaptureDebugInformation, TArray<FDebugCell>& DebugCells) override final;
 
 	virtual void Initialize(ASnowSimulationActor* SimulationActor, const TArray<FLandscapeCell>& Cells, float InitialMaxSnow, UWorld* World) override final;
 

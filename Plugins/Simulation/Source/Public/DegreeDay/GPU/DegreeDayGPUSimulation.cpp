@@ -11,7 +11,7 @@ FString UDegreeDayGPUSimulation::GetSimulationName()
 	return FString(TEXT("Degree Day GPU"));
 }
 
-void UDegreeDayGPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, int32 CurrentSimulationStep, int32 Timesteps, bool SaveSnowMap, bool CaptureDebugInformation, TArray<FDebugCell> DebugCells)
+void UDegreeDayGPUSimulation::Simulate(ASnowSimulationActor* SimulationActor, int32 CurrentSimulationStep, int32 Timesteps, bool SaveSnowMap, bool CaptureDebugInformation, TArray<FDebugCell>& DebugCells)
 {
 	SimulationComputeShader->ExecuteComputeShader(CurrentSimulationStep, Timesteps, SimulationActor->CurrentSimulationTime.GetHour(), CaptureDebugInformation, DebugCells);
 	SimulationPixelShader->ExecutePixelShader(RenderTarget, SaveSnowMap);

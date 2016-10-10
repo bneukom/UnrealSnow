@@ -1,10 +1,10 @@
 #pragma once
 
-#include "GPUSimulationCell.h"
+#include "Cells/GPUSimulationCell.h"
 #include "Private/ComputeShaderDeclaration.h"
 #include "ClimateData.h"
 #include "RWStructuredBuffer.h"
-#include "DebugCell.h"
+#include "Cells/DebugCell.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(SnowComputeShader, Log, All);
 

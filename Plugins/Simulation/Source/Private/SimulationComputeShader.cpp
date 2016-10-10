@@ -1,7 +1,7 @@
 
 #include "Simulation.h"
 #include "ClimateData.h"
-#include "DebugCell.h"
+#include "Cells/DebugCell.h"
 
 
 #define NUM_THREADS_PER_GROUP_DIMENSION 4 // This has to be the same as in the compute shaders spec [X, X, 1]
@@ -90,7 +90,7 @@ void FSimulationComputeShader::ExecuteComputeShader(int CurrentTimeStep, int32 T
 	);
 }
 
-void FSimulationComputeShader::ExecuteComputeShaderInternal(bool CaptureDebugInformation, TArray<FDebugCell>& DebugInformation)
+void FSimulationComputeShader::ExecuteComputeShaderInternal(bool CaptureDebugInformation, TArray<FDebugCell>& DebugCells)
 {
 	check(IsInRenderingThread());
 
@@ -165,11 +165,14 @@ void FSimulationComputeShader::ExecuteComputeShaderInternal(bool CaptureDebugInf
 		uint32* CellsBuffer = (uint32*)RHICmdList.LockStructuredBuffer(SimulationCellsBuffer->Buffer, 0, SimulationCellsBuffer->NumBytes, RLM_ReadOnly);
 		FMemory::Memcpy(SimulationCells.GetData(), CellsBuffer, SimulationCellsBuffer->NumBytes);
 		RHICmdList.UnlockStructuredBuffer(SimulationCellsBuffer->Buffer);
-
-		// Fill debug array
-		for (auto& Cell : SimulationCells)
+		
+		auto Result = SimulationCells.CreateConstIterator();
+		auto Debug = DebugCells.CreateIterator();
+		for (; Result && Debug; ++Result, ++Debug)
 		{
-			float SnowMM = Cell.InterpolatedSWE / (Cell.Area / (100 * 100));
+			auto ResultCell = *Result;
+			float SnowMM = ResultCell.InterpolatedSWE / (ResultCell.Area / (100 * 100));
+			Debug->SnowMM = SnowMM;
 		}
 	}
 
