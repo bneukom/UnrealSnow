@@ -121,9 +121,6 @@ public:
 	/** Total number of simulation cells. */
 	int32 NumCells;
 
-	/** The landscape of the world. */
-	ALandscape* Landscape;
-
 	/** Weather data provider for the simulation. */
 	USimulationWeatherDataProviderBase* ClimateDataComponent;
 
@@ -165,6 +162,9 @@ private:
 
 	/** Slope of the terrain. */
 	UTexture2D* SlopeTexture;
+
+	/** The landscape of the world. */
+	ALandscape* Landscape;
 
 	/** 
 	* Updates the material with data from the simulation.

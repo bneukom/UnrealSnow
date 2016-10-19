@@ -154,7 +154,7 @@ UTexture* UDegreeDayCPUSimulation::GetSnowMapTexture()
 	// @TODO always create new texture too slow?
 
 	// Create new textures
-	SnowMapTexture = UTexture2D::CreateTransient(CellsDimensionX, CellsDimensionY, EPixelFormat::PF_B8G8R8A8);
+	SnowMapTexture = UTexture2D::CreateTransient(CellsDimensionX, CellsDimensionY, EPixelFormat::PF_G16);
 
 	SnowMapTexture->UpdateResource();
 	SnowMapTextureData.Empty(Cells.Num());

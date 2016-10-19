@@ -100,10 +100,10 @@ void ASnowSimulationActor::DoRenderGrid()
 		if (FVector::Dist(Cell.Centroid, Location) < CellDebugInfoDisplayDistance)
 		{
 			// Draw Cells
-			DrawDebugLine(GetWorld(), Cell.P1 + zOffset, Cell.P2 + zOffset, FColor(255, 255, 0), false, -1, 0, 0.0f);
-			DrawDebugLine(GetWorld(), Cell.P1 + zOffset, Cell.P3 + zOffset, FColor(255, 255, 0), false, -1, 0, 0.0f);
-			DrawDebugLine(GetWorld(), Cell.P2 + zOffset, Cell.P4 + zOffset, FColor(255, 255, 0), false, -1, 0, 0.0f);
-			DrawDebugLine(GetWorld(), Cell.P3 + zOffset, Cell.P4 + zOffset, FColor(255, 255, 0), false, -1, 0, 0.0f);
+			DrawDebugLine(GetWorld(), Cell.P1 + zOffset, Cell.P2 + zOffset, FColor(255, 0, 0), false, -1, 0, 0.0f);
+			DrawDebugLine(GetWorld(), Cell.P1 + zOffset, Cell.P3 + zOffset, FColor(255, 0, 0), false, -1, 0, 0.0f);
+			DrawDebugLine(GetWorld(), Cell.P2 + zOffset, Cell.P4 + zOffset, FColor(255, 0, 0), false, -1, 0, 0.0f);
+			DrawDebugLine(GetWorld(), Cell.P3 + zOffset, Cell.P4 + zOffset, FColor(255, 0, 0), false, -1, 0, 0.0f);
 		}
 	}
 }
@@ -148,7 +148,6 @@ void ASnowSimulationActor::DoRenderDebugInformation()
 			TraceParams.bTraceComplex = true;
 			TraceParams.AddIgnoredActor(Pawn);
 
-			//Re-initialize hit info
 			FHitResult HitOut(ForceInit);
 
 			GetWorld()->LineTraceSingleByChannel(HitOut, Location, Cell.P1 + Offset, ECC_WorldStatic, TraceParams);
@@ -190,9 +189,12 @@ void ASnowSimulationActor::Initialize()
 	if (GetWorld())
 	{
 		auto Level = GetWorld()->PersistentLevel;
-		TActorIterator<ALandscape> LandscapeIterator(GetWorld( ));
 		
-		Landscape = *LandscapeIterator;
+		for (TActorIterator<ALandscape> LandscapeIterator(GetWorld()); LandscapeIterator; ++LandscapeIterator)
+		{
+			if (LandscapeIterator->ActorHasTag(FName("landscape"))) Landscape = *LandscapeIterator;
+		}
+
 		LandscapeScale = Landscape->GetActorScale();
 
 		if (Landscape)
@@ -289,7 +291,6 @@ void ASnowSimulationActor::Initialize()
 			*/
 
 			// Create Cells
-			
 			int Index = 0;
 			for (int32 Y = 0; Y < CellsDimensionY; Y++)
 			{
@@ -402,6 +403,7 @@ void ASnowSimulationActor::Initialize()
 void ASnowSimulationActor::UpdateMaterialTexture()
 {
 	auto SnowMapTexture = Simulation->GetSnowMapTexture();
+
 	SetTextureParameterValue(Landscape, TEXT("SnowMap"), SnowMapTexture, GEngine);
 }
 
