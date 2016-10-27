@@ -1,19 +1,22 @@
-#include "PixelShaderPrivatePCH.h"
+#include "../PixelShaderPrivatePCH.h"
+#include "AlbedoPixelShaderDeclaration.h"
+#include "AlbedoPixelShader.h"
 #include "RHIStaticStates.h"
+
 
 #define WRITE_SNOW_MAP false
 
 //It seems to be the convention to expose all vertex declarations as globals, and then reference them as externs in the headers where they are needed.
 //It kind of makes sense since they do not contain any parameters that change and are purely used as their names suggest, as declarations :)
-TGlobalResource<FTextureVertexDeclaration> GTextureVertexDeclaration;
+TGlobalResource<FTextureVertexDeclaration> GAlbedoTextureVertexDeclaration;
 
-FSimulationPixelShader::FSimulationPixelShader(ERHIFeatureLevel::Type ShaderFeatureLevel)
+FAlbedoPixelShader::FAlbedoPixelShader(ERHIFeatureLevel::Type ShaderFeatureLevel)
 {
 	FeatureLevel = ShaderFeatureLevel;
 
-	ConstantParameters = FPixelShaderConstantParameters();
+	ConstantParameters = FAlbedoPixelShaderConstantParameters();
 	
-	VariableParameters = FPixelShaderVariableParameters();
+	VariableParameters = FAlbedoPixelShaderVariableParameters();
 	
 	bMustRegenerateSRV = false;
 	bIsPixelShaderExecuting = false;
@@ -24,21 +27,20 @@ FSimulationPixelShader::FSimulationPixelShader(ERHIFeatureLevel::Type ShaderFeat
 	CurrentRenderTarget = NULL;
 }
 
-void FSimulationPixelShader::Initialize(FRWStructuredBuffer* SnowBuffer, FRWStructuredBuffer* MaxSnowBuffer, int32 CellsDimensionX, int32 CellsDimensionY)
+void FAlbedoPixelShader::Initialize(FRWStructuredBuffer* AlbedoBuffer, int32 CellsDimensionX, int32 CellsDimensionY)
 {
-	this->SnowInputBuffer = SnowBuffer;
-	this->MaxSnowInputBuffer = MaxSnowBuffer;
+	this->AlbedoInputBuffer = AlbedoBuffer;
 
 	ConstantParameters.CellsDimensionX = CellsDimensionX;
 	ConstantParameters.CellsDimensionY = CellsDimensionY;
 }
 
-FSimulationPixelShader::~FSimulationPixelShader()
+FAlbedoPixelShader::~FAlbedoPixelShader()
 {
 	bIsUnloading = true;
 }
 
-void FSimulationPixelShader::ExecutePixelShader(UTextureRenderTarget2D* RenderTarget, bool SaveSnowMap)
+void FAlbedoPixelShader::ExecutePixelShader(UTextureRenderTarget2D* RenderTarget, bool SaveAlbedo)
 {
 	if (bIsUnloading || bIsPixelShaderExecuting) //Skip this execution round if we are already executing
 	{
@@ -51,15 +53,15 @@ void FSimulationPixelShader::ExecutePixelShader(UTextureRenderTarget2D* RenderTa
 
 	ENQUEUE_UNIQUE_RENDER_COMMAND_TWOPARAMETER(
 		FPixelShaderRunner,
-		FSimulationPixelShader*, PixelShader, this,
-		bool, SaveSnowMap, SaveSnowMap,
+		FAlbedoPixelShader*, PixelShader, this,
+		bool, SaveAlbedo, SaveAlbedo,
 		{
-			PixelShader->ExecutePixelShaderInternal(SaveSnowMap);
+			PixelShader->ExecutePixelShaderInternal(SaveAlbedo);
 		}
 	);
 }
 
-void FSimulationPixelShader::ExecutePixelShaderInternal(bool SaveSnowMap)
+void FAlbedoPixelShader::ExecutePixelShaderInternal(bool SaveAlbedo)
 {
 	check(IsInRenderingThread());
 
@@ -78,12 +80,12 @@ void FSimulationPixelShader::ExecutePixelShaderInternal(bool SaveSnowMap)
 	RHICmdList.SetDepthStencilState(TStaticDepthStencilState<false, CF_Always>::GetRHI());
 	
 	static FGlobalBoundShaderState BoundShaderState;
-	TShaderMapRef<FVertexShaderExample> VertexShader(GetGlobalShaderMap(FeatureLevel));
-	TShaderMapRef<FPixelShaderDeclaration> PixelShader(GetGlobalShaderMap(FeatureLevel));
+	TShaderMapRef<FAlbedoVertexShader> VertexShader(GetGlobalShaderMap(FeatureLevel));
+	TShaderMapRef<FAlbedoPixelShaderDeclaration> PixelShader(GetGlobalShaderMap(FeatureLevel));
 
-	SetGlobalBoundShaderState(RHICmdList, FeatureLevel, BoundShaderState, GTextureVertexDeclaration.VertexDeclarationRHI, *VertexShader, *PixelShader);
+	SetGlobalBoundShaderState(RHICmdList, FeatureLevel, BoundShaderState, GAlbedoTextureVertexDeclaration.VertexDeclarationRHI, *VertexShader, *PixelShader);
 
-	PixelShader->SetParameters(RHICmdList, SnowInputBuffer->SRV, MaxSnowInputBuffer->SRV);
+	PixelShader->SetParameters(RHICmdList, AlbedoInputBuffer->SRV);
 	PixelShader->SetUniformBuffers(RHICmdList, ConstantParameters, VariableParameters);
 
 	// Draw a fullscreen quad that we can run our pixel shader on
@@ -101,7 +103,7 @@ void FSimulationPixelShader::ExecutePixelShaderInternal(bool SaveSnowMap)
 	 
 	bIsPixelShaderExecuting = false;
 	
-	if (SaveSnowMap) 
+	if (SaveAlbedo)
 	{
 		TArray<FColor> Bitmap;
 

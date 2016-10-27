@@ -24,6 +24,7 @@ enum class EDebugVisualizationType : uint8
 	Index 			UMETA(DisplayName = "Cell Index"),
 	Area 			UMETA(DisplayName = "Area (m^2)"),
 	Curvature		UMETA(DisplayName = "Curvature"),
+	Aspect			UMETA(DisplayName = "Aspect (degrees)"),
 };
 
 
@@ -73,6 +74,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
 	/** Time in seconds until the next step of the simulation is executed. */
 	float SleepTime = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation")
+	/** Wheter to draw the date on the screen or not. */
+	bool DrawDate = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	/** What should be visualized.  */

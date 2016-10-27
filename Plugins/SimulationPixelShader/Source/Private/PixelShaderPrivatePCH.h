@@ -27,5 +27,3 @@
 #include "CoreUObject.h"
 #include "Engine.h"
 
-#include "PixelShaderDeclaration.h"
-#include "SimulationPixelShader.h"

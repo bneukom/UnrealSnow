@@ -135,7 +135,8 @@ void MainComputeShader(uint3 ThreadId : SV_DispatchThreadID)
 		float temperatureLapse = -0.5f * stationAltitudeOffset / (100 * 100);
 		float tAir = WeatherDataBuffer[SimulationCSVariables.CurrentSimulationStep + time].Temperature + temperatureLapse; // degree Celsius
 	
-		float precipitationLapse = 10 * stationAltitudeOffset / (100 * 1000);
+		float precipitationLapse = 10.0f / 24.0f * stationAltitudeOffset / (100 * 1000);
+		// float precipitationLapse = 0;
 		float precipitation = WeatherDataBuffer[SimulationCSVariables.CurrentSimulationStep + time].Precipitation;
 
 		SimulationCellsBuffer[cellIndex].DaysSinceLastSnowfall += 1.0f / 24.0f;
@@ -191,7 +192,7 @@ void MainComputeShader(uint3 ThreadId : SV_DispatchThreadID)
 				// @TODO melt factor test
 				const float vegetationDensity = 0;
 				const float k_v = exp(-4 * vegetationDensity); // 1
-				const float c_m = 3 * SimulationCSConstants.k_m * k_v * r_i_t *  (1 - SimulationCellsBuffer[cellIndex].SnowAlbedo) * dayNormalization * areaSquareMeters; // l/m^2/C°/day * day * m^2 = l/m^2 * 1/day * day * m^2 = l/C°
+				const float c_m = SimulationCSConstants.k_m * k_v * r_i_t  *  (1 - SimulationCellsBuffer[cellIndex].SnowAlbedo) * dayNormalization * areaSquareMeters; // l/m^2/C°/day * day * m^2 = l/m^2 * 1/day * day * m^2 = l/C°
 				const float meltFactor = tAir < SimulationCSConstants.TMeltB ? 
 								(tAir - SimulationCSConstants.TMeltA) * (tAir - SimulationCSConstants.TMeltA) / (SimulationCSConstants.TMeltB - SimulationCSConstants.TMeltA) : 
 								(tAir - SimulationCSConstants.TMeltA);

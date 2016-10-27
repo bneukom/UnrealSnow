@@ -79,6 +79,8 @@ void ASnowSimulationActor::Tick(float DeltaTime)
 		}
 	}
 
+
+
 	// Render debug information
 	if (DebugVisualizationType != EDebugVisualizationType::Nothing) DoRenderDebugInformation();
 	if (RenderGrid) DoRenderGrid();
@@ -170,6 +172,9 @@ void ASnowSimulationActor::DoRenderDebugInformation()
 					break;
 				case EDebugVisualizationType::Index:
 					DrawDebugString(GetWorld(), Cell.Centroid, FString::FromInt(Index), nullptr, FColor::Purple, 0, true);
+					break;
+				case EDebugVisualizationType::Aspect:
+					DrawDebugString(GetWorld(), Cell.Centroid, FString::FromInt(static_cast<int>(FMath::RadiansToDegrees(Cell.Aspect))), nullptr, FColor::Purple, 0, true);
 					break;
 				case EDebugVisualizationType::Curvature:
 					DrawDebugString(GetWorld(), Cell.Centroid, FString::SanitizeFloat(Cell.Curvature), nullptr, FColor::Purple, 0, true);
@@ -321,8 +326,16 @@ void ASnowSimulationActor::Initialize()
 					const float Latitude = FMath::DegreesToRadians(47);
 
 					// @TODO what is the aspect of the XY plane?
-					FVector NormalProjXY = FVector(Normal.X, Normal.Y, 0);
-					float Aspect = IsAlmostZero(NormalProjXY.Size()) ? 0 : FMath::Abs(FMath::Acos(FVector::DotProduct(North, NormalProjXY) / NormalProjXY.Size()));
+					
+					
+					FVector2D NormalProjXY = FVector2D(Normal.X, Normal.Y);
+					FVector2D North2D = FVector2D(1, 0);
+					float Dot = FVector2D::DotProduct(NormalProjXY, North2D);
+					float Det = NormalProjXY.X * North2D.Y - NormalProjXY.Y*North2D.X;
+					float Aspect = FMath::Atan2(Det, Dot);
+					Aspect = NormalizeAngle360(Aspect);
+					
+					//float Aspect = IsAlmostZero(NormalProjXY.Size()) ? 0 : FMath::Abs(FMath::Acos(FVector::DotProduct(North, NormalProjXY) / NormalProjXY.Size()));
 
 					// Initial conditions
 					float SnowWaterEquivalent = 0.0f;
@@ -340,7 +353,7 @@ void ASnowSimulationActor::Initialize()
 					FLandscapeCell Cell(Index, P0, P1, P2, P3, Normal, Area, AreaXY, Centroid, Altitude, Aspect, Inclination, Latitude, SnowWaterEquivalent);
 					LandscapeCells.Add(Cell);
 
-					FDebugCell DebugCell(P0, P1, P2, P3, Centroid, Normal, Altitude);
+					FDebugCell DebugCell(P0, P1, P2, P3, Centroid, Normal, Altitude, Aspect);
 					DebugCells.Add(DebugCell);
 
 					Index++;

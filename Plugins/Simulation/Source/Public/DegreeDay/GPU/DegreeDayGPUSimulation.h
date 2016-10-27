@@ -1,7 +1,7 @@
 #pragma once
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "SimulationPixelShader.h"
+#include "SnowPixelShader.h"
 #include "SimulationComputeShader.h"
 #include "DegreeDay/DegreeDaySimulation.h"
 #include "SimulationBase.h"
@@ -22,7 +22,7 @@ class SIMULATION_API UDegreeDayGPUSimulation : public UDegreeDaySimulation
 private:
 	FSimulationComputeShader* SimulationComputeShader;
 
-	FSimulationPixelShader* SimulationPixelShader;
+	FSnowPixelShader* SimulationPixelShader;
 
 	UTextureRenderTarget2D* RenderTarget;
 

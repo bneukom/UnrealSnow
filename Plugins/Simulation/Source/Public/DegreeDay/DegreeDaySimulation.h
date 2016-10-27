@@ -43,7 +43,7 @@ public:
 
 	/** Proportional constant. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Simulation", DisplayName = "k_m")
-	float k_m = 1;
+	float k_m = 4;
 
 };
 

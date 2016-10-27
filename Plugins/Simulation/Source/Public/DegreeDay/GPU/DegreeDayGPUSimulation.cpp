@@ -21,7 +21,7 @@ void UDegreeDayGPUSimulation::Initialize(ASnowSimulationActor* SimulationActor, 
 {
 	// Create shader
 	SimulationComputeShader = new FSimulationComputeShader(World->Scene->GetFeatureLevel());
-	SimulationPixelShader = new FSimulationPixelShader(World->Scene->GetFeatureLevel());
+	SimulationPixelShader = new FSnowPixelShader(World->Scene->GetFeatureLevel());
 
 	// Create Cells
 	TResourceArray<FGPUSimulationCell> Cells;

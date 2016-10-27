@@ -1,418 +1,453 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<ItemGroup>
-		<None Include="..\..\SnowSimulation.uproject" />
-		<Filter Include="Source">
-			<UniqueIdentifier>{7313355C-43F9-4C3D-8FD1-81D7E79CE22B}</UniqueIdentifier>
-		</Filter>
-		<None Include="..\..\Source\SnowSimulation.Target.cs">
-			<Filter>Source</Filter>
-		</None >
-		<None Include="..\..\Source\SnowSimulationEditor.Target.cs">
-			<Filter>Source</Filter>
-		</None >
-		<Filter Include="Config">
-			<UniqueIdentifier>{E6AF8950-813B-470A-9EA2-F9AAB991BDCF}</UniqueIdentifier>
-		</Filter>
-		<None Include="..\..\Config\DefaultEditor.ini">
-			<Filter>Config</Filter>
-		</None >
-		<None Include="..\..\Config\DefaultEngine.ini">
-			<Filter>Config</Filter>
-		</None >
-		<None Include="..\..\Config\DefaultGame.ini">
-			<Filter>Config</Filter>
-		</None >
-		<None Include="..\..\Config\DefaultInput.ini">
-			<Filter>Config</Filter>
-		</None >
-		<Filter Include="Plugins">
-			<UniqueIdentifier>{18C63FDD-411C-49DB-91F7-EE6E310AA89F}</UniqueIdentifier>
-		</Filter>
-		<Filter Include="Plugins\ShaderCopyHelper">
-			<UniqueIdentifier>{FB957736-049A-475D-A60D-0AE0E40D1103}</UniqueIdentifier>
-		</Filter>
-		<Filter Include="Plugins\ShaderCopyHelper\Source">
-			<UniqueIdentifier>{DE9076B5-CF1B-4676-BCEC-BD274F7FD365}</UniqueIdentifier>
-		</Filter>
-		<None Include="..\..\Plugins\ShaderCopyHelper\Source\ShaderCopyHelper.Build.cs">
-			<Filter>Plugins\ShaderCopyHelper\Source</Filter>
-		</None >
-		<Filter Include="Plugins\ShaderCopyHelper\Source\Private">
-			<UniqueIdentifier>{B9711F8D-7009-4C16-98D5-C1DBBAA01A3D}</UniqueIdentifier>
-		</Filter>
-		<ClCompile Include="..\..\Plugins\ShaderCopyHelper\Source\Private\ShaderCopyHelperModule.cpp">
-			<Filter>Plugins\ShaderCopyHelper\Source\Private</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Plugins\ShaderCopyHelper\Source\Private\ShaderCopyHelperModule.h">
-			<Filter>Plugins\ShaderCopyHelper\Source\Private</Filter>
-		</ClInclude >
-		<ClInclude Include="..\..\Plugins\ShaderCopyHelper\Source\Private\ShaderCopyHelperPrivatePCH.h">
-			<Filter>Plugins\ShaderCopyHelper\Source\Private</Filter>
-		</ClInclude >
-		<ClCompile Include="..\..\Plugins\ShaderCopyHelper\Source\Private\ShaderFileVisitor.cpp">
-			<Filter>Plugins\ShaderCopyHelper\Source\Private</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Plugins\ShaderCopyHelper\Source\Private\ShaderFileVisitor.h">
-			<Filter>Plugins\ShaderCopyHelper\Source\Private</Filter>
-		</ClInclude >
-		<None Include="..\..\Plugins\ShaderCopyHelper\ShaderCopyHelper.uplugin">
-			<Filter>Plugins\ShaderCopyHelper</Filter>
-		</None >
-		<Filter Include="Plugins\ShaderCopyHelper\Resources">
-			<UniqueIdentifier>{970DBB4F-818A-45F5-92C4-BBF5E74086F5}</UniqueIdentifier>
-		</Filter>
-		<None Include="..\..\Plugins\ShaderCopyHelper\Resources\Icon128.png">
-			<Filter>Plugins\ShaderCopyHelper\Resources</Filter>
-		</None >
-		<Filter Include="Plugins\ShaderUtility">
-			<UniqueIdentifier>{1C7C546B-009E-465A-853F-05605735EB93}</UniqueIdentifier>
-		</Filter>
-		<None Include="..\..\Plugins\ShaderUtility\ShaderUtility.uplugin">
-			<Filter>Plugins\ShaderUtility</Filter>
-		</None >
-		<Filter Include="Plugins\SimplexNoise">
-			<UniqueIdentifier>{11C73ED3-4B5D-4811-9581-31C17C5C74BC}</UniqueIdentifier>
-		</Filter>
-		<None Include="..\..\Plugins\SimplexNoise\SimplexNoise.uplugin">
-			<Filter>Plugins\SimplexNoise</Filter>
-		</None >
-		<Filter Include="Plugins\SimplexNoise\Resources">
-			<UniqueIdentifier>{B213F176-EC81-4877-AAED-41C1C5F60824}</UniqueIdentifier>
-		</Filter>
-		<None Include="..\..\Plugins\SimplexNoise\Resources\Icon128.png">
-			<Filter>Plugins\SimplexNoise\Resources</Filter>
-		</None >
-		<Filter Include="Plugins\Simulation">
-			<UniqueIdentifier>{59916FAC-F7B5-4719-A008-B220FCCE09F8}</UniqueIdentifier>
-		</Filter>
-		<None Include="..\..\Plugins\Simulation\Simulation.uplugin">
-			<Filter>Plugins\Simulation</Filter>
-		</None >
-		<Filter Include="Plugins\SimulationData">
-			<UniqueIdentifier>{97AE0A3C-2C9C-4A06-A479-48C34F51BCE5}</UniqueIdentifier>
-		</Filter>
-		<None Include="..\..\Plugins\SimulationData\SimulationData.uplugin">
-			<Filter>Plugins\SimulationData</Filter>
-		</None >
-		<Filter Include="Plugins\SimulationPixelShader">
-			<UniqueIdentifier>{9912BC43-52E9-458D-8EEC-C59CB788C3FE}</UniqueIdentifier>
-		</Filter>
-		<None Include="..\..\Plugins\SimulationPixelShader\SimulationPixelShader.uplugin">
-			<Filter>Plugins\SimulationPixelShader</Filter>
-		</None >
-		<Filter Include="Plugins\WorldClimData">
-			<UniqueIdentifier>{FC7D4DCB-2851-44BB-95B7-2390B09F439B}</UniqueIdentifier>
-		</Filter>
-		<None Include="..\..\Plugins\WorldClimData\WorldClimData.uplugin">
-			<Filter>Plugins\WorldClimData</Filter>
-		</None >
-		<Filter Include="Plugins\ShaderUtility\Source">
-			<UniqueIdentifier>{3251D8A9-0F71-47B0-861D-C2604DE791C4}</UniqueIdentifier>
-		</Filter>
-		<None Include="..\..\Plugins\ShaderUtility\Source\ShaderUtility.Build.cs">
-			<Filter>Plugins\ShaderUtility\Source</Filter>
-		</None >
-		<Filter Include="Plugins\ShaderUtility\Source\Private">
-			<UniqueIdentifier>{2E2C65BB-4165-4D5B-AC4D-189DBF4D0978}</UniqueIdentifier>
-		</Filter>
-		<ClCompile Include="..\..\Plugins\ShaderUtility\Source\Private\RWStructuredBuffer.cpp">
-			<Filter>Plugins\ShaderUtility\Source\Private</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Plugins\ShaderUtility\Source\Private\ShaderUtilityPrivatePCH.h">
-			<Filter>Plugins\ShaderUtility\Source\Private</Filter>
-		</ClInclude >
-		<Filter Include="Plugins\ShaderUtility\Source\Public">
-			<UniqueIdentifier>{A1C588B2-705B-493B-88BF-3A9901CFCC8A}</UniqueIdentifier>
-		</Filter>
-		<ClInclude Include="..\..\Plugins\ShaderUtility\Source\Public\RWStructuredBuffer.h">
-			<Filter>Plugins\ShaderUtility\Source\Public</Filter>
-		</ClInclude >
-		<Filter Include="Plugins\SimplexNoise\Source">
-			<UniqueIdentifier>{A97B430D-B58B-47E9-8B00-7B931C2006B7}</UniqueIdentifier>
-		</Filter>
-		<Filter Include="Plugins\SimplexNoise\Source\SimplexNoise">
-			<UniqueIdentifier>{3B6FFC8B-21EE-4075-BCD6-60679B79A57D}</UniqueIdentifier>
-		</Filter>
-		<None Include="..\..\Plugins\SimplexNoise\Source\SimplexNoise\SimplexNoise.Build.cs">
-			<Filter>Plugins\SimplexNoise\Source\SimplexNoise</Filter>
-		</None >
-		<Filter Include="Plugins\SimplexNoise\Source\SimplexNoise\Private">
-			<UniqueIdentifier>{1F01A0F2-C708-4894-94BE-64CAB4D7E13C}</UniqueIdentifier>
-		</Filter>
-		<ClCompile Include="..\..\Plugins\SimplexNoise\Source\SimplexNoise\Private\SimplexNoiseBPLibrary.cpp">
-			<Filter>Plugins\SimplexNoise\Source\SimplexNoise\Private</Filter>
-		</ClCompile >
-		<ClCompile Include="..\..\Plugins\SimplexNoise\Source\SimplexNoise\Private\SimplexNoiseModule.cpp">
-			<Filter>Plugins\SimplexNoise\Source\SimplexNoise\Private</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Plugins\SimplexNoise\Source\SimplexNoise\Private\SimplexNoisePrivatePCH.h">
-			<Filter>Plugins\SimplexNoise\Source\SimplexNoise\Private</Filter>
-		</ClInclude >
-		<Filter Include="Plugins\SimplexNoise\Source\SimplexNoise\Public">
-			<UniqueIdentifier>{4B390FC5-4CF4-4BA8-87EE-502747F8A736}</UniqueIdentifier>
-		</Filter>
-		<ClInclude Include="..\..\Plugins\SimplexNoise\Source\SimplexNoise\Public\ISimplexNoise.h">
-			<Filter>Plugins\SimplexNoise\Source\SimplexNoise\Public</Filter>
-		</ClInclude >
-		<ClInclude Include="..\..\Plugins\SimplexNoise\Source\SimplexNoise\Public\SimplexNoiseBPLibrary.h">
-			<Filter>Plugins\SimplexNoise\Source\SimplexNoise\Public</Filter>
-		</ClInclude >
-		<Filter Include="Plugins\Simulation\Source">
-			<UniqueIdentifier>{C74C611B-00F5-41B5-98DF-EA1C79DF4A4D}</UniqueIdentifier>
-		</Filter>
-		<None Include="..\..\Plugins\Simulation\Source\Simulation.Build.cs">
-			<Filter>Plugins\Simulation\Source</Filter>
-		</None >
-		<Filter Include="Plugins\Simulation\Source\Private">
-			<UniqueIdentifier>{86A58E4B-9FD6-4546-8CAB-DF98E7DC2B1F}</UniqueIdentifier>
-		</Filter>
-		<ClCompile Include="..\..\Plugins\Simulation\Source\Private\ComputeShaderDeclaration.cpp">
-			<Filter>Plugins\Simulation\Source\Private</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Plugins\Simulation\Source\Private\ComputeShaderDeclaration.h">
-			<Filter>Plugins\Simulation\Source\Private</Filter>
-		</ClInclude >
-		<ClCompile Include="..\..\Plugins\Simulation\Source\Private\SimulationComputeShader.cpp">
-			<Filter>Plugins\Simulation\Source\Private</Filter>
-		</ClCompile >
-		<Filter Include="Plugins\Simulation\Source\Public">
-			<UniqueIdentifier>{B5C4033C-ED38-4BA1-849F-899272E057C4}</UniqueIdentifier>
-		</Filter>
-		<ClInclude Include="..\..\Plugins\Simulation\Source\Public\Simulation.h">
-			<Filter>Plugins\Simulation\Source\Public</Filter>
-		</ClInclude >
-		<ClInclude Include="..\..\Plugins\Simulation\Source\Public\SimulationBase.h">
-			<Filter>Plugins\Simulation\Source\Public</Filter>
-		</ClInclude >
-		<ClInclude Include="..\..\Plugins\Simulation\Source\Public\SimulationComputeShader.h">
-			<Filter>Plugins\Simulation\Source\Public</Filter>
-		</ClInclude >
-		<ClCompile Include="..\..\Plugins\Simulation\Source\Public\SnowSimulationActor.cpp">
-			<Filter>Plugins\Simulation\Source\Public</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Plugins\Simulation\Source\Public\SnowSimulationActor.h">
-			<Filter>Plugins\Simulation\Source\Public</Filter>
-		</ClInclude >
-		<Filter Include="Plugins\Simulation\Source\Public\Cells">
-			<UniqueIdentifier>{501E28BC-9013-4960-9021-EA7CEDD1C155}</UniqueIdentifier>
-		</Filter>
-		<ClInclude Include="..\..\Plugins\Simulation\Source\Public\Cells\DebugCell.h">
-			<Filter>Plugins\Simulation\Source\Public\Cells</Filter>
-		</ClInclude >
-		<ClInclude Include="..\..\Plugins\Simulation\Source\Public\Cells\GPUSimulationCell.h">
-			<Filter>Plugins\Simulation\Source\Public\Cells</Filter>
-		</ClInclude >
-		<ClInclude Include="..\..\Plugins\Simulation\Source\Public\Cells\LandscapeCell.h">
-			<Filter>Plugins\Simulation\Source\Public\Cells</Filter>
-		</ClInclude >
-		<Filter Include="Plugins\Simulation\Source\Public\DegreeDay">
-			<UniqueIdentifier>{32E79C04-CD22-44C5-BE42-4A59BBD5FA89}</UniqueIdentifier>
-		</Filter>
-		<ClCompile Include="..\..\Plugins\Simulation\Source\Public\DegreeDay\DegreeDaySimulation.cpp">
-			<Filter>Plugins\Simulation\Source\Public\DegreeDay</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Plugins\Simulation\Source\Public\DegreeDay\DegreeDaySimulation.h">
-			<Filter>Plugins\Simulation\Source\Public\DegreeDay</Filter>
-		</ClInclude >
-		<Filter Include="Plugins\Simulation\Source\Public\DegreeDay\CPU">
-			<UniqueIdentifier>{E52DADA0-2A5D-4880-B0D9-408BF2AC81FE}</UniqueIdentifier>
-		</Filter>
-		<ClCompile Include="..\..\Plugins\Simulation\Source\Public\DegreeDay\CPU\DegreeDayCPUSimulation.cpp">
-			<Filter>Plugins\Simulation\Source\Public\DegreeDay\CPU</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Plugins\Simulation\Source\Public\DegreeDay\CPU\DegreeDayCPUSimulation.h">
-			<Filter>Plugins\Simulation\Source\Public\DegreeDay\CPU</Filter>
-		</ClInclude >
-		<Filter Include="Plugins\Simulation\Source\Public\DegreeDay\GPU">
-			<UniqueIdentifier>{0FCFEC11-1E50-4BDB-89C2-966644A8F0F3}</UniqueIdentifier>
-		</Filter>
-		<ClCompile Include="..\..\Plugins\Simulation\Source\Public\DegreeDay\GPU\DegreeDayGPUSimulation.cpp">
-			<Filter>Plugins\Simulation\Source\Public\DegreeDay\GPU</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Plugins\Simulation\Source\Public\DegreeDay\GPU\DegreeDayGPUSimulation.h">
-			<Filter>Plugins\Simulation\Source\Public\DegreeDay\GPU</Filter>
-		</ClInclude >
-		<Filter Include="Plugins\Simulation\Source\Public\Util">
-			<UniqueIdentifier>{8BE625B9-AD80-4597-82DE-FA30A828D048}</UniqueIdentifier>
-		</Filter>
-		<ClInclude Include="..\..\Plugins\Simulation\Source\Public\Util\MathUtil.h">
-			<Filter>Plugins\Simulation\Source\Public\Util</Filter>
-		</ClInclude >
-		<ClInclude Include="..\..\Plugins\Simulation\Source\Public\Util\RuntimeMaterialChange.h">
-			<Filter>Plugins\Simulation\Source\Public\Util</Filter>
-		</ClInclude >
-		<ClInclude Include="..\..\Plugins\Simulation\Source\Public\Util\TextureUtil.h">
-			<Filter>Plugins\Simulation\Source\Public\Util</Filter>
-		</ClInclude >
-		<Filter Include="Plugins\SimulationData\Source">
-			<UniqueIdentifier>{539D2C98-F4A3-4C4E-BA8B-5CA7A4F6D543}</UniqueIdentifier>
-		</Filter>
-		<None Include="..\..\Plugins\SimulationData\Source\SimulationData.Build.cs">
-			<Filter>Plugins\SimulationData\Source</Filter>
-		</None >
-		<Filter Include="Plugins\SimulationData\Source\Private">
-			<UniqueIdentifier>{889A8BBA-872F-4F44-B2D1-A174BF707AC4}</UniqueIdentifier>
-		</Filter>
-		<ClCompile Include="..\..\Plugins\SimulationData\Source\Private\SimulationDataModule.cpp">
-			<Filter>Plugins\SimulationData\Source\Private</Filter>
-		</ClCompile >
-		<Filter Include="Plugins\SimulationData\Source\Public">
-			<UniqueIdentifier>{1E84DB0B-9B32-4355-B0D5-C3B8C3B1403D}</UniqueIdentifier>
-		</Filter>
-		<ClInclude Include="..\..\Plugins\SimulationData\Source\Public\ClimateData.h">
-			<Filter>Plugins\SimulationData\Source\Public</Filter>
-		</ClInclude >
-		<ClInclude Include="..\..\Plugins\SimulationData\Source\Public\SimulationData.h">
-			<Filter>Plugins\SimulationData\Source\Public</Filter>
-		</ClInclude >
-		<ClCompile Include="..\..\Plugins\SimulationData\Source\Public\SimulationWeatherDataProviderBase.cpp">
-			<Filter>Plugins\SimulationData\Source\Public</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Plugins\SimulationData\Source\Public\SimulationWeatherDataProviderBase.h">
-			<Filter>Plugins\SimulationData\Source\Public</Filter>
-		</ClInclude >
-		<Filter Include="Plugins\SimulationData\Source\Public\MeteoSwiss">
-			<UniqueIdentifier>{BF22C67D-FB97-4080-AB54-F68CE4DA59E5}</UniqueIdentifier>
-		</Filter>
-		<ClCompile Include="..\..\Plugins\SimulationData\Source\Public\MeteoSwiss\MeteoSwissWeatherDataProvider.cpp">
-			<Filter>Plugins\SimulationData\Source\Public\MeteoSwiss</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Plugins\SimulationData\Source\Public\MeteoSwiss\MeteoSwissWeatherDataProvider.h">
-			<Filter>Plugins\SimulationData\Source\Public\MeteoSwiss</Filter>
-		</ClInclude >
-		<Filter Include="Plugins\SimulationData\Source\Public\Stochastic">
-			<UniqueIdentifier>{09228C5D-393E-40FD-AFC1-1E8B02C89AAB}</UniqueIdentifier>
-		</Filter>
-		<ClCompile Include="..\..\Plugins\SimulationData\Source\Public\Stochastic\StochasticWeatherDataProvider.cpp">
-			<Filter>Plugins\SimulationData\Source\Public\Stochastic</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Plugins\SimulationData\Source\Public\Stochastic\StochasticWeatherDataProvider.h">
-			<Filter>Plugins\SimulationData\Source\Public\Stochastic</Filter>
-		</ClInclude >
-		<Filter Include="Plugins\SimulationData\Source\Public\WorldClim">
-			<UniqueIdentifier>{BEBCD9BB-0586-472F-8987-06F3E47B9C13}</UniqueIdentifier>
-		</Filter>
-		<ClCompile Include="..\..\Plugins\SimulationData\Source\Public\WorldClim\WorldClimDataAssets.cpp">
-			<Filter>Plugins\SimulationData\Source\Public\WorldClim</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Plugins\SimulationData\Source\Public\WorldClim\WorldClimDataAssets.h">
-			<Filter>Plugins\SimulationData\Source\Public\WorldClim</Filter>
-		</ClInclude >
-		<ClCompile Include="..\..\Plugins\SimulationData\Source\Public\WorldClim\WorldClimWeatherDataProvider.cpp">
-			<Filter>Plugins\SimulationData\Source\Public\WorldClim</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Plugins\SimulationData\Source\Public\WorldClim\WorldClimWeatherDataProvider.h">
-			<Filter>Plugins\SimulationData\Source\Public\WorldClim</Filter>
-		</ClInclude >
-		<Filter Include="Plugins\SimulationPixelShader\Source">
-			<UniqueIdentifier>{8303BEF5-DACA-46DE-9DEB-ED749CFF306F}</UniqueIdentifier>
-		</Filter>
-		<None Include="..\..\Plugins\SimulationPixelShader\Source\SimulationPixelShader.Build.cs">
-			<Filter>Plugins\SimulationPixelShader\Source</Filter>
-		</None >
-		<Filter Include="Plugins\SimulationPixelShader\Source\Private">
-			<UniqueIdentifier>{928175E1-CA8F-4769-8B33-302F2EB9A0B5}</UniqueIdentifier>
-		</Filter>
-		<ClCompile Include="..\..\Plugins\SimulationPixelShader\Source\Private\PixelShaderDeclaration.cpp">
-			<Filter>Plugins\SimulationPixelShader\Source\Private</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Plugins\SimulationPixelShader\Source\Private\PixelShaderDeclaration.h">
-			<Filter>Plugins\SimulationPixelShader\Source\Private</Filter>
-		</ClInclude >
-		<ClInclude Include="..\..\Plugins\SimulationPixelShader\Source\Private\PixelShaderPrivatePCH.h">
-			<Filter>Plugins\SimulationPixelShader\Source\Private</Filter>
-		</ClInclude >
-		<ClCompile Include="..\..\Plugins\SimulationPixelShader\Source\Private\SimulationPixelShader.cpp">
-			<Filter>Plugins\SimulationPixelShader\Source\Private</Filter>
-		</ClCompile >
-		<Filter Include="Plugins\SimulationPixelShader\Source\Public">
-			<UniqueIdentifier>{E8BE895E-1ED9-4816-84D2-41339AD23151}</UniqueIdentifier>
-		</Filter>
-		<ClInclude Include="..\..\Plugins\SimulationPixelShader\Source\Public\SimulationPixelShader.h">
-			<Filter>Plugins\SimulationPixelShader\Source\Public</Filter>
-		</ClInclude >
-		<Filter Include="Plugins\WorldClimData\Source">
-			<UniqueIdentifier>{8ADC5C3F-DFED-4852-B302-E2D1F774B214}</UniqueIdentifier>
-		</Filter>
-		<Filter Include="Plugins\WorldClimData\Source\WorldClimData">
-			<UniqueIdentifier>{3AFB4F3D-1EA3-4C21-8ABB-C652C1120FD8}</UniqueIdentifier>
-		</Filter>
-		<None Include="..\..\Plugins\WorldClimData\Source\WorldClimData\WorldClimData.Build.cs">
-			<Filter>Plugins\WorldClimData\Source\WorldClimData</Filter>
-		</None >
-		<Filter Include="Plugins\WorldClimData\Source\WorldClimData\Classes">
-			<UniqueIdentifier>{6822B3C8-7498-44E2-96C1-762CA890C3D5}</UniqueIdentifier>
-		</Filter>
-		<ClInclude Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Classes\BILDataAssetTypeActions.h">
-			<Filter>Plugins\WorldClimData\Source\WorldClimData\Classes</Filter>
-		</ClInclude >
-		<ClInclude Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Classes\HDRDataAssetTypeActions.h">
-			<Filter>Plugins\WorldClimData\Source\WorldClimData\Classes</Filter>
-		</ClInclude >
-		<Filter Include="Plugins\WorldClimData\Source\WorldClimData\Private">
-			<UniqueIdentifier>{1C38E8C6-0F8B-4B83-A3B7-4697A009C547}</UniqueIdentifier>
-		</Filter>
-		<ClCompile Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Private\BILDataAssetTypeActions.cpp">
-			<Filter>Plugins\WorldClimData\Source\WorldClimData\Private</Filter>
-		</ClCompile >
-		<ClCompile Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Private\BILDataFactory.cpp">
-			<Filter>Plugins\WorldClimData\Source\WorldClimData\Private</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Private\BILDataFactory.h">
-			<Filter>Plugins\WorldClimData\Source\WorldClimData\Private</Filter>
-		</ClInclude >
-		<ClCompile Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Private\HDRDataAssetTypeActions.cpp">
-			<Filter>Plugins\WorldClimData\Source\WorldClimData\Private</Filter>
-		</ClCompile >
-		<ClCompile Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Private\HDRDataFactory.cpp">
-			<Filter>Plugins\WorldClimData\Source\WorldClimData\Private</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Private\HDRDataFactory.h">
-			<Filter>Plugins\WorldClimData\Source\WorldClimData\Private</Filter>
-		</ClInclude >
-		<ClCompile Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Private\WorldClimDataModule.cpp">
-			<Filter>Plugins\WorldClimData\Source\WorldClimData\Private</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Private\WorldClimDataPrivatePCH.h">
-			<Filter>Plugins\WorldClimData\Source\WorldClimData\Private</Filter>
-		</ClInclude >
-		<Filter Include="Plugins\WorldClimData\Source\WorldClimData\Public">
-			<UniqueIdentifier>{BE164A52-9745-4A02-BF79-E67081087947}</UniqueIdentifier>
-		</Filter>
-		<ClInclude Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Public\BILData.h">
-			<Filter>Plugins\WorldClimData\Source\WorldClimData\Public</Filter>
-		</ClInclude >
-		<ClInclude Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Public\HDRData.h">
-			<Filter>Plugins\WorldClimData\Source\WorldClimData\Public</Filter>
-		</ClInclude >
-		<Filter Include="Source\SnowSimulation">
-			<UniqueIdentifier>{017779C4-EAD4-41DF-92CE-9F0349C575AA}</UniqueIdentifier>
-		</Filter>
-		<None Include="..\..\Source\SnowSimulation\SnowSimulation.Build.cs">
-			<Filter>Source\SnowSimulation</Filter>
-		</None >
-		<ClCompile Include="..\..\Source\SnowSimulation\SnowSimulation.cpp">
-			<Filter>Source\SnowSimulation</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Source\SnowSimulation\SnowSimulation.h">
-			<Filter>Source\SnowSimulation</Filter>
-		</ClInclude >
-		<Filter Include="Source\SnowSimulation\Spectator">
-			<UniqueIdentifier>{1B3B67C6-2D10-423A-BC19-782D876D1756}</UniqueIdentifier>
-		</Filter>
-		<ClCompile Include="..\..\Source\SnowSimulation\Spectator\MovementPawn.cpp">
-			<Filter>Source\SnowSimulation\Spectator</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Source\SnowSimulation\Spectator\MovementPawn.h">
-			<Filter>Source\SnowSimulation\Spectator</Filter>
-		</ClInclude >
-		<ClCompile Include="..\..\Source\SnowSimulation\Spectator\PlayerCharacter.cpp">
-			<Filter>Source\SnowSimulation\Spectator</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Source\SnowSimulation\Spectator\PlayerCharacter.h">
-			<Filter>Source\SnowSimulation\Spectator</Filter>
-		</ClInclude >
-	</ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\SnowSimulation.uproject" />
+    <Filter Include="Source">
+      <UniqueIdentifier>{7313355C-43F9-4C3D-8FD1-81D7E79CE22B}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Source\SnowSimulation.Target.cs">
+      <Filter>Source</Filter>
+    </None>
+    <None Include="..\..\Source\SnowSimulationEditor.Target.cs">
+      <Filter>Source</Filter>
+    </None>
+    <Filter Include="Config">
+      <UniqueIdentifier>{E6AF8950-813B-470A-9EA2-F9AAB991BDCF}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Config\DefaultEditor.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultEngine.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultGame.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultInput.ini">
+      <Filter>Config</Filter>
+    </None>
+    <Filter Include="Plugins">
+      <UniqueIdentifier>{18C63FDD-411C-49DB-91F7-EE6E310AA89F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugins\ShaderCopyHelper">
+      <UniqueIdentifier>{FB957736-049A-475D-A60D-0AE0E40D1103}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugins\ShaderCopyHelper\Source">
+      <UniqueIdentifier>{DE9076B5-CF1B-4676-BCEC-BD274F7FD365}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Plugins\ShaderCopyHelper\Source\ShaderCopyHelper.Build.cs">
+      <Filter>Plugins\ShaderCopyHelper\Source</Filter>
+    </None>
+    <Filter Include="Plugins\ShaderCopyHelper\Source\Private">
+      <UniqueIdentifier>{B9711F8D-7009-4C16-98D5-C1DBBAA01A3D}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Plugins\ShaderCopyHelper\Source\Private\ShaderCopyHelperModule.cpp">
+      <Filter>Plugins\ShaderCopyHelper\Source\Private</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Plugins\ShaderCopyHelper\Source\Private\ShaderCopyHelperModule.h">
+      <Filter>Plugins\ShaderCopyHelper\Source\Private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Plugins\ShaderCopyHelper\Source\Private\ShaderCopyHelperPrivatePCH.h">
+      <Filter>Plugins\ShaderCopyHelper\Source\Private</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Plugins\ShaderCopyHelper\Source\Private\ShaderFileVisitor.cpp">
+      <Filter>Plugins\ShaderCopyHelper\Source\Private</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Plugins\ShaderCopyHelper\Source\Private\ShaderFileVisitor.h">
+      <Filter>Plugins\ShaderCopyHelper\Source\Private</Filter>
+    </ClInclude>
+    <None Include="..\..\Plugins\ShaderCopyHelper\ShaderCopyHelper.uplugin">
+      <Filter>Plugins\ShaderCopyHelper</Filter>
+    </None>
+    <Filter Include="Plugins\ShaderCopyHelper\Resources">
+      <UniqueIdentifier>{970DBB4F-818A-45F5-92C4-BBF5E74086F5}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Plugins\ShaderCopyHelper\Resources\Icon128.png">
+      <Filter>Plugins\ShaderCopyHelper\Resources</Filter>
+    </None>
+    <Filter Include="Plugins\ShaderUtility">
+      <UniqueIdentifier>{1C7C546B-009E-465A-853F-05605735EB93}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Plugins\ShaderUtility\ShaderUtility.uplugin">
+      <Filter>Plugins\ShaderUtility</Filter>
+    </None>
+    <Filter Include="Plugins\SimplexNoise">
+      <UniqueIdentifier>{11C73ED3-4B5D-4811-9581-31C17C5C74BC}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Plugins\SimplexNoise\SimplexNoise.uplugin">
+      <Filter>Plugins\SimplexNoise</Filter>
+    </None>
+    <Filter Include="Plugins\SimplexNoise\Resources">
+      <UniqueIdentifier>{B213F176-EC81-4877-AAED-41C1C5F60824}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Plugins\SimplexNoise\Resources\Icon128.png">
+      <Filter>Plugins\SimplexNoise\Resources</Filter>
+    </None>
+    <Filter Include="Plugins\Simulation">
+      <UniqueIdentifier>{59916FAC-F7B5-4719-A008-B220FCCE09F8}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Plugins\Simulation\Simulation.uplugin">
+      <Filter>Plugins\Simulation</Filter>
+    </None>
+    <Filter Include="Plugins\SimulationData">
+      <UniqueIdentifier>{97AE0A3C-2C9C-4A06-A479-48C34F51BCE5}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Plugins\SimulationData\SimulationData.uplugin">
+      <Filter>Plugins\SimulationData</Filter>
+    </None>
+    <Filter Include="Plugins\SimulationPixelShader">
+      <UniqueIdentifier>{9912BC43-52E9-458D-8EEC-C59CB788C3FE}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Plugins\SimulationPixelShader\SimulationPixelShader.uplugin">
+      <Filter>Plugins\SimulationPixelShader</Filter>
+    </None>
+    <Filter Include="Plugins\WorldClimData">
+      <UniqueIdentifier>{FC7D4DCB-2851-44BB-95B7-2390B09F439B}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Plugins\WorldClimData\WorldClimData.uplugin">
+      <Filter>Plugins\WorldClimData</Filter>
+    </None>
+    <Filter Include="Plugins\ShaderUtility\Source">
+      <UniqueIdentifier>{3251D8A9-0F71-47B0-861D-C2604DE791C4}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Plugins\ShaderUtility\Source\ShaderUtility.Build.cs">
+      <Filter>Plugins\ShaderUtility\Source</Filter>
+    </None>
+    <Filter Include="Plugins\ShaderUtility\Source\Private">
+      <UniqueIdentifier>{2E2C65BB-4165-4D5B-AC4D-189DBF4D0978}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Plugins\ShaderUtility\Source\Private\RWStructuredBuffer.cpp">
+      <Filter>Plugins\ShaderUtility\Source\Private</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Plugins\ShaderUtility\Source\Private\ShaderUtilityPrivatePCH.h">
+      <Filter>Plugins\ShaderUtility\Source\Private</Filter>
+    </ClInclude>
+    <Filter Include="Plugins\ShaderUtility\Source\Public">
+      <UniqueIdentifier>{A1C588B2-705B-493B-88BF-3A9901CFCC8A}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Plugins\ShaderUtility\Source\Public\RWStructuredBuffer.h">
+      <Filter>Plugins\ShaderUtility\Source\Public</Filter>
+    </ClInclude>
+    <Filter Include="Plugins\SimplexNoise\Source">
+      <UniqueIdentifier>{A97B430D-B58B-47E9-8B00-7B931C2006B7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugins\SimplexNoise\Source\SimplexNoise">
+      <UniqueIdentifier>{3B6FFC8B-21EE-4075-BCD6-60679B79A57D}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Plugins\SimplexNoise\Source\SimplexNoise\SimplexNoise.Build.cs">
+      <Filter>Plugins\SimplexNoise\Source\SimplexNoise</Filter>
+    </None>
+    <Filter Include="Plugins\SimplexNoise\Source\SimplexNoise\Private">
+      <UniqueIdentifier>{1F01A0F2-C708-4894-94BE-64CAB4D7E13C}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Plugins\SimplexNoise\Source\SimplexNoise\Private\SimplexNoiseBPLibrary.cpp">
+      <Filter>Plugins\SimplexNoise\Source\SimplexNoise\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Plugins\SimplexNoise\Source\SimplexNoise\Private\SimplexNoiseModule.cpp">
+      <Filter>Plugins\SimplexNoise\Source\SimplexNoise\Private</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Plugins\SimplexNoise\Source\SimplexNoise\Private\SimplexNoisePrivatePCH.h">
+      <Filter>Plugins\SimplexNoise\Source\SimplexNoise\Private</Filter>
+    </ClInclude>
+    <Filter Include="Plugins\SimplexNoise\Source\SimplexNoise\Public">
+      <UniqueIdentifier>{4B390FC5-4CF4-4BA8-87EE-502747F8A736}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Plugins\SimplexNoise\Source\SimplexNoise\Public\ISimplexNoise.h">
+      <Filter>Plugins\SimplexNoise\Source\SimplexNoise\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Plugins\SimplexNoise\Source\SimplexNoise\Public\SimplexNoiseBPLibrary.h">
+      <Filter>Plugins\SimplexNoise\Source\SimplexNoise\Public</Filter>
+    </ClInclude>
+    <Filter Include="Plugins\Simulation\Source">
+      <UniqueIdentifier>{C74C611B-00F5-41B5-98DF-EA1C79DF4A4D}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Plugins\Simulation\Source\Simulation.Build.cs">
+      <Filter>Plugins\Simulation\Source</Filter>
+    </None>
+    <Filter Include="Plugins\Simulation\Source\Private">
+      <UniqueIdentifier>{86A58E4B-9FD6-4546-8CAB-DF98E7DC2B1F}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Plugins\Simulation\Source\Private\ComputeShaderDeclaration.cpp">
+      <Filter>Plugins\Simulation\Source\Private</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Plugins\Simulation\Source\Private\ComputeShaderDeclaration.h">
+      <Filter>Plugins\Simulation\Source\Private</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Plugins\Simulation\Source\Private\SimulationComputeShader.cpp">
+      <Filter>Plugins\Simulation\Source\Private</Filter>
+    </ClCompile>
+    <Filter Include="Plugins\Simulation\Source\Public">
+      <UniqueIdentifier>{B5C4033C-ED38-4BA1-849F-899272E057C4}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Plugins\Simulation\Source\Public\Simulation.h">
+      <Filter>Plugins\Simulation\Source\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Plugins\Simulation\Source\Public\SimulationBase.h">
+      <Filter>Plugins\Simulation\Source\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Plugins\Simulation\Source\Public\SimulationComputeShader.h">
+      <Filter>Plugins\Simulation\Source\Public</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Plugins\Simulation\Source\Public\SnowSimulationActor.cpp">
+      <Filter>Plugins\Simulation\Source\Public</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Plugins\Simulation\Source\Public\SnowSimulationActor.h">
+      <Filter>Plugins\Simulation\Source\Public</Filter>
+    </ClInclude>
+    <Filter Include="Plugins\Simulation\Source\Public\Cells">
+      <UniqueIdentifier>{501E28BC-9013-4960-9021-EA7CEDD1C155}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Plugins\Simulation\Source\Public\Cells\DebugCell.h">
+      <Filter>Plugins\Simulation\Source\Public\Cells</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Plugins\Simulation\Source\Public\Cells\GPUSimulationCell.h">
+      <Filter>Plugins\Simulation\Source\Public\Cells</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Plugins\Simulation\Source\Public\Cells\LandscapeCell.h">
+      <Filter>Plugins\Simulation\Source\Public\Cells</Filter>
+    </ClInclude>
+    <Filter Include="Plugins\Simulation\Source\Public\DegreeDay">
+      <UniqueIdentifier>{32E79C04-CD22-44C5-BE42-4A59BBD5FA89}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Plugins\Simulation\Source\Public\DegreeDay\DegreeDaySimulation.cpp">
+      <Filter>Plugins\Simulation\Source\Public\DegreeDay</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Plugins\Simulation\Source\Public\DegreeDay\DegreeDaySimulation.h">
+      <Filter>Plugins\Simulation\Source\Public\DegreeDay</Filter>
+    </ClInclude>
+    <Filter Include="Plugins\Simulation\Source\Public\DegreeDay\CPU">
+      <UniqueIdentifier>{E52DADA0-2A5D-4880-B0D9-408BF2AC81FE}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Plugins\Simulation\Source\Public\DegreeDay\CPU\DegreeDayCPUSimulation.cpp">
+      <Filter>Plugins\Simulation\Source\Public\DegreeDay\CPU</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Plugins\Simulation\Source\Public\DegreeDay\CPU\DegreeDayCPUSimulation.h">
+      <Filter>Plugins\Simulation\Source\Public\DegreeDay\CPU</Filter>
+    </ClInclude>
+    <Filter Include="Plugins\Simulation\Source\Public\DegreeDay\GPU">
+      <UniqueIdentifier>{0FCFEC11-1E50-4BDB-89C2-966644A8F0F3}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Plugins\Simulation\Source\Public\DegreeDay\GPU\DegreeDayGPUSimulation.cpp">
+      <Filter>Plugins\Simulation\Source\Public\DegreeDay\GPU</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Plugins\Simulation\Source\Public\DegreeDay\GPU\DegreeDayGPUSimulation.h">
+      <Filter>Plugins\Simulation\Source\Public\DegreeDay\GPU</Filter>
+    </ClInclude>
+    <Filter Include="Plugins\Simulation\Source\Public\Util">
+      <UniqueIdentifier>{8BE625B9-AD80-4597-82DE-FA30A828D048}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Plugins\Simulation\Source\Public\Util\MathUtil.h">
+      <Filter>Plugins\Simulation\Source\Public\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Plugins\Simulation\Source\Public\Util\RuntimeMaterialChange.h">
+      <Filter>Plugins\Simulation\Source\Public\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Plugins\Simulation\Source\Public\Util\TextureUtil.h">
+      <Filter>Plugins\Simulation\Source\Public\Util</Filter>
+    </ClInclude>
+    <Filter Include="Plugins\SimulationData\Source">
+      <UniqueIdentifier>{539D2C98-F4A3-4C4E-BA8B-5CA7A4F6D543}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Plugins\SimulationData\Source\SimulationData.Build.cs">
+      <Filter>Plugins\SimulationData\Source</Filter>
+    </None>
+    <Filter Include="Plugins\SimulationData\Source\Private">
+      <UniqueIdentifier>{889A8BBA-872F-4F44-B2D1-A174BF707AC4}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Plugins\SimulationData\Source\Private\SimulationDataModule.cpp">
+      <Filter>Plugins\SimulationData\Source\Private</Filter>
+    </ClCompile>
+    <Filter Include="Plugins\SimulationData\Source\Public">
+      <UniqueIdentifier>{1E84DB0B-9B32-4355-B0D5-C3B8C3B1403D}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Plugins\SimulationData\Source\Public\ClimateData.h">
+      <Filter>Plugins\SimulationData\Source\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Plugins\SimulationData\Source\Public\SimulationData.h">
+      <Filter>Plugins\SimulationData\Source\Public</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Plugins\SimulationData\Source\Public\SimulationWeatherDataProviderBase.cpp">
+      <Filter>Plugins\SimulationData\Source\Public</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Plugins\SimulationData\Source\Public\SimulationWeatherDataProviderBase.h">
+      <Filter>Plugins\SimulationData\Source\Public</Filter>
+    </ClInclude>
+    <Filter Include="Plugins\SimulationData\Source\Public\MeteoSwiss">
+      <UniqueIdentifier>{BF22C67D-FB97-4080-AB54-F68CE4DA59E5}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Plugins\SimulationData\Source\Public\MeteoSwiss\MeteoSwissWeatherDataProvider.cpp">
+      <Filter>Plugins\SimulationData\Source\Public\MeteoSwiss</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Plugins\SimulationData\Source\Public\MeteoSwiss\MeteoSwissWeatherDataProvider.h">
+      <Filter>Plugins\SimulationData\Source\Public\MeteoSwiss</Filter>
+    </ClInclude>
+    <Filter Include="Plugins\SimulationData\Source\Public\Stochastic">
+      <UniqueIdentifier>{09228C5D-393E-40FD-AFC1-1E8B02C89AAB}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Plugins\SimulationData\Source\Public\Stochastic\StochasticWeatherDataProvider.cpp">
+      <Filter>Plugins\SimulationData\Source\Public\Stochastic</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Plugins\SimulationData\Source\Public\Stochastic\StochasticWeatherDataProvider.h">
+      <Filter>Plugins\SimulationData\Source\Public\Stochastic</Filter>
+    </ClInclude>
+    <Filter Include="Plugins\SimulationData\Source\Public\WorldClim">
+      <UniqueIdentifier>{BEBCD9BB-0586-472F-8987-06F3E47B9C13}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Plugins\SimulationData\Source\Public\WorldClim\WorldClimDataAssets.cpp">
+      <Filter>Plugins\SimulationData\Source\Public\WorldClim</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Plugins\SimulationData\Source\Public\WorldClim\WorldClimDataAssets.h">
+      <Filter>Plugins\SimulationData\Source\Public\WorldClim</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Plugins\SimulationData\Source\Public\WorldClim\WorldClimWeatherDataProvider.cpp">
+      <Filter>Plugins\SimulationData\Source\Public\WorldClim</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Plugins\SimulationData\Source\Public\WorldClim\WorldClimWeatherDataProvider.h">
+      <Filter>Plugins\SimulationData\Source\Public\WorldClim</Filter>
+    </ClInclude>
+    <Filter Include="Plugins\SimulationPixelShader\Source">
+      <UniqueIdentifier>{8303BEF5-DACA-46DE-9DEB-ED749CFF306F}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Plugins\SimulationPixelShader\Source\SimulationPixelShader.Build.cs">
+      <Filter>Plugins\SimulationPixelShader\Source</Filter>
+    </None>
+    <Filter Include="Plugins\SimulationPixelShader\Source\Private">
+      <UniqueIdentifier>{928175E1-CA8F-4769-8B33-302F2EB9A0B5}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Plugins\SimulationPixelShader\Source\Private\PixelShaderPrivatePCH.h">
+      <Filter>Plugins\SimulationPixelShader\Source\Private</Filter>
+    </ClInclude>
+    <Filter Include="Plugins\SimulationPixelShader\Source\Public">
+      <UniqueIdentifier>{E8BE895E-1ED9-4816-84D2-41339AD23151}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugins\WorldClimData\Source">
+      <UniqueIdentifier>{8ADC5C3F-DFED-4852-B302-E2D1F774B214}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugins\WorldClimData\Source\WorldClimData">
+      <UniqueIdentifier>{3AFB4F3D-1EA3-4C21-8ABB-C652C1120FD8}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Plugins\WorldClimData\Source\WorldClimData\WorldClimData.Build.cs">
+      <Filter>Plugins\WorldClimData\Source\WorldClimData</Filter>
+    </None>
+    <Filter Include="Plugins\WorldClimData\Source\WorldClimData\Classes">
+      <UniqueIdentifier>{6822B3C8-7498-44E2-96C1-762CA890C3D5}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Classes\BILDataAssetTypeActions.h">
+      <Filter>Plugins\WorldClimData\Source\WorldClimData\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Classes\HDRDataAssetTypeActions.h">
+      <Filter>Plugins\WorldClimData\Source\WorldClimData\Classes</Filter>
+    </ClInclude>
+    <Filter Include="Plugins\WorldClimData\Source\WorldClimData\Private">
+      <UniqueIdentifier>{1C38E8C6-0F8B-4B83-A3B7-4697A009C547}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Private\BILDataAssetTypeActions.cpp">
+      <Filter>Plugins\WorldClimData\Source\WorldClimData\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Private\BILDataFactory.cpp">
+      <Filter>Plugins\WorldClimData\Source\WorldClimData\Private</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Private\BILDataFactory.h">
+      <Filter>Plugins\WorldClimData\Source\WorldClimData\Private</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Private\HDRDataAssetTypeActions.cpp">
+      <Filter>Plugins\WorldClimData\Source\WorldClimData\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Private\HDRDataFactory.cpp">
+      <Filter>Plugins\WorldClimData\Source\WorldClimData\Private</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Private\HDRDataFactory.h">
+      <Filter>Plugins\WorldClimData\Source\WorldClimData\Private</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Private\WorldClimDataModule.cpp">
+      <Filter>Plugins\WorldClimData\Source\WorldClimData\Private</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Private\WorldClimDataPrivatePCH.h">
+      <Filter>Plugins\WorldClimData\Source\WorldClimData\Private</Filter>
+    </ClInclude>
+    <Filter Include="Plugins\WorldClimData\Source\WorldClimData\Public">
+      <UniqueIdentifier>{BE164A52-9745-4A02-BF79-E67081087947}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Public\BILData.h">
+      <Filter>Plugins\WorldClimData\Source\WorldClimData\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Plugins\WorldClimData\Source\WorldClimData\Public\HDRData.h">
+      <Filter>Plugins\WorldClimData\Source\WorldClimData\Public</Filter>
+    </ClInclude>
+    <Filter Include="Source\SnowSimulation">
+      <UniqueIdentifier>{017779C4-EAD4-41DF-92CE-9F0349C575AA}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Source\SnowSimulation\SnowSimulation.Build.cs">
+      <Filter>Source\SnowSimulation</Filter>
+    </None>
+    <ClCompile Include="..\..\Source\SnowSimulation\SnowSimulation.cpp">
+      <Filter>Source\SnowSimulation</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\SnowSimulation\SnowSimulation.h">
+      <Filter>Source\SnowSimulation</Filter>
+    </ClInclude>
+    <Filter Include="Source\SnowSimulation\Spectator">
+      <UniqueIdentifier>{1B3B67C6-2D10-423A-BC19-782D876D1756}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\SnowSimulation\Spectator\MovementPawn.cpp">
+      <Filter>Source\SnowSimulation\Spectator</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\SnowSimulation\Spectator\MovementPawn.h">
+      <Filter>Source\SnowSimulation\Spectator</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\SnowSimulation\Spectator\PlayerCharacter.cpp">
+      <Filter>Source\SnowSimulation\Spectator</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\SnowSimulation\Spectator\PlayerCharacter.h">
+      <Filter>Source\SnowSimulation\Spectator</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\Plugins\SimulationPixelShader\Source\Private\Albedo\AlbedoPixelShaderDeclaration.cpp">
+      <Filter>Plugins\SimulationPixelShader\Source\Private\Albedo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Plugins\SimulationPixelShader\Source\Private\Albedo\AlbedoPixelShader.cpp">
+      <Filter>Plugins\SimulationPixelShader\Source\Private\Albedo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Plugins\SimulationPixelShader\Source\Private\Snow\SnowPixelShader.cpp">
+      <Filter>Plugins\SimulationPixelShader\Source\Private\Snow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Plugins\SimulationPixelShader\Source\Private\Snow\SnowPixelShaderDeclaration.cpp">
+      <Filter>Plugins\SimulationPixelShader\Source\Private\Snow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Plugins\Simulation\Source\Public\HUD\SimulationHUD.cpp">
+      <Filter>Plugins\Simulation\Source\Public\HUD</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Plugins\SimulationPixelShader\Source\Public\SnowPixelShader.h">
+      <Filter>Plugins\SimulationPixelShader\Source\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Plugins\SimulationPixelShader\Source\Public\AlbedoPixelShader.h">
+      <Filter>Plugins\SimulationPixelShader\Source\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Plugins\Simulation\Source\Public\HUD\SimulationHUD.h">
+      <Filter>Plugins\Simulation\Source\Public\HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Plugins\SimulationPixelShader\Source\Private\Albedo\AlbedoPixelShaderDeclaration.h">
+      <Filter>Plugins\SimulationPixelShader\Source\Private\Albedo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Plugins\SimulationPixelShader\Source\Private\Snow\SnowPixelShaderDeclaration.h">
+      <Filter>Plugins\SimulationPixelShader\Source\Private\Snow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Plugins\SimulationPixelShader\Source\Private\VertexShader.h">
+      <Filter>Plugins\SimulationPixelShader\Source\Private</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Plugins\Simulation\Source\Public\HUD">
+      <UniqueIdentifier>{61da16fb-a29c-4e73-8dea-3691fb448e04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugins\SimulationPixelShader\Source\Private\Snow">
+      <UniqueIdentifier>{bdeb6b50-059d-4073-b5aa-03f113c7a662}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugins\SimulationPixelShader\Source\Private\Albedo">
+      <UniqueIdentifier>{c80cded6-ed62-4a05-b583-7c8f6537a952}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
 </Project>
