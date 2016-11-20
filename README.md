@@ -46,10 +46,6 @@ Some results of the simulation. For these screenshots a 2 meter resolution digit
 
 ![snow comparison](http://i.imgur.com/fou2hOm.jpg)
 
-![mountain without snow](http://i.imgur.com/C9BNX9N.jpg)
-
-![mountain with snow](http://i.imgur.com/Muv39YE.jpg)
-
 ![mountain without snow 2](http://i.imgur.com/cHsONvN.jpg)
 
 ![mountain with snow 2](http://i.imgur.com/PVhWQIK.jpg)
